@@ -1,0 +1,44 @@
+course: Sample Course Title
+chapters:
+  - chapter1-title:
+    notes: |
+      Markdown notes for the chapter slide can be placed here. The | character will tell YAML to retain the blocks formating style as well.
+
+      That way the empty line above stays an empty line when we import it into the powerpoint slide deck.
+
+      This section could also be a link to a file if that makes organization nice.
+
+      When this section is parsed it will be checked to ensrure it only contains ASCII characters!
+    subchapters: 1
+      - subchapter1-title:
+        slides:
+          - slide1-title:
+            type: title|bullet|blank
+            visable: (Not a required field but optional) -- true or false
+            notes: |
+              Markdown notes for this slide. Again run through the same parser to ensrue it complies with the standards expected.
+          - slide2-title:
+          - slide3-title:
+        questions:
+          - Question1 full text of the question should be placed here:
+            incorect:
+              - Incorrect1 full text of the incorrect answer should be placed here:
+                explanation: Reason why the answer is incorrect should be placed here
+              - Incorrect2 full text of the incorrect answer should be placed here:
+                explanation: Reason why the answer is incorrect should be placed here
+              - Incorrect3 full text of the incorrect answer should be placed here:
+                explanation: Reason why the answer is incorrect should be placed here
+            correct: "full text of the correct answer should be placed here"
+            value: Integer point value of the question should be placed here
+      - subchapter2-title:
+      - subchapter3-title:
+    vocab:
+      - word1: definition1
+      - word2: definition2
+    day: 1
+  - chapter2-title:
+  - chapter3-title:
+labs:
+  - lab1-title:
+    day: 1 # << Indicates what day this lab is meant to be preformed on
+    type: home # << Indicates what type of lab it is; either class or home, defaults to class if not specified.
