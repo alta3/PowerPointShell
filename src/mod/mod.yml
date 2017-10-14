@@ -22,8 +22,6 @@ chapters:
 
       That way the empty line above stays an empty line when we import it into the powerpoint slide deck.
 
-      This section could also be a link to a file if that makes organization nice.
-
       When this section is parsed it will be checked to ensrure it only contains ASCII characters!
     subchapters:
       - subchapter1-title:
