@@ -32,7 +32,7 @@ function Insert-Slide {
         [Parameter(Position=0,Mandatory=$true)]
 	[object]$ppt
 	[Parameter(Position=1,Mandatory=$true)]
-	[ValidateSet("title","split","blank")]
+	[ValidateSet("intro","toc","chapter","title","split","blank","question")]
 	[string]$type
 	[Parameter(Position=2,Mandatory=$true)]
 	[int]$index
@@ -53,8 +53,10 @@ function Save-Presentation {
     param(
         [Parameter(Position=0,Mandatory=$true)]
 	[object] $ppt
+	[Parameter(Position=1,Mandatory=$true)]
+	[string] $name
     )
-    $ppt.SaveAs("../wrk/working.pptm")
+    $ppt.SaveAs("../wrk/$name.pptm")
 }
 
 # Slide Commands

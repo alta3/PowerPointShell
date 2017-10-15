@@ -1,6 +1,6 @@
 $ModulesDirectory = [Environment]::GetEnvironmentVariable("PSModulePath")
-$ModulePathOne = $PSScriptRoot "../lib/yaml/powershell-yaml.psm1"
-$ModulePathTwo = $PSScriptRoot "../lib/yaml/powershell-yaml.psd1"
+$ModulePathOne = "$PSScriptRoot../lib/yaml/powershell-yaml.psm1"
+$ModulePathTwo = "$PSScriptRoot../lib/yaml/powershell-yaml.psd1"
 Import-Module -name $ModulePathOne
 Import-Module -name $ModulePathTwo
 
@@ -10,9 +10,19 @@ param(
 )
 
 $yamlfile = Get-Content $filepath
-$yamlobj = ConvertFrom-Yaml $yamlfile
+$yamldict = ConvertFrom-Yaml $yamlfile
 
-# Create a PowerPoint presentation and keep it invisible until automation is complete
-$powerpoint = Add-PowerPoint
-$ppt = Add-Presentation $powerpoint 0
+# Start PowerPoint and open it invisably as a template presentation
+$powerpoint = Start-PowerPoint
+$ppt = Open-Presentation $powerpoint "$PSScriptRoot../mod/mod.pptm" 0
 
+Insert-IntroSlide $ppt $yamldict.'course'
+Insert-TOCSlide $ppt $yamldict.'chapters' $yamldict.'labs'
+
+$yamldict.'chapters' | foreach-object {
+    Insert-ChapterSlide $ppt $_.name
+    $	
+}
+
+# Save the PowerPoint presentation as the course title to the wrk directory
+Save-Presentation $ppt $yamldict.'course'
