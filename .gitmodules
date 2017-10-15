@@ -1,3 +1,0 @@
-[submodule "src/lib/ps-yaml"]
-	path = src/lib/ps-yaml
-	url = https://github.com/cloudbase/powershell-yaml.git
