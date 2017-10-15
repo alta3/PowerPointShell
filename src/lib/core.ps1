@@ -33,7 +33,7 @@ function Insert-Slide {
 	[object]$ppt
 	[Parameter(Position=1,Mandatory=$true)]
 	[ValidateSet("title","split","blank")]
-	[object]$type
+	[string]$type
 	[Parameter(Position=2,Mandatory=$true)]
 	[int]$index
     )
@@ -47,7 +47,15 @@ function Insert-Slide {
         write-host "Something went very wrong!"
     }
 }
-function Save-Presentation {}
+
+function Save-Presentation {
+    [CmdletBinding()]
+    param(
+        [Parameter(Position=0,Mandatory=$true)]
+	[object] $ppt
+    )
+    $ppt.SaveAs("../wrk/working.pptm")
+}
 
 # Slide Commands
 function Add-Note {}
