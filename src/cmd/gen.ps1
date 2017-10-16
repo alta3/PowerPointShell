@@ -1,28 +1,30 @@
-$ModulesDirectory = [Environment]::GetEnvironmentVariable("PSModulePath")
-$ModulePathOne = "$PSScriptRoot../lib/yaml/powershell-yaml.psm1"
-$ModulePathTwo = "$PSScriptRoot../lib/yaml/powershell-yaml.psd1"
-Import-Module -name $ModulePathOne
-Import-Module -name $ModulePathTwo
-
 [CmdletBinding()]
 param(
     [string]$filepath
 )
 
-$yamlfile = Get-Content $filepath
-$yamldict = ConvertFrom-Yaml $yamlfile
+$yamlfile = Get-Content $filepath | Out-String
+$yamldict = ConvertFrom-Yaml -yaml $yamlfile
 
-# Start PowerPoint and open it invisably as a template presentation
+# Start PowerPoint and open it invisibly as a template presentation
 $powerpoint = Start-PowerPoint
-$ppt = Open-Presentation $powerpoint "$PSScriptRoot../mod/mod.pptm" 0
+$ppt = Open-Presentation $powerpoint "$PSScriptRoot\..\mod\mod.pptm" 0
 
-Insert-IntroSlide $ppt $yamldict.'course'
-Insert-TOCSlide $ppt $yamldict.'chapters' $yamldict.'labs'
+# Add the first two slides to the PowerPoint
+Add-IntroSlide $ppt $yamldict.course
+Add-TOCSlide $ppt $yamldict.chapters $yamldict.labs
 
-$yamldict.'chapters' | foreach-object {
-    Insert-ChapterSlide $ppt $_.name
-    $	
+$yamldict.chapters | foreach-object {
+    $chapter = $_
+    Add-ChapterSlide $ppt $chapter.title
+    $chapter.subchapters | foreach-object {
+        $subchapter = $_
+        $subchapter.slides | ForEach-Object {
+            $slide = $_
+            Add-GenericSlide $ppt $chapter.title $subchapter.title $slide.title $slide.type
+        }
+    }
 }
 
 # Save the PowerPoint presentation as the course title to the wrk directory
-Save-Presentation $ppt $yamldict.'course'
+Save-Presentation $ppt $yamldict.course

@@ -1,4 +1,5 @@
 # Main Entry Point For PowerPointShell
+Start-Process powershell -Verb runAs
 param(
     $cmd,
     [switch]$help

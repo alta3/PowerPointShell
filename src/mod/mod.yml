@@ -7,7 +7,7 @@
 ###################################################################################################
 course: Sample Course Title
 chapters:
-  - chapter1-title:
+  - title: Chapter One Title
     ###############################################################################################
     # Chapter Key Words
     # Key Word: Description                                                            << Required?
@@ -24,7 +24,7 @@ chapters:
 
       When this section is parsed it will be checked to ensrure it only contains ASCII characters!
     subchapters:
-      - subchapter1-title:
+      - title:
         ###########################################################################################
         # Subchapter Key Words
         # Key Word: Description                                                        << Required?
@@ -33,7 +33,7 @@ chapters:
         # questions: A list of all questions within this subchapter feeds quiz.txt  << Not Required
         ###########################################################################################
         slides:
-          - slide1-title:
+          - title:
             #######################################################################################
             # Slide Key Words
             # Key Word: Description                                                    << Required?
@@ -46,10 +46,10 @@ chapters:
             visable: (Not a required field but optional) -- true or false
             notes: |
               Markdown notes for this slide. Again run through the same parser to ensrue it complies with the standards expected.
-          - slide2-title:
-          - slide3-title:
+          - title:
+          - title:
         questions:
-          - Question1 full text of the question should be placed here:
+          - question: Full text of the question goes here
             #######################################################################################
             # Question Key Words
             # Key Word: Definition                                                     << Required?
@@ -59,7 +59,7 @@ chapters:
             # value: An integer point value of the question                             << Required
             #######################################################################################
             incorect:
-              - Incorrect1 full text of the incorrect answer should be placed here:
+              - text: Full text of the incorrect answer goes here
                 ###################################################################################
                 # Incorrect Key Words
                 # Key Word: Description                                                << Required?
@@ -67,22 +67,22 @@ chapters:
                 # explanation: Reason why the answer is incorrect                       << Required
                 ###################################################################################
                 explanation: Reason why the answer is incorrect should be placed here
-              - Incorrect2 full text of the incorrect answer should be placed here:
+              - text: Full text of the incorrect answer goes here
                 explanation: Reason why the answer is incorrect should be placed here
-              - Incorrect3 full text of the incorrect answer should be placed here:
+              - text: Full text of the incorrect answer goes here
                 explanation: Reason why the answer is incorrect should be placed here
             correct: "full text of the correct answer should be placed here"
             value: Integer point value of the question should be placed here
-      - subchapter2-title:
-      - subchapter3-title:
+      - title:
+      - title:
     vocab:
-      - word1: definition1
+      - word1: Definition
       - word2: definition2
     day: 1
-  - chapter2-title:
-  - chapter3-title:
+  - title: Chapter Two Title
+  - title: Chapter Three Title
 labs:
-  - lab1-title:
+  - title: Lab One Title
     ###############################################################################################
     # Lab Key Words
     # Key Word: Description                                                            << Required?
