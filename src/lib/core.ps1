@@ -17,10 +17,10 @@ function Open-Presentation {
     param(
         [Parameter(Position=0,Mandatory=$true)]
         [object] $powerpoint
-	[Parameter(Position=1,Mandatory=$true)]
-	[string] $path
-	[Parameter(Position=2,Mandatory=$true)]
-	[int] $visable
+	    [Parameter(Position=1,Mandatory=$true)]
+	    [string] $path
+	    [Parameter(Position=2,Mandatory=$true)]
+	    [int] $visable
     ) 
     $ppt = $powerpoint.open($path,,,$visable)
     $ppt
