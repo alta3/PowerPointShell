@@ -39,6 +39,3 @@ function pps-add {
 function pps-sync {}
 
 function pps-update {}
-
-pps-add -message "hello world"
-pps
