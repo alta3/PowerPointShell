@@ -27,10 +27,10 @@ function Open-Presentation {
     param(
         [Parameter(Position=0,Mandatory=$true)]
         [object] $powerpoint,
-	    [Parameter(Position=1,Mandatory=$true)]
-	    [string] $path,
-	    [Parameter(Position=2,Mandatory=$true)]
-	    [bool] $visable
+	[Parameter(Position=1,Mandatory=$true)]
+	[string] $path,
+	[Parameter(Position=2,Mandatory=$true)]
+	[bool] $visable
     )
     if ($visable) {$vis = 1} else {$vis = 0} 
     $ppt = $powerpoint.open($path,,,$vis)
@@ -53,7 +53,7 @@ function Get-SlideTemplates {
     $BlankSlide = $ptt.slides.item(6)
     $QuestionSlide = $ppt.slides.item(7)
 
-    $SlideLayouts = @{ 
+    $SlideTemplates = @{ 
          "course" = $CourseTitleLayout; 
          "chapter" = $ChapterLayout;
          "title" = $TitleLayout;
@@ -64,25 +64,25 @@ function Get-SlideTemplates {
 
     Close-Presentation -ppt $ppt
 
-    $SlideLayouts
+    $SlideTemplates
 }
 
 function Add-Slide {
     [CmdletBinding()]
     param(
-    [Parameter(Position=0,Mandatory=$true)]
-	[object]$ppt,
-    [Parameter(Position=1,Mandatory=$true)]
-	[ValidateSet("intro","toc","chapter","title","split","blank","question")]
-	[string]$type,
-	[Parameter(Position=2,Mandatory=$true)]
-    [object] $layout,
-    [Parameter(Position=3,Mandatory=$true)]
-    [string] $title,
-    [Parameter(Mandatory=$false)]
-    [string] $chapter,
-    [Parameter(Mandatory=$false)]
-    [string] $subchapter
+        [Parameter(Position=0,Mandatory=$true)]
+        [object]$wrk_ppt,
+	[Parameter(Position=1,Mandatory=$true)]
+	[int]$index,
+        [Parameter(Position=2,Mandatory=$true)]
+        [ValidateSet("intro","toc","chapter","title","split","blank","question")]
+        [string]$type,
+        [Parameter(Position=3,Mandatory=$true)]
+        [string] $title,
+        [Parameter(Mandatory=$false)]
+        [string] $chapter,
+        [Parameter(Mandatory=$false)]
+        [string] $subchapter
     )
 
     if ($type -eq "Intro") {
@@ -104,7 +104,7 @@ function Add-Slide {
     }
 }
 
-function Save-Presentation {
+function SaveAs-Presentation {
     [CmdletBinding()]
     param(
     [Parameter(Position=0,Mandatory=$true)]
@@ -115,6 +115,24 @@ function Save-Presentation {
     $ppt.SaveAs("$HOME/Documents/Alta3 PowerPointShell/wrk/$name.pptm")
 }
 
+function Save-Presentation {
+    [CmdletBinding()]
+    param(
+        [Paramaeter(Position=0,Mandatory=$true)]
+	[object] $ppt
+    )
+    $ppt.save	
+}
+
 # Slide Commands
-function Add-Note {}
+function Add-Note {
+    [CmdletBinding()]
+    param(
+        [Parameter(Position=0,Mandatory=$true)]
+	[object]$ppt,
+	[Parameter(Position=1,Mandatory=$true)]
+	[object]
+    )	
+	
+}
 
