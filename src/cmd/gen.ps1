@@ -6,12 +6,18 @@ param(
 $yamlfile = Get-Content $filepath | Out-String
 $yamldict = ConvertFrom-Yaml -yaml $yamlfile
 
-# Start PowerPoint and open it invisibly as a template presentation
+# Start PowerPoint
 $powerpoint = Start-PowerPoint
+
+# Open Model PowerPoint
+$mod_ppt = Open-Presentation $powerpoint "$PSScriptRoot\..\mod\mod.pttm" 0
+
+# Open Working PowerPoint
 $ppt = Open-Presentation $powerpoint "$PSScriptRoot\..\mod\mod.pptm" 0
+SaveAs-Presentation -ppt $ppt -name $yamldict.course
 
 # Add the first two slides to the PowerPoint
-Add-IntroSlide $ppt $yamldict.course
+Add-Slide $ppt $yamldict.course
 Add-TOCSlide $ppt $yamldict.chapters $yamldict.labs
 
 $yamldict.chapters | foreach-object {
@@ -27,4 +33,4 @@ $yamldict.chapters | foreach-object {
 }
 
 # Save the PowerPoint presentation as the course title to the wrk directory
-Save-Presentation $ppt $yamldict.course
+Save-Presentation -ppt $ppt
