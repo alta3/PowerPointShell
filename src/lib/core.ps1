@@ -1,5 +1,6 @@
 # Load Neccessary Assemblies
-
+Add-Type -AssemblyName office
+Add-type -AssemblyName microsoft.office.interop.powerpoint
 
 # PowerPoint Commands
 function Close-PowerPoint {
@@ -18,7 +19,6 @@ function Close-Presentation {
         [Parameter(Position=0,Mandatory=$true)]
         [object] $ppt
     )
-    $ppt.save()
     $ppt.close()
 }
 
@@ -61,7 +61,7 @@ function Get-SlideTemplates {
          "blank" = $BlankSlide;
          "question" = $QuestionSlide;
     }
-    $SlideTemplates
+    $SlideTemplates, $ppt
 }
 
 function Add-Slide {
@@ -109,32 +109,6 @@ function Add-Slide {
     }
 }
 
-function Get-SlideID {
-    param(
-        [Parameter(Position=0,Mandatory=$true)]
-        [object]$ppt,
-        [Parameter(Position=1,Mandatory=$true)]
-        [int]$index
-    )
-
-    $slideID = $ppt.slides.item($index).SlideID
-    $slideID
-}
-
-function Remove-Slide {
-    [CmdletBinding()]
-    param(
-        [Parameter(Position=0,Mandatory=$true)]
-        [object]$ppt,
-        [Parameter(Position=1,Mandatory=$true)]
-        [int]$id
-    )
-
-    $slide = $ppt.slides.findbyslideid($id)
-    $slide.delete()
-}
-
-
 function SaveAs-Presentation {
     [CmdletBinding()]
     param(
@@ -162,7 +136,7 @@ function Save-Presentation {
         [Parameter(Position=0,Mandatory=$true)]
 	    [object] $ppt
     )
-    $ppt.save	
+    $ppt.save()
 }
 
 # Slide Commands

@@ -46,8 +46,10 @@ chapters:
             visable: (Not a required field but optional) -- true or false
             notes: |
               Markdown notes for this slide. Again run through the same parser to ensrue it complies with the standards expected.
-          - title:
-          - title:
+          - title: title 2
+            type: title
+          - title: title 3
+            type: split
         questions:
           - question: Full text of the question goes here
             #######################################################################################
@@ -73,8 +75,8 @@ chapters:
                 explanation: Reason why the answer is incorrect should be placed here
             correct: "full text of the correct answer should be placed here"
             value: Integer point value of the question should be placed here
-      - title:
-      - title:
+      - title: subchapter2
+      - title: subchapter3
     vocab:
       - word1: Definition
       - word2: definition2

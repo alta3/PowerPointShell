@@ -18,12 +18,11 @@ function pps-generate {
     $powerpoint = Start-PowerPoint
 
     # Open Working PowerPoint
-    $ppt = Open-Presentation -powerpoint $powerpoint -path "$PSScriptRoot\..\mod\mod.pptm" -visable $true
+    $ppt = Open-Presentation -powerpoint $powerpoint -path "$PSScriptRoot\..\mod\mod.pptm" -visable $false
     SaveAs-Presentation -ppt $ppt -name $yamldict.course
 
-    # Get the slide templates
-    $SlideTemplates = Get-SlideTemplates -powerpoint $powerpoint
-    $slideTemplates
+    # Get the slide templates & a handle to the model_ppt that is open as well
+    $SlideTemplates, $mod_ppt = Get-SlideTemplates -powerpoint $powerpoint
 
     # Add the first two slides to the PowerPoint
     Add-Slide -ppt $ppt -slide $SlideTemplates.'course' -title $yamldict.course
@@ -32,27 +31,31 @@ function pps-generate {
     # Run through the dictionary and the required slides
     $yamldict.chapters | ForEach-Object {
          $chapter = $_
-         Add-Slide -ppt $ppt -slide $SlideTemplates.'chapter' -title "Vocabulary" -chapter $chapter
+         Add-Slide -ppt $ppt -slide $SlideTemplates.'chapter' -title "Vocabulary" -chapter $chapter.title
          $chapter.subchapters | ForEach-Object {
              $subchapter = $_
              $subchapter.slides | ForEach-Object {
                  $slide = $_
-                 Add-Slide -ppt $ppt -slide $SlideTemplates[$slide.type] -title $slide.title -chapter $chapter.title -subchapter $subchapter.title 
+                 if ($slide) {Add-Slide -ppt $ppt -slide $SlideTemplates[$slide.type] -title $slide.title -chapter $chapter.title -subchapter $subchapter.title} 
             }
         }
      }
 
      Add-Slide -ppt $ppt -slide $SlideTemplates.'question' -title "Knowledge Check"
-
-     $count = 1 
-     while ($count -le 6) {
-         $ID = Get-SlideID -ppt $ppt -index 1
-         Remove-Slide -ppt $ppt -id $ID
-         $count = $count + 1
-     }
-
-     
+    
+     $ppt.slides.item(6).delete()
+     $ppt.slides.item(5).delete()
+     $ppt.slides.item(4).delete()
+     $ppt.slides.item(3).delete()
+     $ppt.slides.item(2).delete()
+     $ppt.slides.item(1).delete()
+   
      # Save the PowerPoint presentation as the course title to the wrk directory
+     Close-Presentation -ppt $mod_ppt
+     $PresentationName = $ppt.name
      Save-Presentation -ppt $ppt
+     Close-Presentation -ppt $ppt
+
+     $ppt = Open-Presentation -powerpoint $powerpoint -path "$HOME\Documents\Alta3 PowerPointShell\wrk\$PresentationName" -visable $True
 }
-pps-generate
+pps-generate -filepath .\src\mod\mod.yml
