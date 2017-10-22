@@ -24,7 +24,7 @@ chapters:
 
       When this section is parsed it will be checked to ensrure it only contains ASCII characters!
     subchapters:
-      - title:
+      - title: SubChapter!
         ###########################################################################################
         # Subchapter Key Words
         # Key Word: Description                                                        << Required?
@@ -33,16 +33,16 @@ chapters:
         # questions: A list of all questions within this subchapter feeds quiz.txt  << Not Required
         ###########################################################################################
         slides:
-          - title:
+          - title: Slide Title
             #######################################################################################
             # Slide Key Words
             # Key Word: Description                                                    << Required?
             #######################################################################################
-            # type: The type of slide (title, bullet, or blank) - default: title    << Not Required
+            # type: The type of slide (title, split, or blank) - default: title    << Not Required
             # visable: Is this slide visable or note                                << Not Required
             # notes: A markdown section of notes for the specified slide            << Not Required
             #######################################################################################
-            type: title|bullet|blank
+            type: title
             visable: (Not a required field but optional) -- true or false
             notes: |
               Markdown notes for this slide. Again run through the same parser to ensrue it complies with the standards expected.
