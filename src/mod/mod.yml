@@ -12,17 +12,10 @@ chapters:
     # Chapter Key Words
     # Key Word: Description                                                            << Required?
     ###############################################################################################
-    # notes: A markdown section of notes for the chapter added to the chapter slide << Not Required
     # subchapters: A list of all subchapter titles in this chapter                  << Not Required
     # vocab: A vocab list of word: defs that will feed the vocab.txt file           << Not Required
     # day: Which day of the course is this chapter meant to be taught on            << Not Required
     ###############################################################################################
-    notes: |
-      Markdown notes for the chapter slide can be placed here. The | character will tell YAML to retain the blocks formating style as well.
-
-      That way the empty line above stays an empty line when we import it into the powerpoint slide deck.
-
-      When this section is parsed it will be checked to ensrure it only contains ASCII characters!
     subchapters:
       - title: SubChapter!
         ###########################################################################################
@@ -38,7 +31,7 @@ chapters:
             # Slide Key Words
             # Key Word: Description                                                    << Required?
             #######################################################################################
-            # type: The type of slide (title, split, or blank) - default: title    << Not Required
+            # type: The type of slide (title, split, or blank) - default: title     << Not Required
             # visable: Is this slide visable or note                                << Not Required
             # notes: A markdown section of notes for the specified slide            << Not Required
             #######################################################################################
@@ -46,6 +39,8 @@ chapters:
             visable: (Not a required field but optional) -- true or false
             notes: |
               Markdown notes for this slide. Again run through the same parser to ensrue it complies with the standards expected.
+
+              For fun and for profit. **THIS SECTION SHOULD BE BOLD** what else can we do that is super cool who knows?
           - title: title 2
             type: title
           - title: title 3
@@ -60,7 +55,7 @@ chapters:
             # correct: Full text of the correct answer                                  << Required
             # value: An integer point value of the question                             << Required
             #######################################################################################
-            incorect:
+            incorrect:
               - text: Full text of the incorrect answer goes here
                 ###################################################################################
                 # Incorrect Key Words
@@ -74,7 +69,7 @@ chapters:
               - text: Full text of the incorrect answer goes here
                 explanation: Reason why the answer is incorrect should be placed here
             correct: "full text of the correct answer should be placed here"
-            value: Integer point value of the question should be placed here
+            value: 20 
       - title: subchapter2
       - title: subchapter3
     vocab:
@@ -82,6 +77,8 @@ chapters:
       - word2: definition2
     day: 1
   - title: Chapter Two Title
+    subchapters:
+      - title: subchapter 1
   - title: Chapter Three Title
 labs:
   - title: Lab One Title
