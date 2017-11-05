@@ -1,0 +1,95 @@
+# Course Key Words
+# Key Word: Description                                                                << Required?
+###################################################################################################
+# course: "Course Title"                                                               << Required
+# chapters: A list of all chapter titles in this course                            << Not Required
+# labs: A list of all the labs that are associated with this course                << Not Required
+###################################################################################################
+course: Sample Course Title
+chapters:
+  - title: Chapter One Title
+    ###############################################################################################
+    # Chapter Key Words
+    # Key Word: Description                                                            << Required?
+    ###############################################################################################
+    # subchapters: A list of all subchapter titles in this chapter                  << Not Required
+    # vocab: A vocab list of word: defs that will feed the vocab.txt file           << Not Required
+    # day: Which day of the course is this chapter meant to be taught on            << Not Required
+    ###############################################################################################
+    subchapters:
+      - title: SubChapter!
+        ###########################################################################################
+        # Subchapter Key Words
+        # Key Word: Description                                                        << Required?
+        ###########################################################################################
+        # slides: A list of of all slides within this subchapter                    << Not Required
+        # questions: A list of all questions within this subchapter feeds quiz.txt  << Not Required
+        ###########################################################################################
+        slides:
+          - title: Slide Title
+            #######################################################################################
+            # Slide Key Words
+            # Key Word: Description                                                    << Required?
+            #######################################################################################
+            # type: The type of slide (title, split, or blank) - default: title     << Not Required
+            # visable: Is this slide visable or note                                << Not Required
+            # notes: A markdown section of notes for the specified slide            << Not Required
+            #######################################################################################
+            type: title
+            visable: (Not a required field but optional) -- true or false
+            notes: |
+              Markdown notes for this slide. Again run through the same parser to ensrue it complies with the standards expected.
+
+              For fun and for profit. **THIS SECTION SHOULD BE BOLD** what else can we do that is super cool who knows?
+          - title: title 2
+            type: title
+          - title: title 3
+            type: split
+        questions:
+          - question: Full text of the question goes here
+            #######################################################################################
+            # Question Key Words
+            # Key Word: Definition                                                     << Required?
+            #######################################################################################
+            # incorrect: List of 3 incorrect answers' full text of the question         << Required
+            # correct: Full text of the correct answer                                  << Required
+            # value: An integer point value of the question                             << Required
+            #######################################################################################
+            incorrect:
+              - text: Full text of the incorrect answer goes here
+                ###################################################################################
+                # Incorrect Key Words
+                # Key Word: Description                                                << Required?
+                ###################################################################################
+                # explanation: Reason why the answer is incorrect                       << Required
+                ###################################################################################
+                explanation: Reason why the answer is incorrect should be placed here
+              - text: Full text of the incorrect answer goes here
+                explanation: Reason why the answer is incorrect should be placed here
+              - text: Full text of the incorrect answer goes here
+                explanation: Reason why the answer is incorrect should be placed here
+            correct: "full text of the correct answer should be placed here"
+            value: 20
+      - title: subchapter2
+      - title: subchapter3
+    vocab:
+      - word: word1
+        def: definition 1
+      - word: word2
+        def: definition 2
+    day: 1
+  - title: Chapter Two Title
+    subchapters:
+      - title: subchapter 1
+  - title: Chapter Three Title
+labs:
+  - title: Lab One Title
+    ###############################################################################################
+    # Lab Key Words
+    # Key Word: Description                                                            << Required?
+    ###############################################################################################
+    # day: An integer number represeting the day that this lab is meant to be done      << Required
+    # type: The type of lab (either home or class) - Default: class                 << Not Required
+    ###############################################################################################
+    day: 1
+    type: home
