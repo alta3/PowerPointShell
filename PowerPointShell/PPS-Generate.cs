@@ -15,7 +15,7 @@ namespace PowerPointShell
     [Cmdlet("A3", "Generate")]
     public class PPSGenerateCmdlet : PSCmdlet
     {
-        // The parameters for A3-Generate Cmdlet
+        // YamlFile is the relative or full path to the yamlfile for processing
         [Parameter(Position = 0)]
         public string YamlFile { get; set; }
 
@@ -74,11 +74,12 @@ namespace PowerPointShell
             WriteProgress(pr);
             outline.GeneratePresentation(ppt);
 
-            // Save the presentation close it then reopen as visible for editing
+            // Save the presentation and close it
             ppt.Save();
             ppt.Close();
             System.Runtime.InteropServices.Marshal.ReleaseComObject(ppt);
 
+            // Reopen the presentation for editing
             pr.RecordType = ProgressRecordType.Completed;
             WriteProgress(pr);
             ppt = powerpoint.Presentations.Open(savePath, 0, 0, Microsoft.Office.Core.MsoTriState.msoTrue);

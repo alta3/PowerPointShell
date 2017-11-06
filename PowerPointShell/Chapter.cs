@@ -18,14 +18,14 @@ namespace PowerPointShell
 
         public void Generate(PowerPoint.Presentation presentation, int chapterCount)
         {
-            this.GenerateChapterSlide(presentation);
+            this.GenerateChapterSlide(presentation, chapterCount);
             int count = presentation.Slides.Count;
             presentation.SectionProperties.AddBeforeSlide(count, this.Title);
             this.GenerateSubChapters(presentation);
             this.GenerateVocab(chapterCount);
         }
 
-        private void GenerateChapterSlide(PowerPoint.Presentation presentation)
+        private void GenerateChapterSlide(PowerPoint.Presentation presentation, int chapterCount)
         {
             // Open the appropriate slide and set it to the active slide in the presentation
             presentation.Slides.InsertFromFile(GlobalVars.MODEL_POWERPOINT, presentation.Slides.Count, 2, 2);
@@ -40,6 +40,11 @@ namespace PowerPointShell
             activeslide.Shapes.Range("TOC").ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick].Hyperlink.SubAddress = null;
             activeslide.Shapes.Range("TOC").TextFrame.TextRange.ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick].Hyperlink.Address = null;
             activeslide.Shapes.Range("TOC").TextFrame.TextRange.ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick].Hyperlink.SubAddress = presentation.Slides.Range(2).SlideID + "," + presentation.Slides.Range(2).SlideIndex + "," + presentation.Slides.Range(2).Name;
+
+            // TODO: ADD VBA CODE HERE -- THIS WORKS FOR ADDING SO NOW JUST NEED TO ACTUALLY IMPLEMENT!
+            string index = string.Concat("Slide",presentation.Slides.Count.ToString());
+            Microsoft.Vbe.Interop.VBComponent component = presentation.VBProject.VBComponents.Item(index);
+            component.CodeModule.AddFromString("THIS IS ONLY A TEST!");
 
             // Release to ComObject in order to avoid HRESULT E_FAIL errors
             System.Runtime.InteropServices.Marshal.ReleaseComObject(activeslide);

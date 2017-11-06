@@ -17,8 +17,8 @@ namespace PowerPointShell
 
         public void Generate(int chapterCount)
         {
-            string line = this.Word + " [" + chapterCount.ToString() + "] " + this.Def + "\n";
-            string path = GlobalVars.WORKING_PATH + "\\vocab.txt";
+            string line = this.Word + " [" + chapterCount.ToString() + "] " + this.Def + "\r\n";
+            string path = GlobalVars.WORKING_PATH + "\\Vocab.txt";
             File.AppendAllText(path, line);
         }
     }

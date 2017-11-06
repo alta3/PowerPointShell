@@ -22,17 +22,18 @@ namespace PowerPointShell
 
         public void Generate(string scrubber)
         {
+            // CONVERT TO STRING BUILDER 
             string lines = null;
             int correct = random.Next(1, 5);
             string path = GlobalVars.WORKING_PATH + "\\quiz.txt";
-
-            lines += "id: " + this.ID(16) + "\n";
-            lines += "chapsubchap: " + scrubber + "\n";
-            lines += "MediaURL: \n";
-            lines += "Points: " + this.Value + "\n";
-            lines += "Question: " + this.Text + "\n";
+            
+            lines += "id: " + this.ID(16) + "\r\n";
+            lines += "chapsubchap: " + scrubber + "\r\n";
+            lines += "MediaURL: \r\n";
+            lines += "Points: " + this.Value + "\r\n";
+            lines += "Question: " + this.Text + "\r\n";
             lines += this.GenerateOrder(correct);
-            lines += "--------\n";
+            lines += "--------\r\n";
             File.AppendAllText(path, lines);
         }
 
@@ -60,6 +61,7 @@ namespace PowerPointShell
 
             while (line <= 4)
             {
+                // CONVERT TO STRING BUILDERS
                 string choiceText = null;
                 string answerBool = null;
                 string answerExplanation = null;
@@ -76,9 +78,9 @@ namespace PowerPointShell
                     answerExplanation = this.Incorrect[incorrect].Explanation;
                     incorrect += 1;
                 }
-                choiceLines += "Choice" + numDict[line] + ": " + choiceText.Trim() + "\n";
-                answerBoolLines += "Correct" + numDict[line] + ": " + answerBool.Trim() + "\n";
-                answerExplanationLines += "Why" + numDict[line] + ": " + answerExplanation.Trim() + "\n";
+                choiceLines += "Choice" + numDict[line] + ": " + choiceText.Trim() + "\r\n";
+                answerBoolLines += "Correct" + numDict[line] + ": " + answerBool.Trim() + "\r\n";
+                answerExplanationLines += "Why" + numDict[line] + ": " + answerExplanation.Trim() + "\r\n";
                 line += 1;
             }
             string lines = string.Concat(choiceLines, answerBoolLines, answerExplanationLines);
