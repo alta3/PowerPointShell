@@ -21,6 +21,11 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+<<<<<<< HEAD
+=======
+[Bb]uild/
+[Bb]uild.zip
+>>>>>>> de9bc5a9eb75d5046d9d6dbd1d92027f1178bd14
 
 # Visual Studio 2015 cache/options directory
 .vs/
