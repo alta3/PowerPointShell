@@ -1,0 +1,474 @@
+Public Type QuizRecord
+    id As String
+    chapsubchap As String
+    MediaURL As String
+    Points As String
+    Question As String
+    ChoiceA As String
+    ChoiceB As String
+    ChoiceC As String
+    ChoiceD As String
+    CorrectA As Boolean
+    CorrectB As Boolean
+    CorrectC As Boolean
+    CorrectD As Boolean
+    WhyA As String
+    WhyB As String
+    WhyC As String
+    WhyD As String
+End Type
+Public ReturnSlide As Long
+Public QuizArray() As QuizRecord
+Public QuizStarted As Boolean
+Sub readQuiz(NextQuestion As Integer, scrubber As String) ' Valid nextquestion = -1, 0, +1
+
+    Dim I As Integer
+    Dim subi As Integer
+    Dim pattern As String
+    Dim vocabWord() As String
+    Dim chapter() As String
+    Dim Definition() As String
+    Dim QmdRegexParser As RegExp
+    Dim strInput As String
+    Dim b_found As Boolean
+    Dim wordcount As Integer
+    Static QIndex As Integer
+    Dim ThisSubChapter As String
+    Dim Header As String
+    Dim test1 As String
+    Dim test2 As String
+    
+    Dim Q As Integer
+
+    Dim SubChapQuizArray() As QuizRecord
+    
+
+    ThisSubChapter = scrubber
+    
+'=============
+
+    If Not QuizStarted Then
+        InitQuiz
+    End If
+'==================
+    If SlideShowWindows.Count = 0 Then
+        MsgBox "This ONLY works if PowerPoint is in Presentation Mode!"
+        Exit Sub
+    End If
+  
+  ' ---Load only this subchapter's questions into subchaparray --------
+    Q = -1
+    For subi = 0 To UBound(QuizArray)
+      With QuizArray(subi)
+       If .chapsubchap = ThisSubChapter Then
+        Q = Q + 1
+        ReDim Preserve SubChapQuizArray(Q)
+        SubChapQuizArray(Q) = QuizArray(subi)
+       End If
+                      ' MsgBox "subi: " & subi & "  Q:" & Q & vbCrLf & .ChapSubchap & vbCrLf & ThisSubChapter & vbCrLf & UBound(SubChapQuizArray)
+      End With
+    Next subi
+
+  ' ---- Handle No Questions Found ERROR --------
+    If Q = -1 Then  ' If no matches found, then load demo data
+        MsgBox ("HOW EMBARRASSING FOR YOU! No matches found for: " & vbCrLf & vbCrLf & ThisSubChapter & vbCrLf & vbCrLf & " Does the CHAP:SUB field on the slide you jumped from have a typo? Check for an EXTRA CR/LF?")
+        Q = 0
+        QIndex = 0
+        ReDim SubChapQuizArray(0)
+        SubChapQuizArray(QIndex).id = "11223344556677"
+        SubChapQuizArray(QIndex).chapsubchap = ThisSubChapter
+        SubChapQuizArray(QIndex).MediaURL = "www.alta3.com"
+        SubChapQuizArray(QIndex).Points = 20
+        SubChapQuizArray(QIndex).Question = "How many stripes (per side) are on a common Zebra"
+        SubChapQuizArray(QIndex).ChoiceA = "100"
+        SubChapQuizArray(QIndex).ChoiceB = "51"
+        SubChapQuizArray(QIndex).ChoiceC = "26"
+        SubChapQuizArray(QIndex).ChoiceD = "13"
+        SubChapQuizArray(QIndex).CorrectA = 0
+        SubChapQuizArray(QIndex).CorrectB = 0
+        SubChapQuizArray(QIndex).CorrectC = 1
+        SubChapQuizArray(QIndex).CorrectC = 0
+        SubChapQuizArray(QIndex).WhyA = "No Way! Zebras hate PIN STRIPES!"
+        SubChapQuizArray(QIndex).WhyB = "Zebras avoid prime numbers!"
+        SubChapQuizArray(QIndex).WhyC = "Yep!"
+        SubChapQuizArray(QIndex).WhyD = "No, that's the American flag!"
+  
+
+  ' -----No Questions! --------------
+    ElseIf UBound(SubChapQuizArray) = 0 Then ' No questions, so don't increment above zero!
+      QIndex = 0
+  ' -----First Question --------------
+    ElseIf QIndex = 0 Then
+      Select Case NextQuestion
+      Case Is = 1                   ' Next question
+        QIndex = QIndex + 1
+      Case Is = -1                  ' Wraparound to last question
+        QIndex = UBound(SubChapQuizArray)
+      Case Is = 0                   ' reset to zero!
+        QIndex = 0
+      End Select
+  ' ----A Question somewhere in the middle --------------
+    ElseIf (QIndex > 0) And (QIndex < UBound(SubChapQuizArray)) Then
+      Select Case NextQuestion
+      Case Is = 1                    ' Next question
+        QIndex = QIndex + 1
+      Case Is = -1                   ' Previous question
+        QIndex = QIndex - 1
+      Case Is = 0                    ' reset to zero!
+        QIndex = 0
+      End Select
+  ' ----Last Question --------------
+    ElseIf (QIndex > 0) And (QIndex >= UBound(SubChapQuizArray)) Then
+      Select Case NextQuestion
+      Case Is = 1                    ' Wraparound to first question
+        QIndex = 0
+      Case Is = -1                   ' Previous question
+        QIndex = QIndex - 1
+      Case Is = 0                    ' reset to zero!
+        QIndex = 0
+      End Select
+    End If
+    
+ ' ------------- Populate screen  -----------
+    With SlideShowWindows(1).Presentation.slides("QSlide")
+        .Shapes("ReturnSlide").TextFrame.TextRange.Text = ReturnSlide
+        .Shapes("QIndex").TextFrame.TextRange.Text = QIndex + 1
+        .Shapes("Q").TextFrame.TextRange.Text = Q + 1
+        .Shapes("QuestionBox").TextFrame.TextRange.Text = SubChapQuizArray(QIndex).Question
+        
+        ' ---- Colorize the ??Why?? boxes, red is wrong, green is correect
+        .Shapes("WhyABox").TextFrame.TextRange.Text = SubChapQuizArray(QIndex).WhyA & "                                   "
+        If SubChapQuizArray(QIndex).CorrectA Then
+            .Shapes("WhyABox").Fill.ForeColor.RGB = RGB(0, 150, 0)
+           Else
+            .Shapes("WhyABox").Fill.ForeColor.RGB = RGB(255, 0, 0)
+        End If
+        
+        .Shapes("WhyBBox").TextFrame.TextRange.Text = SubChapQuizArray(QIndex).WhyB & "                                   "
+        If SubChapQuizArray(QIndex).CorrectB Then
+            .Shapes("WhyBBox").Fill.ForeColor.RGB = RGB(0, 150, 0)
+           Else
+            .Shapes("WhyBBox").Fill.ForeColor.RGB = RGB(255, 0, 0)
+        End If
+       
+        .Shapes("WhyCBox").TextFrame.TextRange.Text = SubChapQuizArray(QIndex).WhyC & "                                   "
+        If SubChapQuizArray(QIndex).CorrectC Then
+            .Shapes("WhyCBox").Fill.ForeColor.RGB = RGB(0, 150, 0)
+           Else
+            .Shapes("WhyCBox").Fill.ForeColor.RGB = RGB(255, 0, 0)
+        End If
+        
+        .Shapes("WhyDBox").TextFrame.TextRange.Text = SubChapQuizArray(QIndex).WhyD & "                                   "
+        If SubChapQuizArray(QIndex).CorrectD Then
+            .Shapes("WhyDBox").Fill.ForeColor.RGB = RGB(0, 150, 0)
+           Else
+            .Shapes("WhyDBox").Fill.ForeColor.RGB = RGB(255, 0, 0)
+        End If
+     
+        .Shapes("CHAP:SUB").TextFrame.TextRange.Text = SubChapQuizArray(QIndex).chapsubchap
+        .Shapes("BoxA").TextFrame.TextRange.Text = SubChapQuizArray(QIndex).ChoiceA
+        .Shapes("BoxB").TextFrame.TextRange.Text = SubChapQuizArray(QIndex).ChoiceB
+        .Shapes("BoxC").TextFrame.TextRange.Text = SubChapQuizArray(QIndex).ChoiceC
+        .Shapes("BoxD").TextFrame.TextRange.Text = SubChapQuizArray(QIndex).ChoiceD
+        .Shapes("Points").TextFrame.TextRange.Text = SubChapQuizArray(QIndex).Points
+    End With
+End Sub
+Function QMDHeaderFinder(OneLine As String) As String
+ ' -------- Set up REGEX -------- '
+    Set re = New RegExp 'Create the RegExp object
+    With re
+        .Global = False
+        .IgnoreCase = True         ' False is default
+        .pattern = "^(.*?:).*"
+    End With
+     QMDHeaderFinder = re.Replace(OneLine, "$1")
+End Function
+Function GetHeaderData(ThisHeader As String, OneLine As String) As String
+    Dim HeaderData As String
+    
+    Set Headerex = New RegExp 'Create the RegExp object
+    With Headerex
+        .Global = False
+        .IgnoreCase = True         ' False is default
+        .pattern = "^" & ThisHeader & "\s*(.*)"
+    End With
+    HeaderData = Headerex.Replace(OneLine, "$1")
+    If HeaderData <> "" Then
+        GetHeaderData = HeaderData
+      Else
+        GetHeaderData = "0"
+    End If
+End Function
+Function loadQMD() As String
+ ' -------- Load QMD File -------- '
+    Dim QmdFileName As String
+    Dim iFileNum As Long
+    Dim QMD As String
+    
+    QmdFileName = ActivePresentation.Path & "\quiz.txt"  ' Location of quiz file:
+   '--- does vocab file exist?
+    If Len(Dir$(QmdFileName)) = 0 Then
+        MsgBox "O No!!!  quiz.txt file does not exist! Go into the folder" _
+        & " where your PowerPoint presentation is, and make sure a folder" _
+        & " exits called quizzie, then in that folder, create a file called quiz.text"
+        Exit Function
+    End If
+   '--- Initialize file handle number and open file
+    iFileNum = FreeFile
+    Open QmdFileName For Input As iFileNum
+    loadQMD = Input(LOF(iFileNum), iFileNum)
+    Close iFileNum
+End Function
+Sub skipforward()
+    Dim ThisSlideIndex As Integer
+    Dim ThisSubChapter As String
+
+    ThisSlideIndex = ActivePresentation.SlideShowWindow.View.Slide.SlideIndex  ' ThisSlideIndex = ActivePresentation.Windows(1).View.Slide.SlideIndex
+    ThisSubChapter = SlideShowWindows(1).Presentation.slides(ThisSlideIndex).Shapes("CHAP:SUB").TextFrame.TextRange.Text
+    readQuiz 1, ThisSubChapter
+    ' readQuiz 1, "OpenStack Architecture Overview: Big Picture"
+End Sub
+Sub skipbackward()
+    Dim ThisSlideIndex As Integer
+    Dim ThisSubChapter As String
+
+    ThisSlideIndex = ActivePresentation.SlideShowWindow.View.Slide.SlideIndex  'ThisSlideIndex = ActivePresentation.Windows(1).View.Slide.SlideIndex
+    ThisSubChapter = SlideShowWindows(1).Presentation.slides(ThisSlideIndex).Shapes("CHAP:SUB").TextFrame.TextRange.Text
+    readQuiz -1, ThisSubChapter
+    ' readQuiz -1, "OpenStack Architecture Overview: Big Picture"
+End Sub
+Sub LaunchQuestion()
+    Dim ThisSlideIndex As Integer
+    Dim ThisSubChapter As String
+
+    ThisSlideIndex = ActivePresentation.SlideShowWindow.View.Slide.SlideIndex   'ActivePresentation.Windows(1).View.Slide.SlideIndex
+    ThisSubChapter = SlideShowWindows(1).Presentation.slides(ThisSlideIndex).Shapes("CHAP:SUB").TextFrame.TextRange.Text
+    
+    ' MsgBox ThisSlideIndex & "   " & vbCrLf & ThisSubChapter & vbCrLf & ActivePresentation.Windows(1).View.Slide.SlideIndex & vbCrLf & ActivePresentation.SlideShowWindow.View.Slide.SlideIndex
+    
+    ReturnSlide = ThisSlideIndex
+    readQuiz 0, ThisSubChapter
+    
+    With SlideShowWindows(1)
+        .View.GotoSlide (.Presentation.slides("QSlide").SlideIndex)
+    End With
+End Sub
+Sub MEGAQUIZTest()
+ readQuiz 0, "OpenStack Architecture Overview: Big Pictures"
+End Sub
+Sub Return2Presentation()
+With SlideShowWindows(1).View
+    .GotoSlide ReturnSlide
+End With
+End Sub
+' ------- Creates a new directory if needed, returns full path including the new directory
+Function TouchDIR(subdir As String) As String
+    Dim newdirname As String
+    newdirname = ActivePresentation.Path & "\" & subdir
+    If Dir(newdirname, vbDirectory) = "" Then
+        MkDir newdirname
+    End If
+    TouchDIR = newdirname & "\"
+End Function
+' --- Writes a string variable to a specified filename + extension
+Sub FileIt(String2File As String, strDirName As String, strFileName As String, FileExtension As String)
+    
+    Dim FullPathName As String
+    Dim intFileNum As Integer
+    
+    On Error GoTo ErrorHandler
+    intFileNum = FreeFile
+    FullPathName = TouchDIR(strDirName) & strFileName & "." & FileExtension
+    Open FullPathName For Output As intFileNum
+    Print #intFileNum, String2File
+
+NormalExit:
+        Close intFileNum
+        Exit Sub
+ErrorHandler:
+        MsgBox ("Fileit issue: " & Err.Description & vbCrLf _
+        & "strDirName: " & strDirName & vbCrLf _
+        & "File Name: " & strFileName _
+        & "Extension: " & FileExtension)
+        Resume NormalExit
+
+End Sub
+
+' =====================================================================================
+' variables: rawquizarray, rawquestionlines, qmdheader,
+    ' ------- Load raw file if necessary
+
+Sub InitQuiz()
+    Dim QMD As String
+    Dim RawQuizarray() As String
+    Dim RawQuestionLines() As String
+    Dim QMDHeader As String
+
+    QMD = loadQMD
+ 
+' -------- Parse QMD (Question Markdown File) and load entire course quizarray -------- '
+    RawQuizarray = Split(QMD, "------") ' Break out each question on the dashes
+    QuizStarted = True
+    For I = 0 To UBound(RawQuizarray)
+        ReDim Preserve QuizArray(I)
+        RawQuestionLines = Split(RawQuizarray(I), vbCrLf) ' VBA REGEX can only parse a single line at a time!!!   Grrrr
+        For x = 0 To UBound(RawQuestionLines)
+            ' MsgBox ("i=" & i & "  raw:" & x & " " & UBound(RawQuestionLines) & vbCrLf & RawQuestionLines(x))
+            QMDHeader = QMDHeaderFinder(RawQuestionLines(x))
+            Select Case QMDHeader
+                Case "id:"
+                    QuizArray(I).id = GetHeaderData(QMDHeader, RawQuestionLines(x))
+                Case "chapsubchap:"
+                    QuizArray(I).chapsubchap = GetHeaderData(QMDHeader, RawQuestionLines(x))
+                Case "MediaURL:"
+                    QuizArray(I).MediaURL = GetHeaderData(QMDHeader, RawQuestionLines(x))
+                Case "Points:"
+                    QuizArray(I).Points = GetHeaderData(QMDHeader, RawQuestionLines(x))
+                Case "Question:"
+                    QuizArray(I).Question = GetHeaderData(QMDHeader, RawQuestionLines(x))
+                Case "ChoiceA:"
+                    QuizArray(I).ChoiceA = GetHeaderData(QMDHeader, RawQuestionLines(x))
+                Case "ChoiceB:"
+                    QuizArray(I).ChoiceB = GetHeaderData(QMDHeader, RawQuestionLines(x))
+                Case "ChoiceC:"
+                    QuizArray(I).ChoiceC = GetHeaderData(QMDHeader, RawQuestionLines(x))
+                Case "ChoiceD:"
+                    QuizArray(I).ChoiceD = GetHeaderData(QMDHeader, RawQuestionLines(x))
+                Case "CorrectA:"
+                    QuizArray(I).CorrectA = GetHeaderData(QMDHeader, RawQuestionLines(x))
+                Case "CorrectB:"
+                    QuizArray(I).CorrectB = GetHeaderData(QMDHeader, RawQuestionLines(x))
+                Case "CorrectC:"
+                    QuizArray(I).CorrectC = GetHeaderData(QMDHeader, RawQuestionLines(x))
+                Case "CorrectD:"
+                    QuizArray(I).CorrectD = GetHeaderData(QMDHeader, RawQuestionLines(x))
+                Case "WhyA:"
+                    QuizArray(I).WhyA = GetHeaderData(QMDHeader, RawQuestionLines(x))
+                Case "WhyB:"
+                    QuizArray(I).WhyB = GetHeaderData(QMDHeader, RawQuestionLines(x))
+                Case "WhyC:"
+                    QuizArray(I).WhyC = GetHeaderData(QMDHeader, RawQuestionLines(x))
+                Case "WhyD:"
+                    QuizArray(I).WhyD = GetHeaderData(QMDHeader, RawQuestionLines(x))
+            End Select
+        Next x
+    Next I
+End Sub
+Sub savefile()
+    If Not QuizStarted Then
+        InitQuiz
+    End If
+    FileIt Quizzie2QMD, "quiz", "quiz-new", ".txt"
+End Sub
+
+' ---------------------------------
+' Generate a QMD string from the quizarray
+Function Quizzie2QMD() As String
+Dim QMD As String
+    For I = 0 To UBound(QuizArray)
+        With QuizArray(I)
+            QMD = QMD _
+            & "id: " & .id & vbCrLf _
+            & "chapsubchap: " & .chapsubchap & vbCrLf _
+            & "MediaURL: " & .MediaURL & vbCrLf _
+            & "Points: " & .Points & vbCrLf _
+            & "Question:" & .Question & vbCrLf _
+            & "ChoiceA: " & .ChoiceA & vbCrLf _
+            & "ChoiceB: " & .ChoiceB & vbCrLf _
+            & "ChoiceC: " & .ChoiceC & vbCrLf _
+            & "ChoiceD: " & .ChoiceD & vbCrLf _
+            & "CorrectA: " & CStr(.CorrectA) & vbCrLf _
+            & "CorrectB: " & CStr(.CorrectB) & vbCrLf _
+            & "CorrectC: " & CStr(.CorrectC) & vbCrLf _
+            & "CorrectD: " & CStr(.CorrectD) & vbCrLf _
+            & "WhyA: " & .WhyA & vbCrLf _
+            & "WhyB: " & .WhyB & vbCrLf _
+            & "WhyC: " & .WhyC & vbCrLf _
+            & "WhyD: " & .WhyD & vbCrLf _
+            & "------" & vbCrLf
+        End With
+    Next I
+    Quizzie2QMD = QMD
+End Function
+' Generate a json file per question in the quizarray
+Sub Quizzie2JSON()
+
+InitQuiz
+
+Const QID = "{" & """" & "id" & """" & ":" & """"
+Const filename = """" & "filename" & """" & ":" & """"
+Const Jcategory = """" & "category" & """" & ":" & """"
+Const value = """" & "value" & """" & ":"
+Const media_url = """" & "media_url" & """" & ":" & """"
+Const media_type = """" & "media_type" & """" & ":" & """"
+Const Questiontext = """" & "question_text" & """" & ":" & """"
+Const long_answers = """" & "long_answers" & """" & ":"
+Const answers = """" & "answers" & """" & ":"
+
+Const handle = """" & "handle" & """" & ":" & """"
+Const answer_text = """" & "answer_text" & """" & ":" & """"
+Const post_text = """" & "post_text" & """" & ":" & """"
+Const correct = """" & "correct" & """" & ": "
+Const tween = "  }, {" & vbCrLf
+Const qend = "} ] }" & vbCrLf
+Const zed = """" & "," & vbCrLf
+
+    Set ScrubberSplit = New RegExp 'Create the RegExp object
+    With ScrubberSplit
+        .Global = True
+        .pattern = "([a-zA-Z]*?):\s+(.*)\s*"
+        .IgnoreCase = False         ' False is default
+    End With
+    oldchapter = ""
+
+Dim QMD As String
+
+    JS = ""
+    For I = 0 To UBound(QuizArray)
+        With QuizArray(I)
+            JS = JS & QID & .id & zed
+            JS = JS & filename & "questions/" & Replace(Left(.Question, 10), " ", "") & .id & ".json" & zed
+            JS = JS & Jcategory & Replace(Left(ScrubberSplit.Replace(.chapsubchap, "$1"), 12), " ", "_") & zed
+            JS = JS & value & .Points & "," & vbCrLf
+            JS = JS & media_url & .MediaURL & zed
+            JS = JS & media_type & "none" & zed
+            JS = JS & Questiontext & Replace(.Question, """", "\" & """") & zed
+            JS = JS & long_answers & "true" & "," & vbCrLf
+            JS = JS & answers & "[" & vbCrLf & "{" & vbCrLf
+
+            JS = JS & handle & "A" & zed
+            JS = JS & answer_text & .ChoiceA & zed
+            JS = JS & post_text & Replace(.WhyA, """", "\" & """") & zed
+            JS = JS & correct & LCase(CStr(.CorrectA)) & vbCrLf
+            JS = JS & tween
+
+            JS = JS & handle & "B" & zed
+            JS = JS & answer_text & .ChoiceB & zed
+            JS = JS & post_text & Replace(.WhyB, """", "\" & """") & zed
+            JS = JS & correct & LCase(CStr(.CorrectB)) & vbCrLf
+            JS = JS & tween
+
+            JS = JS & handle & "C" & zed
+            JS = JS & answer_text & .ChoiceC & zed
+            JS = JS & post_text & Replace(.WhyC, """", "\" & """") & zed
+            JS = JS & correct & LCase(CStr(.CorrectC)) & vbCrLf
+            JS = JS & tween
+
+            JS = JS & handle & "D" & zed
+            JS = JS & answer_text & .ChoiceD & zed
+            JS = JS & post_text & Replace(.WhyD, """", "\" & """") & zed
+            JS = JS & correct & LCase(CStr(.CorrectD)) & vbCrLf
+            JS = JS & qend
+            FileIt JS, "cert", Replace(Left(.Question, 10), " ", "") & .id, "json"
+            JS = ""
+        End With
+    Next I
+End Sub
+
+Function JustTheChapterName(chapsubchap As String) As String
+    Dim splitarray() As String
+    
+    splitarray = Split(chapsubchap, ":")
+    
+End Function
+

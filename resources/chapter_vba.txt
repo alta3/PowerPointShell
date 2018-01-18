@@ -1,0 +1,131 @@
+Sub readvocab(skipword As Integer)
+    Dim VocabEntry() As String
+    Dim iFileNum As Integer
+    Dim I As Integer
+    Dim w As Integer
+    Dim pattern As String
+    Dim vocabWord() As String
+    Dim chapter() As String
+    Dim Definition() As String
+    Dim vocabRegexSplit As Object
+    Dim strInput As String
+    Dim b_found As Boolean
+    Dim chapternum As String
+    Dim wordcount As Integer
+    Dim myword As Integer
+
+' Location of vocab file:
+    VocabFileName = ActivePresentation.Path & "\Vocab.txt"
+' does vocab file exist?
+    If Len(Dir$(VocabFileName)) = 0 Then
+        MsgBox "Vocab.txt file does not exist!"
+        Exit Sub
+    End If
+
+ ' -------- Set up REGEX -------- '
+    Set vocabRegexSplit = New RegExp 'Create the RegExp object
+    With vocabRegexSplit
+        .Global = True
+        .pattern = "([a-zA-Z0-9\s]*)\s+\[(\d*)\]\s+(.*)"
+        .IgnoreCase = False         ' False is default
+    End With
+
+' Initialize file handle number and open file
+    iFileNum = FreeFile()
+    Open VocabFileName For Input As iFileNum
+    
+' -------- Load vocab text file into an array-------- '
+    I = 0
+    Do Until EOF(iFileNum)
+        ReDim Preserve VocabEntry(I)
+        Line Input #iFileNum, VocabEntry(I)
+        I = I + 1
+    Loop
+    Close iFileNum
+ 
+' -------- Load chapter number-------- '
+    chapternum = chapternumber.Text
+ ' -------- Parse array to contain only this chapter's vocabulary words --------
+    w = 0
+    For I = 0 To UBound(VocabEntry)
+      strInput = VocabEntry(I)
+       If chapternum = vocabRegexSplit.Replace(strInput, "$2") Then
+        ReDim Preserve vocabWord(w)
+        ReDim Preserve chapter(w)
+        ReDim Preserve Definition(w)
+        vocabWord(w) = vocabRegexSplit.Replace(strInput, "$1")
+        chapter(w) = vocabRegexSplit.Replace(strInput, "$2")
+        Definition(w) = vocabRegexSplit.Replace(strInput, "$3")
+        w = w + 1
+      End If
+    Next
+    
+' -------- Set indexes and error check  --------
+    myword = wordcounter.value - 1
+    If w = 0 Then   ' No matches!
+        ReDim Preserve vocabWord(w)
+        ReDim Preserve chapter(w)
+        ReDim Preserve Definition(w)
+        vocabWord(w) = "--SPACE--"
+        chapter(w) = chapternum
+        Definition(w) = "… the final frontier"
+        myword = 0
+    ElseIf UBound(vocabWord) = 0 Then
+      myword = 0
+    ElseIf myword = 0 Then
+      Select Case skipword
+      Case Is = 1
+        myword = 1
+      Case Is = -1
+        myword = UBound(vocabWord)
+      Case Is = 0
+        myword = 0
+      End Select
+    ElseIf (myword > 0) And (myword < UBound(vocabWord)) Then
+      Select Case skipword
+      Case Is = 1
+        myword = myword + 1
+      Case Is = -1
+        myword = myword - 1
+      Case Is = 0
+        myword = 0
+      End Select
+    ElseIf (myword > 0) And (myword >= UBound(vocabWord)) Then
+      Select Case skipword
+      Case Is = 1
+        myword = 0
+      Case Is = -1
+        myword = myword - 1
+      Case Is = 0
+        myword = 0
+      End Select
+    End If
+    
+ ' ------------- Populate screen  -----------
+    wordcounter.value = (myword + 1)
+    wordquan.value = (UBound(vocabWord) + 1)
+    If myword > UBound(vocabWord) Then
+      myword = UBound(vocabWord)
+    End If
+    vocabWordbox.value = vocabWord(myword)
+    vocabbox.value = Definition(myword)
+    Set vocabRegexSplit = Nothing
+End Sub
+Private Sub chapternumber_Change()
+    ' Call readvocab(0)
+End Sub
+Private Sub vocabWordbox_Change()
+
+End Sub
+Private Sub wordcounter_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+    Call readvocab(0)
+End Sub
+Private Sub wordquan_Change()
+
+End Sub
+Private Sub wordsurfer_SpinUp()
+    Call readvocab(1)
+End Sub
+Private Sub wordsurfer_SpinDown()
+    Call readvocab(-1)
+End Sub
