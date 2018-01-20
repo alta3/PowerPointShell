@@ -15,15 +15,17 @@ namespace Alta3_PPA
         public string ActiveGuid { get; set; }
         public List<string> HistoricGuids { get; set; }
 
-        public void Generate(PowerPoint.Presentation presentation, string scrubber)
+        public void Generate(PowerPoint.Presentation presentation, string chapSub)
         {
-            presentation.Slides.AddSlide(-1, A3Globals.TITLE_LAYOUT);
-            PowerPoint.SlideRange activeslide = presentation.Slides.Range(presentation.Slides.Count);
-            activeslide.Shapes.Range("TITLE").TextFrame.TextRange.Text = this.Title;
-            activeslide.Shapes.Range("CHAP:SUB").TextFrame.TextRange.Text = scrubber;
-            activeslide.Shapes.Range("ACTIVE_GUID").TextFrame.TextRange.Text = Guid.NewGuid().ToString();
-            activeslide.NotesPage.Shapes.Range("notes").TextFrame.TextRange.Text = this.Notes;
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(activeslide);
+            presentation.Slides.AddSlide(presentation.Slides.Count + 1, presentation.SlideMaster.CustomLayouts[3]);
+            A3Slide a3ActiveSlide = new A3Slide(presentation.Slides[presentation.Slides.Count])
+            {
+                Title = this.Title,
+                ChapSub = chapSub,
+                ActiveGuid = Guid.NewGuid().ToString(),
+                Notes = this.Notes
+            };
+            a3ActiveSlide.WriteFromMemory();
         }
     }
 }

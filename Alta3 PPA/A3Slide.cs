@@ -16,6 +16,7 @@ namespace Alta3_PPA
         public string Type { get; set; }
         public string ChapSub { get; set; }
         public string Title { get; set; }
+        public string Notes { get; set; }
         public PowerPoint.Slide Slide { get; set; }
 
         public A3Slide(PowerPoint.Slide slide)
@@ -208,17 +209,19 @@ namespace Alta3_PPA
 
         public void WriteFromMemory()
         {
-
+            this.WriteActiveGuid();
+            this.WriteHistoricGuid();
+            this.WriteType();
+            this.WriteChapSub();
+            this.WriteTitle();
+            this.WriteDay();
+            this.WriteNotes();
         }
         public void WriteActiveGuid()
         {
             PowerPoint.Shape aguid;
             try { aguid = this.Slide.Shapes["ACTIVE_GUID"]; } catch { aguid = this.MakeActiveGuid(); }
             aguid.TextFrame.TextRange.Text = this.ActiveGuid;
-            aguid.Left = 0;
-            aguid.Top = 400;
-            aguid.Height = 30;
-            aguid.Width = 500;
             aguid.Name = "ACTIVE_GUID";
             aguid.Title = "ACTIVE_GUID";
         }
@@ -232,10 +235,6 @@ namespace Alta3_PPA
                 hguidText += guid;
             }
             hguid.TextFrame.TextRange.Text = hguidText;
-            hguid.Left = 0;
-            hguid.Top = 430;
-            hguid.Height = 30;
-            hguid.Width = 500;
             hguid.Name = "HISTORIC_GUID";
             hguid.Title = "HISTORIC_GUID";
         }
@@ -252,10 +251,6 @@ namespace Alta3_PPA
             {
                 this.Slide.CustomLayout.Name = "CONTENT";
             }
-            type.Left = 500;
-            type.Top = 400;
-            type.Height = 30;
-            type.Width = 500;
             type.Name = "TYPE";
             type.Title = "TYPE";
         }
@@ -264,14 +259,28 @@ namespace Alta3_PPA
             PowerPoint.Shape chapsub;
             try { chapsub = this.Slide.Shapes["CHAP:SUB"]; } catch { chapsub = this.MakeChapSub(); }
             chapsub.TextFrame.TextRange.Text = this.ChapSub;
-            chapsub.Left = 12;
-            chapsub.Height = 28;
-            chapsub.Top = 1;
-            chapsub.Width = 720;
-            chapsub.TextFrame.TextRange.Characters().Font.Size = 16;
-            chapsub.TextFrame.TextRange.Font.Color.ObjectThemeColor = Microsoft.Office.Core.MsoThemeColorIndex.msoThemeColorAccent5;
             chapsub.Name = "CHAP:SUB";
             chapsub.Title = "CHAP:SUB";
+        }
+        public void WriteTitle()
+        {
+            PowerPoint.Shape title;
+            try { title = this.Slide.Shapes["TITLE"]; } catch { title = this.MakeTitle(); }
+            title.TextFrame.TextRange.Text = this.Title;
+            title.Name = "TITLE";
+            title.Title = "TITLE";
+        }
+        public void WriteDay()
+        {
+            PowerPoint.Shape day;
+            try { day = this.Slide.Shapes["DAY"]; } catch { day = this.MakeDay(); }
+            day.TextFrame.TextRange.Text = this.Day;
+            day.Name = "DAY";
+            day.Title = "DAY";
+        }
+        public void WriteNotes()
+        {
+
         }
 
         public PowerPoint.Shape MakeActiveGuid()
@@ -290,7 +299,7 @@ namespace Alta3_PPA
             hguid.Title = "HISTORIC_GUID";
             return hguid;
         }
-        private PowerPoint.Shape MakeSlideType()
+        public PowerPoint.Shape MakeSlideType()
         {
             PowerPoint.Shape type = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 500, 400, 500, 30);
             type.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
@@ -298,81 +307,35 @@ namespace Alta3_PPA
             type.Title = "TYPE";
             return type;
         }
-        private PowerPoint.Shape MakeChapSub()
+        public PowerPoint.Shape MakeChapSub()
         {
             PowerPoint.Shape chapsub = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 12, 1, 720, 28);
             chapsub.TextFrame.TextRange.Characters().Font.Size = 16;
             chapsub.TextFrame.TextRange.Font.Color.ObjectThemeColor = Microsoft.Office.Core.MsoThemeColorIndex.msoThemeColorAccent5;
             chapsub.Name = "CHAP:SUB";
             chapsub.Title = "CHAP:SUB";
+            if (this.Type == "COURSE")
+            {
+                chapsub.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
+            }
             return chapsub;
         }
-
-        #region TODO: IMPLEMENT
-        public void WriteTitle(string SlideType)
+        private PowerPoint.Shape MakeTitle()
         {
             PowerPoint.Shape title;
-            try { title = this.Slide.Shapes["TITLE"]; } catch { title = this.MakeTitle(SlideType); }
-            title.TextFrame.TextRange.Text = this.Title;
-            title.Name = "TITLE";
-            title.Title = "TITLE";
-            switch (SlideType)
+            switch (this.Type)
             {
                 case "COURSE":
-                    title.Left = 12;
-                    title.Height = 28;
-                    title.Top = 1;
-                    title.Width = 720;
-                    title.TextFrame.TextRange.Characters().Font.Size = 16;
-                    title.TextFrame.TextRange.Font.Color.ObjectThemeColor = Microsoft.Office.Core.MsoThemeColorIndex.msoThemeColorAccent5;
+                    title = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 312, 192, 358, 106);
                     break;
                 case "CHAPTER":
-                    title.Left = 12;
-                    title.Height = 28;
-                    title.Top = 1;
-                    title.Width = 720;
-                    title.TextFrame.TextRange.Characters().Font.Size = 16;
-                    title.TextFrame.TextRange.Font.Color.ObjectThemeColor = Microsoft.Office.Core.MsoThemeColorIndex.msoThemeColorAccent5;
+                    title = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 18, 81, 934, 50);
                     break;
                 case "QUESTION":
-                    title.Left = 12;
-                    title.Height = 28;
-                    title.Top = 1;
-                    title.Width = 720;
-                    title.TextFrame.TextRange.Characters().Font.Size = 16;
-                    title.TextFrame.TextRange.Font.Color.ObjectThemeColor = Microsoft.Office.Core.MsoThemeColorIndex.msoThemeColorAccent5;
+                    title = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 30, 960, 50, 28);
                     break;
                 default:
-                    title.Left = 12;
-                    title.Height = 28;
-                    title.Top = 1;
-                    title.Width = 720;
-                    title.TextFrame.TextRange.Characters().Font.Size = 16;
-                    title.TextFrame.TextRange.Font.Color.ObjectThemeColor = Microsoft.Office.Core.MsoThemeColorIndex.msoThemeColorAccent5;
-                    break;
-            }
-        }
-        public void WriteDay()
-        {
-            
-        }
-
-        private PowerPoint.Shape MakeTitle(string SlideType)
-        {
-            PowerPoint.Shape title;
-            switch (SlideType)
-            {
-                case "COURSE":
-                    title = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 0, 10, 10, 30);
-                    break;
-                case "CHAPTER":
-                    title = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 0, 10, 10, 30);
-                    break;
-                case "QUESTION":
-                    title = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 0, 10, 10, 30);
-                    break;
-                default:
-                    title = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 0, 10, 10, 30);
+                    title = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 12, 30, 936, 50);
                     break;
             }
             title.Name = "TITLE";
@@ -387,11 +350,5 @@ namespace Alta3_PPA
             day.Title = "DAY";
             return day;
         }
-
-        public void ValidateMetadata(A3LogFile logFile)
-        {
-
-        }
-        #endregion
     }
 }

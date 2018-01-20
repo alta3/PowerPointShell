@@ -36,7 +36,6 @@
         {
             this.TabA3 = this.Factory.CreateRibbonTab();
             this.GrpInitialize = this.Factory.CreateRibbonGroup();
-            this.BtnMergeFromYaml = this.Factory.CreateRibbonButton();
             this.BtnGenFromYaml = this.Factory.CreateRibbonButton();
             this.BtnInitialize = this.Factory.CreateRibbonButton();
             this.GrpActiveDev = this.Factory.CreateRibbonGroup();
@@ -64,17 +63,10 @@
             // 
             // GrpInitialize
             // 
-            this.GrpInitialize.Items.Add(this.BtnMergeFromYaml);
             this.GrpInitialize.Items.Add(this.BtnGenFromYaml);
             this.GrpInitialize.Items.Add(this.BtnInitialize);
             this.GrpInitialize.Label = "Initialize";
             this.GrpInitialize.Name = "GrpInitialize";
-            // 
-            // BtnMergeFromYaml
-            // 
-            this.BtnMergeFromYaml.Label = "Merge From YAML";
-            this.BtnMergeFromYaml.Name = "BtnMergeFromYaml";
-            this.BtnMergeFromYaml.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.BtnMergeFromYaml_Click);
             // 
             // BtnGenFromYaml
             // 
@@ -165,7 +157,6 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton BtnRecord;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton BtnEnvironmentSettings;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton BtnInitialize;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton BtnMergeFromYaml;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton BtnFixAllMetadata;
         private System.Windows.Forms.OpenFileDialog OpenYamlForGen;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton BtnShowSlideMetadata;

@@ -45,7 +45,7 @@ namespace Alta3_PPA
             a3ActiveSlide.Slide.Shapes.Range("TOC").ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick].Hyperlink.Address = null;
             a3ActiveSlide.Slide.Shapes.Range("TOC").ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick].Hyperlink.SubAddress = null;
             a3ActiveSlide.Slide.Shapes.Range("TOC").TextFrame.TextRange.ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick].Hyperlink.Address = null;
-            a3ActiveSlide.Slide.Shapes.Range("TOC").TextFrame.TextRange.ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick].Hyperlink.SubAddress = presentation.Slides.Range(2).SlideID + "," + presentation.Slides.Range(2).SlideIndex + "," + presentation.Slides.Range(2).Name;
+            a3ActiveSlide.Slide.Shapes.Range("TOC").TextFrame.TextRange.ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick].Hyperlink.SubAddress = presentation.Slides[2].SlideID + "," + presentation.Slides[2].SlideIndex + "," + presentation.Slides[2].Name;
 
             // Write the Chapter VBA to the slide itself
             string index = String.Concat("Slide", presentation.Slides.Count);
