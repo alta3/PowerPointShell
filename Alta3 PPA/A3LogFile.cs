@@ -16,7 +16,7 @@ namespace Alta3_PPA
 
         public A3LogFile()
         {
-            this.Timestamp = DateTimeOffset.Now.ToUnixTimeSeconds().ToString();
+            this.Timestamp = DateTimeOffset.Now.DateTime.ToString().Replace('/','.').Replace(':','.').Replace(' ','-');
             this.Path = string.Concat(A3Globals.A3_LOG, @"\", this.Timestamp, ".log.txt");
             this.Entries = new List<A3LogEntry>();
         }
@@ -58,18 +58,18 @@ namespace Alta3_PPA
         }
         public void WriteError(string message)
         {
-            A3LogEntry entry = new A3LogEntry("ERROR", message);
-            File.AppendAllText(this.Path, entry.Entry);
+            this.Entries.Add(new A3LogEntry("ERROR", message));
+            File.AppendAllText(this.Path, String.Concat(this.Entries.Last().Entry.ToString(), Environment.NewLine));
         }
         public void WriteWarn(string message)
         {
-            A3LogEntry entry = new A3LogEntry("WARN", message);
-            File.AppendAllText(this.Path, entry.Entry);
+            this.Entries.Add(new A3LogEntry("WARN", message));
+            File.AppendAllText(this.Path, String.Concat(this.Entries.Last().Entry.ToString(), Environment.NewLine));
         }
         public void WriteInfo(string message)
         {
-            A3LogEntry entry = new A3LogEntry("INFO", message);
-            File.AppendAllText(this.Path, entry.Entry);
+            this.Entries.Add(new A3LogEntry("INFO", message));
+            File.AppendAllText(this.Path, String.Concat(this.Entries.Last().Entry.ToString(), Environment.NewLine));
         }
     }
 }

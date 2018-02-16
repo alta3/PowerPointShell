@@ -74,12 +74,6 @@
             this.BtnGenFromYaml.Name = "BtnGenFromYaml";
             this.BtnGenFromYaml.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.BtnGenFromYaml_Click);
             // 
-            // BtnInitialize
-            // 
-            this.BtnInitialize.Label = "Initialize Dev Environment";
-            this.BtnInitialize.Name = "BtnInitialize";
-            this.BtnInitialize.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.BtnInitialize_Click);
-            // 
             // GrpActiveDev
             // 
             this.GrpActiveDev.Items.Add(this.BtnEnvironmentSettings);
@@ -117,12 +111,6 @@
             this.BtnPublish.Label = "Publish Products";
             this.BtnPublish.Name = "BtnPublish";
             this.BtnPublish.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.BtnPublish_Click);
-            // 
-            // BtnRecord
-            // 
-            this.BtnRecord.Label = "Record Presentation";
-            this.BtnRecord.Name = "BtnRecord";
-            this.BtnRecord.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.BtnRecord_Click);
             // 
             // OpenYamlForGen
             // 

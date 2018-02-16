@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using YamlDotNet.Core;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NodeDeserializers;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
 namespace Alta3_PPA
@@ -18,7 +20,7 @@ namespace Alta3_PPA
         public List<A3Lab> Labs { get; set; }
         #endregion
 
-        #region Generation Methods
+        #region Generate From YAML Methods
         public void GeneratePresentation(PowerPoint.Presentation presentation)
         {
             this.GenerateCourseSlide(presentation);
@@ -104,6 +106,11 @@ namespace Alta3_PPA
         #endregion
 
         #region Validation Methods
+        public void ValidateYAMLStructure(A3LogFile logFile, string yamlText)
+        {
+            A3Yaml.Lint(logFile, yamlText);
+        }
+
         public void Validate(A3LogFile logFile, int processingLevel)
         {
             this.ValidateTitle(logFile);

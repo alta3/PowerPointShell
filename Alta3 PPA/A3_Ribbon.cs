@@ -71,24 +71,26 @@ namespace Alta3_PPA
             // Read the file into a string for processing
             string text = File.ReadAllText(yamlPath);
 
+            // Lint the YAML file before attempting to deserialize the outline
+            A3Yaml.Lint(logFile, text);
+
+            // Log that we are about to try and desearilize this will help to see if our linting is effective or not
+            logFile.WriteInfo("YAML lint complete. About to desearilize outline.");
+
             // Create the outline from the YAML file
-            StringReader input = new StringReader(text);
             Deserializer deserializer = new DeserializerBuilder().WithNamingConvention(new CamelCaseNamingConvention()).Build();
             A3Outline outline = new A3Outline();
-            try
-            { 
-                outline = deserializer.Deserialize<A3Outline>(input);
-            }
-            catch (Exception ex)
-            {
-                logFile.WriteError(ex.Message);
-            }
+            try { outline = deserializer.Deserialize<A3Outline>(text); }
+            catch (Exception ex) { logFile.WriteError(ex.Message); }
 
             // outline.Validate(logFile, "GenFromYaml");
 
-            if (File.Exists(logFile.Path))
+            if (logFile.HasError())
             {
-                string errorMsg = String.Concat("There were errors during the validation process.\r\nPlease check the error file located at: ", logFile.Path, " for more information.\r\nIn order to successfully run the operation you must fix these errors.");
+                string errorMsg = String.Concat("There were errors during the validation process.\r\n",
+                    "The first error in the log is: ", logFile.Entries[0].Message,
+                    "Please check the error file located at: ", logFile.Path, " for more information.\r\n",
+                    "In order to successfully run the operation you must fix these errors.");
                 MessageBox.Show(errorMsg, "Errors During Build", MessageBoxButtons.OK);
                 this.OpenYamlForGen.Dispose();
                 return;
@@ -120,26 +122,5 @@ namespace Alta3_PPA
             MessageBox.Show(message, "Build Success", MessageBoxButtons.OK);
         }
         #endregion
-
-        #region TODO: Implementation
-        private void BtnMergeFromYaml_Click(object sender, RibbonControlEventArgs e)
-        {
-            MessageBox.Show("NOT IMPLEMENTED AT THIS TIME", "ERROR", MessageBoxButtons.OK);
-        }
-        private void BtnInitialize_Click(object sender, RibbonControlEventArgs e)
-        {
-            MessageBox.Show("NOT IMPLEMENTED AT THIS TIME", "ERROR", MessageBoxButtons.OK);
-        }
-        private void BtnRecord_Click(object sender, RibbonControlEventArgs e)
-        {
-            string json = File.ReadAllText("C:\\Users\\Michael\\Documents\\jtest.txt");
-            A3Record.PostIt(new Uri("http://127.0.0.1:8000/invalid"), json);
-
-            // MessageBox.Show("NOT IMPLEMENTED AT THIS TIME", "ERROR", MessageBoxButtons.OK);
-        }
-
-        #endregion
-
-
     }
 }
