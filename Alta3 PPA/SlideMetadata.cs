@@ -98,7 +98,7 @@ namespace Alta3_PPA
                     CBType.SelectedIndex = 6;
                     break;
                 default:
-                    // TODO: Log whatever happened here... cause its wrong... yup wrong.
+                    CBType.SelectedIndex = 1 ;
                     break;
             }
         }

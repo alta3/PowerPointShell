@@ -26,6 +26,7 @@ namespace Alta3_PPA
         private void BtnShowSlideMetadata_Click(object sender, RibbonControlEventArgs e)
         {
             PowerPoint.Slide slide = Globals.ThisAddIn.Application.ActiveWindow.View.Slide;
+            A3Slide.SetActiveSlide(slide);
             A3Slide.ShowMetadataForm();
         }
 
@@ -48,7 +49,7 @@ namespace Alta3_PPA
             A3Environment.StartUp();
 
             FirstChapter first = new FirstChapter();
-            first.Show();
+            first.ShowDialog();
         }
 
         #region GenerateFromYaml
@@ -68,58 +69,8 @@ namespace Alta3_PPA
             // Get the yaml path from the dialoge box
             string yamlPath = this.OpenYamlForGen.FileName;
 
-            // Read the file into a string for processing
-            string text = File.ReadAllText(yamlPath);
-
-            // Lint the YAML file before attempting to deserialize the outline
-            A3Yaml.Lint(logFile, text);
-
-            // Log that we are about to try and desearilize this will help to see if our linting is effective or not
-            logFile.WriteInfo("YAML lint complete. About to desearilize outline.");
-
-            // Create the outline from the YAML file
-            Deserializer deserializer = new DeserializerBuilder().WithNamingConvention(new CamelCaseNamingConvention()).Build();
-            A3Outline outline = new A3Outline();
-            try { outline = deserializer.Deserialize<A3Outline>(text); }
-            catch (Exception ex) { logFile.WriteError(ex.Message); }
-
-            // outline.Validate(logFile, "GenFromYaml");
-
-            if (logFile.HasError())
-            {
-                string errorMsg = String.Concat("There were errors during the validation process.\r\n",
-                    "The first error in the log is: ", logFile.Entries[0].Message,
-                    "Please check the error file located at: ", logFile.Path, " for more information.\r\n",
-                    "In order to successfully run the operation you must fix these errors.");
-                MessageBox.Show(errorMsg, "Errors During Build", MessageBoxButtons.OK);
-                this.OpenYamlForGen.Dispose();
-                return;
-            }
-
-            // Open a copy of the blank PowerPoint in the current PowerPoint context
-            PowerPoint.Presentation ppt = Globals.ThisAddIn.Application.Presentations.Open(A3Globals.BLANK_POWERPOINT, 0, 0, Microsoft.Office.Core.MsoTriState.msoTrue);
-           
-            // Save the powerpoint presentation to the working directory so that changes do not affect the model presentation
-            string saveDir = String.Concat(A3Globals.A3_WORKING, "\\", outline.Course);
-            try { Directory.CreateDirectory(saveDir); } catch { }
-            string savePath = String.Concat(saveDir, "\\", outline.Course);
-            int version = 0;
-            while (File.Exists(String.Concat(savePath, ".pptm")))
-            {
-                version += 1;
-                savePath = string.Concat(saveDir, "\\", outline.Course, version.ToString());
-            }
-            ppt.SaveAs(String.Concat(savePath, ".pptm"));
-
-            // Generate the Presentation
-            outline.GeneratePresentation(ppt);
-
-            // Save the newly generated Presentation
-            ppt.Save();
-
-            // Alert the user the operation has concluded
-            string message = String.Concat("The PowerPoint has been successfully built and saved to the following location:\r\n", savePath);
-            MessageBox.Show(message, "Build Success", MessageBoxButtons.OK);
+            // Generate from YAML file
+            A3Yaml.GenerateFromYaml(logFile, yamlPath);
         }
         #endregion
     }

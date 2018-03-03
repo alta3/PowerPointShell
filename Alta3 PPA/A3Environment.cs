@@ -16,7 +16,6 @@ namespace Alta3_PPA
             A3Globals.QUIT_FROM_CURRENT_LOOP = false;
         }
 
-        
         public static void StartUp()
         {
             // Create the A3 directory structure if it does not exist. 
@@ -25,6 +24,8 @@ namespace Alta3_PPA
             try { Directory.CreateDirectory(A3Globals.A3_PUBLISH); } catch { }
             try { Directory.CreateDirectory(A3Globals.A3_LOG); } catch { }
             try { Directory.CreateDirectory(A3Globals.A3_PNGS); } catch { }
+            try { Directory.CreateDirectory(A3Globals.A3_MARKDOWN); } catch { }
+            try { Directory.CreateDirectory(A3Globals.A3_LATEX); } catch { }
         }
     }
 }

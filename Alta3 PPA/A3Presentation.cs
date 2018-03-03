@@ -33,35 +33,27 @@ namespace Alta3_PPA
             }
             A3Globals.QUIT_FROM_CURRENT_LOOP = false;
         }
+        public A3Outline ToOutline(A3LogFile logFile)
+        {
+            A3Outline outline = new A3Outline();
 
-        #region TODO: IMPLEMENT
-        // Validate Presentation 
-        public static void Validate(A3LogFile logFile, PowerPoint.Presentation presentation)
-        {
+            // Based on
+            this.ValidateCourseCount(logFile);
 
+            return outline;
         }
-        public static void ValidateMetadata(A3LogFile logFile, PowerPoint.Presentation presentation)
-        {
 
-        }
-        public static void ValidateStructure(A3LogFile logFile, PowerPoint.Presentation presentation)
+        private void ValidateCourseCount(A3LogFile logFile)
         {
-            // Construct the current presentation and then validate
-            A3Presentation a3Presentation = new A3Presentation(presentation);
-        }
-        private static void ValidateCourseSlideNumber(A3LogFile logFile, A3Presentation a3Presentation)
-        {
-            int courseCount = 0;
             List<string> guids = new List<string>();
-            foreach (A3Slide slide in a3Presentation.Slides)
+            foreach (A3Slide slide in this.Slides)
             {
                 if (slide.Type.ToLower() == "course")
                 {
                     guids.Add(slide.ActiveGuid);
-                    courseCount++;
                 }
             }
-            if (courseCount > 1)
+            if (guids.Count > 1)
             {
                 string message = "More than one course slide found. The following slides active guid reports it is currently a course slide:\r\n";
                 foreach (string guid in guids)
@@ -69,11 +61,10 @@ namespace Alta3_PPA
                     logFile.WriteError(String.Concat(message, "ACTIVE GUID: ", guid, "\r\n"));
                 }
             }
-            else if (courseCount < 1)
+            else if (guids.Count < 1)
             {
                 logFile.WriteError("No course slide found in the metadata fields\r\n");
             }
         }
-        #endregion
     }
 }

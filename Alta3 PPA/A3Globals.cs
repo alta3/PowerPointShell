@@ -20,10 +20,12 @@ namespace Alta3_PPA
         public static string A3_WORKING = String.Concat(A3_PATH, @"\working");
         public static string A3_PUBLISH = String.Concat(A3_PATH, @"\publish");
         public static string A3_PNGS = String.Concat(A3_PUBLISH, @"\pngs");
+        public static string A3_LATEX = String.Concat(A3_PUBLISH, @"\latex");
+        public static string A3_MARKDOWN = String.Concat(A3_PUBLISH, @"\markdown");
         public static string A3_LOG = String.Concat(A3_PATH, @"\log");
 
         // Alta3 Resoures location
-        public static string A3_RESOURCE = String.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"\Alta 3\A3PPA\resources");
+        public static string A3_RESOURCE = String.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"\Alta3\A3PPA\resources");
 
         // Global resoures including the model powerpoint and the model vba
         public static string MODEL_POWERPOINT = String.Concat(A3_RESOURCE, @"\mod.pptm");

@@ -191,9 +191,11 @@
     <Compile Include="A3Environment.cs" />
     <Compile Include="A3Lab.cs" />
     <Compile Include="A3LogFile.cs" />
+    <Compile Include="A3Notes.cs" />
     <Compile Include="A3Outline.cs" />
     <Compile Include="A3Content.cs" />
     <Compile Include="A3Presentation.cs" />
+    <Compile Include="A3Publish.cs" />
     <Compile Include="A3Question.cs" />
     <Compile Include="A3Record.cs" />
     <Compile Include="A3Slide.cs" />
@@ -230,6 +232,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="PublishOptions.resx">
+      <DependentUpon>PublishOptions.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Record.resx">
       <DependentUpon>Record.cs</DependentUpon>
     </EmbeddedResource>

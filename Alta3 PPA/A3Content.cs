@@ -12,6 +12,7 @@ namespace Alta3_PPA
         public string Title { get; set; }
         public string Day { get; set; }
         public string Notes { get; set; }
+        public string Type { get; set; }
         public string ActiveGuid { get; set; }
         public List<string> HistoricGuids { get; set; }
 

@@ -154,17 +154,7 @@ namespace Alta3_PPA
                 }
 
             }
-
-            var serializer = new SerializerBuilder().Build();
-            var yaml = serializer.Serialize(outline);
-            File.WriteAllText(String.Concat(A3Globals.A3_PUBLISH, @"\yaml.yml"), yaml);
-
-            foreach (PowerPoint.Slide slide in presentation.Slides)
-            {
-                string guid = slide.Shapes["ACTIVE_GUID"].TextFrame.TextRange.Text;
-                string path = String.Concat(A3Globals.A3_PNGS, "\\", guid, ".png");
-                slide.Export(path, "png", 1920, 1080);
-            }
+            A3Yaml.ProduceYaml(a3LogFile, outline);
 
             REPORT:
             if (a3LogFile.HasError())

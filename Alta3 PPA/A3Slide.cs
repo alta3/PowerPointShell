@@ -98,6 +98,7 @@ namespace Alta3_PPA
                         HistoricGuids = this.HistoricGuids,
                         Day = this.Day,
                         Title = this.Title,
+                        Type = this.Type,
                         // Figure out how to do the Notes page correctly
                         // Notes = this.Slide.NotesPage.Shapes[1].TextFrame.TextRange.Text
                     };

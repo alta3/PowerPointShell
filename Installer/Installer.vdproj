@@ -15,7 +15,7 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_1411049B12EED4440E2B94A4ECB05B1E"
+        "MsmKey" = "8:_11166A6912C8EAE6A9BB6D805E2D4F7B"
         "OwnerKey" = "8:_D7B2A610B96444D5AA48EB373A627D8A"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -99,6 +99,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_CC6D903F85194182852A2712D6757CE4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D117C8CCD62B458D82B4ABC3CA684376"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_D7B2A610B96444D5AA48EB373A627D8A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -118,7 +130,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_1411049B12EED4440E2B94A4ECB05B1E"
+        "OwnerKey" = "8:_11166A6912C8EAE6A9BB6D805E2D4F7B"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -252,14 +264,14 @@
         }
         "File"
         {
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_1411049B12EED4440E2B94A4ECB05B1E"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_11166A6912C8EAE6A9BB6D805E2D4F7B"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:YamlDotNet, Version=4.2.2.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:YamlDotNet, Version=4.2.3.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_1411049B12EED4440E2B94A4ECB05B1E"
+                    "_11166A6912C8EAE6A9BB6D805E2D4F7B"
                     {
                     "Name" = "8:YamlDotNet.dll"
                     "Attributes" = "3:512"
@@ -569,6 +581,46 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CC6D903F85194182852A2712D6757CE4"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\AppData\\Roaming\\Microsoft\\Templates\\Document Themes\\book.thmx"
+            "TargetName" = "8:book.thmx"
+            "Tag" = "8:"
+            "Folder" = "8:_91977092478349C5A5B72B524F56951D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D117C8CCD62B458D82B4ABC3CA684376"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\AppData\\Roaming\\Microsoft\\Templates\\Document Themes\\pres.thmx"
+            "TargetName" = "8:pres.thmx"
+            "Tag" = "8:"
+            "Folder" = "8:_91977092478349C5A5B72B524F56951D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F89FFC5ED3E6446C81CF450B22EDD457"
             {
             "SourcePath" = "8:..\\resources\\blank.pptm"
@@ -665,12 +717,12 @@
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
         "ProductVersion" = "8:0.1.0"
-        "Manufacturer" = "8:Alta 3"
+        "Manufacturer" = "8:Alta3"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
         "Title" = "8:A3PPA"
         "Subject" = "8:"
-        "ARPCONTACT" = "8:Alta 3"
+        "ARPCONTACT" = "8:Alta3"
         "Keywords" = "8:"
         "ARPCOMMENTS" = "8:A3PPA"
         "ARPURLINFOABOUT" = "8:"
@@ -1280,7 +1332,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D7B2A610B96444D5AA48EB373A627D8A"
             {
-            "SourcePath" = "8:..\\Alta3 PPA\\obj\\x86\\Release\\Alta3 PPA.dll"
+            "SourcePath" = "8:..\\Alta3 PPA\\obj\\Debug\\Alta3 PPA.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_1091ABB96C49449AA7B20E3D58A11B8C"

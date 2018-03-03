@@ -20,7 +20,7 @@ namespace Alta3_PPA
         public List<A3Lab> Labs { get; set; }
         #endregion
 
-        #region Generate From YAML Methods
+        #region Generate Presentation
         public void GeneratePresentation(PowerPoint.Presentation presentation)
         {
             this.GenerateCourseSlide(presentation);
@@ -105,12 +105,138 @@ namespace Alta3_PPA
         }
         #endregion
 
-        #region Validation Methods
-        public void ValidateYAMLStructure(A3LogFile logFile, string yamlText)
+        #region Generate LaTex
+        public void GenerateLaTex(PowerPoint.Presentation presentation, A3Outline outline)
         {
-            A3Yaml.Lint(logFile, yamlText);
+            this.GenerateBookPNGs(presentation);
+            this.GenerateLaTexMain();
+            this.GenerateLaTexChapters();
+            this.GenerateLaTexSubchapters(outline);
         }
 
+        private void GenerateBookPNGs(PowerPoint.Presentation presentation)
+        {
+            // Change the book to the white theme
+            presentation.SlideMaster.Theme.ThemeColorScheme.Load(String.Concat(A3Globals.A3_RESOURCE, @"\book.thmx"));
+
+            // Push the files to PNGS
+            foreach (PowerPoint.Slide slide in presentation.Slides)
+            {
+                string guid = slide.Shapes["ACTIVE_GUID"].TextFrame.TextRange.Text;
+                try { Directory.CreateDirectory(String.Concat(A3Globals.A3_LATEX, @"\pngs")); } catch { }
+                string path = String.Concat(A3Globals.A3_LATEX, @"\pngs\", guid, ".png");
+                slide.Export(path, "png", 1920, 1080);
+            }
+
+            // Change the book to the black theme
+            presentation.SlideMaster.Theme.ThemeColorScheme.Load(String.Concat(A3Globals.A3_RESOURCE, @"\pres.thmx"));
+        }
+        private void GenerateLaTexMain()
+        {
+            List<string> main = new List<string>
+            {
+                @"\documentclass[openany]{book}",
+                @"\usepackage[utf8]{inputenc}",
+                @"\usepackage[top = 0.5in, bottom = 0.5in, bmargin = 0.5in, left = 0.6in, right = 0.6in, headsep = 3mm ]{geometry}",
+                @"\usepackage{graphicx}",
+                @"\usepackage{fancyhdr}",
+                @"\pagestyle{fancy}",
+                @"\fancyfoot{}",
+                @"\fancyfoot[C]{\thepage}",
+                @"\fancyfoot[LR]{\copyright \ Stuart Feeser}",
+
+                "",
+                @"\begin{document}",
+                @"\begin{titlepage}",
+                @"\vspace*{55mm}",
+                @"\centering",
+                String.Concat(@"\includegrapics[width=.5\textwidth]{", A3Globals.A3_RESOURCE.Replace('\\','/'), @"/a3logo"),
+                @"\linebreak",
+                @"\linebreak",
+                String.Concat(@"{\Huge\textbf{", this.Course, @"}}"),
+                @"\linebreak",
+                @"\linebreak",
+                @"{\Large Alta3 Research, Inc.}",
+                @"\\",
+                @"{\today}",
+                @"\vfill",
+                @"\begin{flushright}",
+                @"Alta3 Research, Inc. \\",
+                @"sfeeser@alta3.com \\",
+                @"https://alta3.com",
+                @"\end{flushright}",
+                @"\end{titlepage}",
+
+                "",
+                @"\frontmatter",
+                @"\maketitle",
+                @"\tableofcontents",
+
+                "",
+                @"\mainmatter"
+            };
+            foreach (A3Chapter chapter in this.Chapters)
+            {
+                try { Directory.CreateDirectory(String.Concat(A3Globals.A3_LATEX, @"\chapters\", chapter.Title)); } catch { }
+                main.Add(String.Concat(@"\include{", A3Globals.A3_LATEX.Replace('\\','/'), @"/chapters/", chapter.Title, @".tex}"));
+            }
+
+            main.Add("");
+            main.Add(@"\backmatter");
+
+            main.Add("");
+            main.Add(@"\end{document}");
+
+            File.WriteAllLines(String.Concat(A3Globals.A3_LATEX, @"\", "main.tex"), main);
+        }
+        private void GenerateLaTexChapters()
+        {
+            foreach (A3Chapter chapter in this.Chapters)
+            {
+                List<string> chap = new List<string>
+                {
+                    String.Concat(@"\chapter{", chapter.Title, @"}"),
+                    @"\newpage",
+                    ""
+                };
+                foreach (A3Subchapter subchapter in chapter.Subchapters)
+                {
+                    Directory.CreateDirectory(String.Concat(A3Globals.A3_LATEX, @"\chapters\", chapter.Title, @"\subchapters\"));
+                    chap.Add(String.Concat(@"\include{", A3Globals.A3_LATEX.Replace('\\', '/'), @"/", chapter.Title, @"/subchapters/", subchapter.Title, @".tex}"));
+                }
+                File.WriteAllLines(String.Concat(A3Globals.A3_LATEX, @"\chapters\", chapter.Title, @".tex"), chap);
+            }
+        }
+        private void GenerateLaTexSubchapters(A3Outline outline)
+        {
+            foreach (A3Chapter chapter in this.Chapters)
+            {
+                foreach (A3Subchapter subchapter in chapter.Subchapters)
+                {
+                    List<string> sub = new List<string>
+                    {
+                        String.Concat(@"\section{", subchapter.Title, @"}")
+                    };
+                    foreach (A3Content a3Content in subchapter.Slides)
+                    {
+                        sub.Add(@"\begin{figure}[h!]");
+                        sub.Add(String.Concat(@"\includegraphics[width=1\linewidth, height=.45\textheight]{", A3Globals.A3_LATEX.Replace('\\','/'), @"/pngs/", a3Content.ActiveGuid));
+                        sub.Add(@"\end{figure}");
+                        if (a3Content.Notes.Trim() != "" || a3Content.Notes.Trim() == null)
+                        {
+                            sub.Add(@"\begin{flushleft}");
+                            string txt = A3Notes.ToLatex(outline, File.ReadAllText(String.Concat(A3Globals.A3_PUBLISH, @"\markdown\", a3Content.ActiveGuid, @".md")));
+                            sub.Add(txt.Replace(Environment.NewLine, @"\\"));
+                            sub.Add(@"\end{flushleft}");
+                        }
+                    }
+                    File.WriteAllLines(String.Concat(A3Globals.A3_LATEX, @"\chapters\", chapter.Title, @"\subchapters\", subchapter.Title, @".tex"), sub);
+                }
+            }
+        }
+        #endregion
+
+        #region Validation Methods
         public void Validate(A3LogFile logFile, int processingLevel)
         {
             this.ValidateTitle(logFile);
