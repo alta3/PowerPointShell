@@ -35,21 +35,8 @@ namespace Alta3_PPA
             PowerPoint.Presentation presentation = Globals.ThisAddIn.Application.ActivePresentation;
             A3Presentation.FixMetadata(presentation);
 
-            System.IO.DirectoryInfo di = new DirectoryInfo(A3Globals.A3_PUBLISH);
-
-            foreach (FileInfo file in di.GetFiles())
-            {
-                file.Delete();
-            }
-            foreach (DirectoryInfo dir in di.GetDirectories())
-            {
-                dir.Delete(true);
-            }
-
-            A3Environment.StartUp();
-
-            FirstChapter first = new FirstChapter();
-            first.ShowDialog();
+            PublishOptions publish = new PublishOptions();
+            publish.ShowDialog();
         }
 
         #region GenerateFromYaml

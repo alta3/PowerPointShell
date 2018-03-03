@@ -208,20 +208,11 @@
     <Compile Include="A3_Ribbon.Designer.cs">
       <DependentUpon>A3_Ribbon.cs</DependentUpon>
     </Compile>
-    <Compile Include="FirstChapter.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FirstChapter.Designer.cs">
-      <DependentUpon>FirstChapter.cs</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
     <EmbeddedResource Include="A3_Ribbon.resx">
       <DependentUpon>A3_Ribbon.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FirstChapter.resx">
-      <DependentUpon>FirstChapter.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
