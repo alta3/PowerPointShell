@@ -13,6 +13,10 @@ namespace Alta3_PPA
 {
     class A3Publish
     {
+        public static void PublishPowerPoint(PowerPoint.Presentation presentation)
+        {
+            A3Globals.A3PRESENTATION = new A3Presentation(presentation);
+        }
         public static void PublishPNGs(PowerPoint.Presentation presentation)
         {
             foreach (PowerPoint.Slide slide in presentation.Slides)

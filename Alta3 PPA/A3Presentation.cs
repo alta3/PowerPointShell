@@ -37,33 +37,84 @@ namespace Alta3_PPA
         {
             A3Outline outline = new A3Outline();
 
-            // Based on
-            this.ValidateCourseCount(logFile);
+            List<A3Slide> a3SlidesCourse = this.GetCourse(logFile);
+            try { outline.Course = a3SlidesCourse[0].Title; }
+            catch { outline.Course = "!!!ERROR!!! -- SEE THE LOGS"; }
+
+            outline.Chapters = new List<A3Chapter>();
+            this.GetChapters(outline, logFile);
+
+            foreach (A3Chapter a3Chapter in outline.Chapters)
+            {
+                a3Chapter.Subchapters = new List<A3Subchapter>();
+                this.GetSubChapters(a3Chapter, logFile);
+            }
 
             return outline;
         }
 
-        private void ValidateCourseCount(A3LogFile logFile)
+        private List<A3Slide> GetCourse(A3LogFile logFile)
         {
-            List<string> guids = new List<string>();
-            foreach (A3Slide slide in this.Slides)
-            {
-                if (slide.Type.ToLower() == "course")
-                {
-                    guids.Add(slide.ActiveGuid);
-                }
-            }
-            if (guids.Count > 1)
+            List<A3Slide> a3SlidesCourse = new List<A3Slide>();
+            a3SlidesCourse = this.Slides.FindAll(a3Slide => a3Slide.Type.ToLower() == "course");
+            if (a3SlidesCourse.Count > 1)
             {
                 string message = "More than one course slide found. The following slides active guid reports it is currently a course slide:\r\n";
-                foreach (string guid in guids)
+                foreach (A3Slide a3Slide in a3SlidesCourse)
                 {
-                    logFile.WriteError(String.Concat(message, "ACTIVE GUID: ", guid, "\r\n"));
+                    logFile.WriteError(String.Concat(message, "ACTIVE GUID: ", a3Slide.ActiveGuid, "\r\n"));
                 }
             }
-            else if (guids.Count < 1)
+            else if (a3SlidesCourse.Count < 1)
             {
                 logFile.WriteError("No course slide found in the metadata fields\r\n");
+            }
+            return a3SlidesCourse;
+        }
+        private void GetChapters(A3Outline outline, A3LogFile logFile)
+        {
+            List<A3Slide> a3SlidesChapters = new List<A3Slide>();
+            a3SlidesChapters = this.Slides.FindAll(a3Slide => a3Slide.Type.ToLower() == "chapter");
+            foreach (A3Slide a3Chapter in a3SlidesChapters)
+            {
+                outline.Chapters.Add((A3Chapter)a3Chapter.TypeConversion());
+            }
+            if (outline.Chapters.Count < 1)
+            {
+                logFile.WriteWarn("NO CHAPTERS FOUND!!!");
+            }
+        }
+        private void GetSubChapters(A3Chapter a3Chapter, A3LogFile logFile)
+        {
+            List<A3Slide> a3Slides = new List<A3Slide>();
+            a3Slides = this.Slides.FindAll(a3Slide => (a3Slide.Type.ToLower() == "content" || a3Slide.Type.ToLower() == "no-pub") && a3Slide.ChapSub.Split(':')[0].Trim().ToLower() == a3Chapter.Title.Trim().ToLower());
+
+            List<string> subTitles = new List<string>();
+            foreach (A3Slide a3Slide in a3Slides)
+            {
+                subTitles.Add(a3Slide.ChapSub.Split(':')[1].Trim());
+            }
+
+            foreach (string subTitle in subTitles.Distinct().ToList())
+            {
+                List<A3Slide> a3SubSlides = new List<A3Slide>();
+                a3SubSlides = a3Slides.FindAll(slide => slide.ChapSub.Split(':')[1].Trim() == subTitle);
+                List<A3Content> a3SubContentSlides = new List<A3Content>();
+                foreach (A3Slide a3SubSlide in a3SubSlides)
+                {
+                    a3SubContentSlides.Add((A3Content)a3SubSlide.TypeConversion());
+                }
+                A3Subchapter a3Subchapter = new A3Subchapter
+                {
+                    Title = subTitle,
+                    Slides = a3SubContentSlides,
+                    Questions = new List<A3Question>()
+                };
+                a3Chapter.Subchapters.Add(a3Subchapter);
+            }
+            if (a3Chapter.Subchapters.Count < 1)
+            {
+                logFile.WriteWarn("NO SUBCHAPTERS FOUND");
             }
         }
     }

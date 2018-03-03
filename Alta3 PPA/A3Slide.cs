@@ -72,16 +72,16 @@ namespace Alta3_PPA
 
         public object TypeConversion()
         {
-            switch (this.Type)
+            switch (this.Type.ToLower())
             {
-                case "COURSE":
+                case "course":
                     A3Outline a3Outline = new A3Outline()
                     {
                         Course = this.Title,
                         Chapters = new List<A3Chapter>()
                     };
                     return a3Outline;
-                case "CHAPTER":
+                case "chapter":
                     A3Chapter a3Chapter = new A3Chapter()
                     {
                         ActiveGuid = this.ActiveGuid,

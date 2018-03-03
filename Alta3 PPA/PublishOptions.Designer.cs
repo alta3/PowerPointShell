@@ -37,7 +37,7 @@
             this.checkBox3 = new System.Windows.Forms.CheckBox();
             this.checkBox4 = new System.Windows.Forms.CheckBox();
             this.checkBox5 = new System.Windows.Forms.CheckBox();
-            this.button2 = new System.Windows.Forms.Button();
+            this.btnPublish = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.checkBox6 = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
@@ -143,14 +143,15 @@
             this.checkBox5.Text = "Questions";
             this.checkBox5.UseVisualStyleBackColor = true;
             // 
-            // button2
+            // btnPublish
             // 
-            this.button2.Location = new System.Drawing.Point(12, 61);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(583, 23);
-            this.button2.TabIndex = 9;
-            this.button2.Text = "Publish Products";
-            this.button2.UseVisualStyleBackColor = true;
+            this.btnPublish.Location = new System.Drawing.Point(12, 61);
+            this.btnPublish.Name = "btnPublish";
+            this.btnPublish.Size = new System.Drawing.Size(583, 23);
+            this.btnPublish.TabIndex = 9;
+            this.btnPublish.Text = "Publish Products";
+            this.btnPublish.UseVisualStyleBackColor = true;
+            this.btnPublish.Click += new System.EventHandler(this.btnPublish_Click);
             // 
             // label1
             // 
@@ -180,7 +181,7 @@
             this.ClientSize = new System.Drawing.Size(602, 90);
             this.Controls.Add(this.checkBox6);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.button2);
+            this.Controls.Add(this.btnPublish);
             this.Controls.Add(this.checkBox5);
             this.Controls.Add(this.checkBox4);
             this.Controls.Add(this.checkBox3);
@@ -208,7 +209,7 @@
         private System.Windows.Forms.CheckBox checkBox3;
         private System.Windows.Forms.CheckBox checkBox4;
         private System.Windows.Forms.CheckBox checkBox5;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button btnPublish;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.CheckBox checkBox6;
     }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
 namespace Alta3_PPA
 {
@@ -17,5 +18,11 @@ namespace Alta3_PPA
             InitializeComponent();
         }
 
+        private void btnPublish_Click(object sender, EventArgs e)
+        {
+            A3LogFile a3LogFile = new A3LogFile();
+            PowerPoint.Presentation presentation = Globals.ThisAddIn.Application.ActivePresentation;
+
+        }
     }
 }
