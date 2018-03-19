@@ -15,12 +15,6 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_11166A6912C8EAE6A9BB6D805E2D4F7B"
-        "OwnerKey" = "8:_D7B2A610B96444D5AA48EB373A627D8A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_1463B8300E0AD3669DA0A198E359081D"
         "OwnerKey" = "8:_D7B2A610B96444D5AA48EB373A627D8A"
         "MsmSig" = "8:_UNDEFINED"
@@ -75,14 +69,8 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_64CB8E1D3AFE4C6F9A550BD37A20E85F"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_8703E9BD07C34B7690933E636D626E15"
-        "OwnerKey" = "8:_UNDEFINED"
+        "MsmKey" = "8:_675B1ACE69C068F39A4364763A9CE4B7"
+        "OwnerKey" = "8:_D7B2A610B96444D5AA48EB373A627D8A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -93,8 +81,8 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A335247AD4DA43059FDC294CC56AFA41"
-        "OwnerKey" = "8:_UNDEFINED"
+        "MsmKey" = "8:_8F091A1370C6F8DBAE5D79E1A9A155A7"
+        "OwnerKey" = "8:_D7B2A610B96444D5AA48EB373A627D8A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -123,6 +111,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_CAF99A24AD353080642E3873E5EA1AF0"
+        "OwnerKey" = "8:_D7B2A610B96444D5AA48EB373A627D8A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_D7B2A610B96444D5AA48EB373A627D8A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -135,12 +129,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F9532DEDD2414EFC82CC3D4A3D42FCBE"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_D7B2A610B96444D5AA48EB373A627D8A"
         "MsmSig" = "8:_UNDEFINED"
@@ -148,7 +136,19 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_11166A6912C8EAE6A9BB6D805E2D4F7B"
+        "OwnerKey" = "8:_675B1ACE69C068F39A4364763A9CE4B7"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_8F091A1370C6F8DBAE5D79E1A9A155A7"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_CAF99A24AD353080642E3873E5EA1AF0"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -282,37 +282,6 @@
         }
         "File"
         {
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_11166A6912C8EAE6A9BB6D805E2D4F7B"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:YamlDotNet, Version=4.2.3.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_11166A6912C8EAE6A9BB6D805E2D4F7B"
-                    {
-                    "Name" = "8:YamlDotNet.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:YamlDotNet.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_1091ABB96C49449AA7B20E3D58A11B8C"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_1463B8300E0AD3669DA0A198E359081D"
             {
             "AssemblyRegister" = "3:1"
@@ -508,12 +477,23 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_64CB8E1D3AFE4C6F9A550BD37A20E85F"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_675B1ACE69C068F39A4364763A9CE4B7"
             {
-            "SourcePath" = "8:..\\resources\\pres.thmx"
-            "TargetName" = "8:pres.thmx"
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:YamlDotNet, Version=4.3.1.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_675B1ACE69C068F39A4364763A9CE4B7"
+                    {
+                    "Name" = "8:YamlDotNet.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:YamlDotNet.dll"
+            "TargetName" = "8:"
             "Tag" = "8:"
-            "Folder" = "8:_91977092478349C5A5B72B524F56951D"
+            "Folder" = "8:_1091ABB96C49449AA7B20E3D58A11B8C"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -525,27 +505,7 @@
             "PackageAs" = "3:1"
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8703E9BD07C34B7690933E636D626E15"
-            {
-            "SourcePath" = "8:..\\resources\\pdflatex.ps1"
-            "TargetName" = "8:pdflatex.ps1"
-            "Tag" = "8:"
-            "Folder" = "8:_91977092478349C5A5B72B524F56951D"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8A75C5AB13EA4C7F83FF20A85E8FE387"
@@ -568,12 +528,23 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A335247AD4DA43059FDC294CC56AFA41"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_8F091A1370C6F8DBAE5D79E1A9A155A7"
             {
-            "SourcePath" = "8:..\\resources\\pandoc.ps1"
-            "TargetName" = "8:pandoc.ps1"
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Markdig, Version=0.14.9.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_8F091A1370C6F8DBAE5D79E1A9A155A7"
+                    {
+                    "Name" = "8:Markdig.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Markdig.dll"
+            "TargetName" = "8:"
             "Tag" = "8:"
-            "Folder" = "8:_91977092478349C5A5B72B524F56951D"
+            "Folder" = "8:_1091ABB96C49449AA7B20E3D58A11B8C"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -585,7 +556,7 @@
             "PackageAs" = "3:1"
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A38B393DC3E04C03A2A72F162BC7C370"
@@ -679,12 +650,23 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F89FFC5ED3E6446C81CF450B22EDD457"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_CAF99A24AD353080642E3873E5EA1AF0"
             {
-            "SourcePath" = "8:..\\resources\\blank.pptm"
-            "TargetName" = "8:blank.pptm"
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Magick.NET-Q16-AnyCPU, Version=7.4.3.0, Culture=neutral, PublicKeyToken=2004825badfa91ec, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_CAF99A24AD353080642E3873E5EA1AF0"
+                    {
+                    "Name" = "8:Magick.NET-Q16-AnyCPU.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Magick.NET-Q16-AnyCPU.dll"
+            "TargetName" = "8:"
             "Tag" = "8:"
-            "Folder" = "8:_91977092478349C5A5B72B524F56951D"
+            "Folder" = "8:_1091ABB96C49449AA7B20E3D58A11B8C"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -696,13 +678,13 @@
             "PackageAs" = "3:1"
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F9532DEDD2414EFC82CC3D4A3D42FCBE"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F89FFC5ED3E6446C81CF450B22EDD457"
             {
-            "SourcePath" = "8:..\\resources\\book.thmx"
-            "TargetName" = "8:book.thmx"
+            "SourcePath" = "8:..\\resources\\blank.pptm"
+            "TargetName" = "8:blank.pptm"
             "Tag" = "8:"
             "Folder" = "8:_91977092478349C5A5B72B524F56951D"
             "Condition" = "8:"
