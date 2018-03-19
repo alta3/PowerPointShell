@@ -20,20 +20,23 @@ namespace Alta3_PPA
 
         private void BtnFixAllMetadata_Click(object sender, RibbonControlEventArgs e)
         {
+            A3LogFile logFile = new A3LogFile();
             PowerPoint.Presentation presentation = Globals.ThisAddIn.Application.ActivePresentation;
-            A3Presentation.FixMetadata(presentation);
+            A3Presentation.FixMetadata(presentation, logFile);
         }
         private void BtnShowSlideMetadata_Click(object sender, RibbonControlEventArgs e)
         {
             PowerPoint.Slide slide = Globals.ThisAddIn.Application.ActiveWindow.View.Slide;
             A3Slide.SetActiveSlide(slide);
+            A3Globals.A3SLIDE.ReadShapes();
             A3Slide.ShowMetadataForm();
         }
 
         private void BtnPublish_Click(object sender, RibbonControlEventArgs e)
         {
+            A3LogFile logFile = new A3LogFile();
             PowerPoint.Presentation presentation = Globals.ThisAddIn.Application.ActivePresentation;
-            A3Presentation.FixMetadata(presentation);
+            A3Presentation.FixMetadata(presentation, logFile);
 
             PublishOptions publish = new PublishOptions();
             publish.ShowDialog();
@@ -60,5 +63,14 @@ namespace Alta3_PPA
             A3Yaml.GenerateFromYaml(logFile, yamlPath);
         }
         #endregion
+
+        private void button1_Click(object sender, RibbonControlEventArgs e)
+        {
+            PowerPoint.Slide slide = Globals.ThisAddIn.Application.ActiveWindow.View.Slide;
+            A3Slide.SetActiveSlide(slide);
+            Record record = new Record();
+            record.DrawSlideInfo();
+            record.Show();
+        }
     }
 }

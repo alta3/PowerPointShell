@@ -15,20 +15,21 @@ namespace Alta3_PPA
 
         public A3Presentation(PowerPoint.Presentation presentation)
         {
+            this.Slides = new List<A3Slide>();
             foreach (PowerPoint.Slide slide in presentation.Slides)
             {
                 this.Slides.Add(new A3Slide(slide));
             }
         }
 
-        public static void FixMetadata(PowerPoint.Presentation presentation)
+        public static void FixMetadata(PowerPoint.Presentation presentation, A3LogFile logFile)
         {
             foreach (PowerPoint.Slide slide in presentation.Slides)
             {
                 if (!A3Globals.QUIT_FROM_CURRENT_LOOP)
                 {
                     A3Slide.SetActiveSlide(slide);
-                    A3Slide.FixNullMetadata(true);
+                    A3Slide.FixNullMetadata(true, logFile);
                 }
             }
             A3Globals.QUIT_FROM_CURRENT_LOOP = false;
@@ -56,7 +57,12 @@ namespace Alta3_PPA
         private List<A3Slide> GetCourse(A3LogFile logFile)
         {
             List<A3Slide> a3SlidesCourse = new List<A3Slide>();
-            a3SlidesCourse = this.Slides.FindAll(a3Slide => a3Slide.Type.ToLower() == "course");
+            a3SlidesCourse = this.Slides.FindAll(a3Slide => a3Slide.Type.ToUpper() == "COURSE");
+            if (a3SlidesCourse == null)
+            {
+                logFile.WriteError("No course slide found in the metadata fields\r\n");
+                return a3SlidesCourse;
+            }
             if (a3SlidesCourse.Count > 1)
             {
                 string message = "More than one course slide found. The following slides active guid reports it is currently a course slide:\r\n";
@@ -64,10 +70,6 @@ namespace Alta3_PPA
                 {
                     logFile.WriteError(String.Concat(message, "ACTIVE GUID: ", a3Slide.ActiveGuid, "\r\n"));
                 }
-            }
-            else if (a3SlidesCourse.Count < 1)
-            {
-                logFile.WriteError("No course slide found in the metadata fields\r\n");
             }
             return a3SlidesCourse;
         }
@@ -87,18 +89,19 @@ namespace Alta3_PPA
         private void GetSubChapters(A3Chapter a3Chapter, A3LogFile logFile)
         {
             List<A3Slide> a3Slides = new List<A3Slide>();
-            a3Slides = this.Slides.FindAll(a3Slide => (a3Slide.Type.ToLower() == "content" || a3Slide.Type.ToLower() == "no-pub") && a3Slide.ChapSub.Split(':')[0].Trim().ToLower() == a3Chapter.Title.Trim().ToLower());
+            a3Slides = this.Slides.FindAll(a3Slide => (a3Slide.Type.ToLower() == "content" || a3Slide.Type.ToLower() == "no-pub") && a3Slide.Chapter == a3Chapter.Title);
 
             List<string> subTitles = new List<string>();
             foreach (A3Slide a3Slide in a3Slides)
             {
-                subTitles.Add(a3Slide.ChapSub.Split(':')[1].Trim());
+                try { subTitles.Add(a3Slide.Subchapter); }
+                catch { logFile.WriteError(String.Concat("FAILED TO WRITE SLIDE INDEX: ", a3Slide.Slide.SlideIndex.ToString(), " TO DECK. CHECK THE METADATA!")); }
             }
 
             foreach (string subTitle in subTitles.Distinct().ToList())
             {
                 List<A3Slide> a3SubSlides = new List<A3Slide>();
-                a3SubSlides = a3Slides.FindAll(slide => slide.ChapSub.Split(':')[1].Trim() == subTitle);
+                a3SubSlides = a3Slides.FindAll(slide => slide.Subchapter == subTitle);
                 List<A3Content> a3SubContentSlides = new List<A3Content>();
                 foreach (A3Slide a3SubSlide in a3SubSlides)
                 {
@@ -114,7 +117,7 @@ namespace Alta3_PPA
             }
             if (a3Chapter.Subchapters.Count < 1)
             {
-                logFile.WriteWarn("NO SUBCHAPTERS FOUND");
+                logFile.WriteWarn(String.Concat(a3Chapter.Title, " NO SUBCHAPTERS FOUND"));
             }
         }
     }

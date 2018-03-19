@@ -9,7 +9,10 @@ namespace Alta3_PPA
 {
     public class A3Content
     {
+        public int Index { get; set; }
         public string Title { get; set; }
+        public string Chapter { get; set; }
+        public string Subchapter { get; set; }
         public string Day { get; set; }
         public string Notes { get; set; }
         public string Type { get; set; }

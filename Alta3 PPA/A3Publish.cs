@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -17,14 +18,53 @@ namespace Alta3_PPA
         {
 
         }
-        public static void PublishPNGs(PowerPoint.Presentation presentation)
+        public static void PublishPresentationPNGs(PowerPoint.Presentation presentation)
         {
             foreach (PowerPoint.Slide slide in presentation.Slides)
             {
                 string guid = slide.Shapes["ACTIVE_GUID"].TextFrame.TextRange.Text;
-                string path = String.Concat(A3Globals.A3_PNGS, "\\", guid, ".png");
+                string path = String.Concat(A3Globals.A3_PRES_PNGS, "\\", guid, ".png");
                 slide.Export(path, "png", 1920, 1080);
             }
+        }
+        public static void PublishBookPNGs(PowerPoint.Presentation presentation)
+        {
+            Parallel.ForEach(Directory.EnumerateFiles(A3Globals.A3_PRES_PNGS), picture =>
+            {
+                //read image
+                Bitmap bmp = new Bitmap(picture);
+                
+                //get image dimension
+                int width = bmp.Width;
+                int height = bmp.Height;
+
+                //color of pixel
+                Color p;
+
+                //grayscale
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        //get pixel value
+                        p = bmp.GetPixel(x, y);
+                        p = Color.FromArgb(255, (255 - p.R), (255 - p.G), (255 - p.B));
+
+                        //extract pixel component ARGB
+                        int a = p.A;
+                        int r = p.R;
+                        int g = p.G;
+                        int b = p.B;
+
+                        //find average
+                        int avg = (r + g + b) / 3;
+
+                        //set new pixel value
+                        bmp.SetPixel(x, y, Color.FromArgb(a, avg, avg, avg));
+                    }
+                }
+                bmp.Save(picture.Replace("pres_pngs", "book_pngs"));
+            });
         }
         public static void PublishMarkdown(A3Outline outline)
         {
@@ -49,28 +89,33 @@ namespace Alta3_PPA
         }
         public static void PublishPDF(PowerPoint.Presentation presentation, A3Outline outline)
         {
+            if (!Directory.EnumerateFiles(A3Globals.A3_BOOK_PNGS).Any())
+            {
+                A3Publish.PublishBookPNGs(presentation);
+            }
             if (!Directory.EnumerateFiles(A3Globals.A3_LATEX).Any())
             {
                 A3Publish.PublishLaTex(presentation, outline);
             }
 
-            const int ERROR_CANCELLED = 1223;
-
-            ProcessStartInfo build = new ProcessStartInfo(String.Concat(@"powershell.exe -file ", A3Globals.A3_RESOURCE, @"\latex_builder.ps1 -root ", A3Globals.A3_LATEX))
+            ProcessStartInfo build = new ProcessStartInfo()
             {
                 UseShellExecute = true,
-                Verb = "runas"
+                CreateNoWindow = false,
+                FileName = "pdflatex.exe",
+                WindowStyle = ProcessWindowStyle.Hidden,
+                Arguments = String.Concat(@"-job-name=", outline.Course, @" -output-directory=", A3Globals.A3_PUBLISH, @" -aux-directory=", A3Globals.A3_LATEX, @"main.tex")
             };
             try
             {
-                Process.Start(build);
+                using (Process process = Process.Start(build))
+                {
+                    process.WaitForExit();
+                }
             }
-            catch (Win32Exception ex)
+            catch 
             {
-                if (ex.NativeErrorCode == ERROR_CANCELLED)
-                    MessageBox.Show("You must select 'Yes' to the UAC prompt to continue");
-                else
-                    throw;
+            
             }
         }
         public static void PublishQuestions()

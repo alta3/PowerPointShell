@@ -15,30 +15,49 @@ namespace Alta3_PPA
             Encoding utf8 = Encoding.UTF8;
             Encoding ascii = Encoding.ASCII;
 
-            string asciiMarkdown = ascii.GetString(Encoding.Convert(utf8, ascii, utf8.GetBytes(notes)));
+            string asciiMarkdown = "";
+
+            if (notes != null)
+            {
+                asciiMarkdown = ascii.GetString(Encoding.Convert(utf8, ascii, utf8.GetBytes(notes)));
+            }
 
             File.WriteAllText(String.Concat(A3Globals.A3_MARKDOWN, @"\", activeGuid, @".md"), asciiMarkdown);
 
             return asciiMarkdown;
         }
-        public static string ToLatex(A3Outline outline, string activeGuid)
+        public static List<string> ToLatex(A3Outline outline, string path)
         {
             if (!Directory.EnumerateFiles(A3Globals.A3_MARKDOWN).Any())
             {
                 A3Publish.PublishMarkdown(outline);
             }
 
-            ProcessStartInfo build = new ProcessStartInfo(String.Concat(@"powershell.exe -file ", A3Globals.A3_RESOURCE, @"\pandoc.ps1 -markdownPath ", A3Globals.A3_MARKDOWN, @" -latexPath ", A3Globals.A3_LATEX, @" -activeGuid ", activeGuid, @".md"))
+            ProcessStartInfo pandoc = new ProcessStartInfo()
             {
+                CreateNoWindow = false,
                 UseShellExecute = true,
+                FileName = "pandoc.exe",
+                WindowStyle = ProcessWindowStyle.Hidden,
+                Arguments = String.Concat(@"-f html -t latex -o ", "\"", A3Globals.A3_LATEX, @"\", "out.tex\" \"", path)
             };
-            Process.Start(build);
+            try
+            {
+                using (Process process = Process.Start(pandoc))
+                {
+                    process.WaitForExit();
+                }
+            }
+            catch
+            {
 
-            string latex = File.ReadAllText(String.Concat(A3Globals.A3_LATEX, @"\out.tex"));
+            }
 
-            File.Delete(String.Concat(A3Globals.A3_LATEX, @"\out.txt"));
+            string[] latex = File.ReadAllLines(String.Concat(A3Globals.A3_LATEX, @"\out.tex"));
+            File.Delete(String.Concat(A3Globals.A3_LATEX, @"\out.tex"));
+            List<string> newtex = latex.ToList();
 
-            return latex;
+            return newtex;
         }
     }
 }

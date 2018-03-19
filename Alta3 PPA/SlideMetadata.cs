@@ -25,50 +25,23 @@ namespace Alta3_PPA
 
             // Set Quit from current loop to true so that the red X works without looping through the checks
             A3Globals.QUIT_FROM_CURRENT_LOOP = true;
-
-            // Draw Current Slide Information To Screen
-            this.DrawSlideInfo();
         }
 
-        private void DrawSlideInfo()
+        public void DrawSlideInfo()
         {
-            // Read all the current values from the slide
-            this.GetValuesFromSlide();
-
             // Initialize the controls
+            A3Globals.A3SLIDE.Slide.Select();
             this.InitializeType();
-        }
-
-        private void GetValuesFromSlide()
-        {
-            // Read the current values from the slide f
-            A3Globals.A3SLIDE.ReadDay();
-            A3Globals.A3SLIDE.ReadType();
-            A3Globals.A3SLIDE.ReadTitle();
-            A3Globals.A3SLIDE.ReadChapSub();
-            A3Globals.A3SLIDE.ReadActiveGuid();
-            A3Globals.A3SLIDE.ReadHistoricGuid();
-
-            // Get a list of all the shape names that have text and are not tracked metadata fields
-            foreach (PowerPoint.Shape shape in A3Globals.A3SLIDE.Slide.Shapes)
-            {
-                if (shape.TextFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue
-                    && shape.Name != "ACTIVE_GUID"
-                    && shape.Name != "HISTORIC_GUID"
-                    && shape.Name != "TYPE"
-                    && shape.Name != "TITLE"
-                    && shape.Name != "DAY"
-                    && shape.Name != "CHAP:SUB")
-                {
-                    A3Globals.SHAPE_NAMES.Add(shape.Name);
-                }
-            }
+            this.InitializeTitle();
+            this.InitializeChapSub();
+            this.InitializeActiveGuid();
         }
 
         // Type Functions
         private void InitializeType()
         {
             // Add all possible options to the type combobox
+            CBType.Items.Clear();
             CBType.Items.Add("Course Title Card");
             CBType.Items.Add("Table Of Contents Slide");
             CBType.Items.Add("Chapter Title Card");
@@ -77,38 +50,47 @@ namespace Alta3_PPA
             CBType.Items.Add("Question Slide");
 
             // Select the proper index to display based on the current type indicated by the slide
-            switch (A3Globals.A3SLIDE.Type.ToUpper())
+            try
             {
-                case "COURSE":
-                    CBType.SelectedIndex = 1;
-                    break;
-                case "TOC":
-                    CBType.SelectedIndex = 2;
-                    break;
-                case "CHAPTER":
-                    CBType.SelectedIndex = 3;
-                    break;
-                case "CONTENT":
-                    CBType.SelectedIndex = 4;
-                    break;
-                case "NO-PUB":
-                    CBType.SelectedIndex = 5;
-                    break;
-                case "QUESTION":
-                    CBType.SelectedIndex = 6;
-                    break;
-                default:
-                    CBType.SelectedIndex = 1 ;
-                    break;
+                switch (A3Globals.A3SLIDE.Type.ToUpper())
+                {
+                    case "COURSE":
+                        CBType.SelectedIndex = 0;
+                        break;
+                    case "TOC":
+                        CBType.SelectedIndex = 1;
+                        break;
+                    case "CHAPTER":
+                        CBType.SelectedIndex = 2;
+                        break;
+                    case "CONTENT":
+                        CBType.SelectedIndex = 3;
+                        break;
+                    case "NO-PUB":
+                        CBType.SelectedIndex = 4;
+                        break;
+                    case "QUESTION":
+                        CBType.SelectedIndex = 5;
+                        break;
+                    default:
+                        CBType.SelectedIndex = 3;
+                        break;
+                }
+            }
+            catch 
+            {
+                CBType.SelectedIndex = 3;
             }
         }
         private void CBType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (this.CBType.SelectedText == "Course Title Card" || this.CBType.SelectedText == "Question Slide")
+            if (this.CBType.SelectedIndex == 0 || this.CBType.SelectedIndex == 5)
             {
                 this.CBScrubberKey.Enabled = false;
                 this.TBScrubberValue.Enabled = false;
                 this.TBScrubberValue.Clear();
+                this.CBScrubberKey.Items.Clear();
+                this.CBScrubberKey.Text = "";
                 this.BtnNewScrubber.Enabled = false;
                 this.BtnSwapScrubber.Enabled = false;
             }
@@ -116,13 +98,14 @@ namespace Alta3_PPA
             {
                 this.CBScrubberKey.Enabled = true;
                 this.TBScrubberValue.Enabled = true;
+                this.InitializeChapSub();
                 this.BtnNewScrubber.Enabled = true;
                 this.BtnSwapScrubber.Enabled = true;
             }
         }
         private void SaveType()
         {
-            switch (this.CBType.SelectedText)
+            switch (this.CBType.Text)
             {
                 case "Course Title Card":
                     A3Globals.A3SLIDE.Type = "COURSE";
@@ -148,20 +131,20 @@ namespace Alta3_PPA
             }
         }
 
-        // Active Guid Functions
+        // Guid Functions
         private void InitializeActiveGuid()
         {
+            TBActiveGuid.Clear();
+            TBActiveGuid.Enabled = false;
             if (A3Globals.A3SLIDE.ActiveGuid != null)
             {
                 TBActiveGuid.Text = A3Globals.A3SLIDE.ActiveGuid;
-                TBActiveGuid.Enabled = false;
             }
             else
             {
-
+                TBActiveGuid.Text = Guid.NewGuid().ToString();
             }
         }
-
         private void BtnShowActiveGuids_Click(object sender, EventArgs e)
         {
             PowerPoint.Presentation presentation = Globals.ThisAddIn.Application.ActivePresentation;
@@ -169,8 +152,12 @@ namespace Alta3_PPA
             {
                 foreach (PowerPoint.Slide slide in presentation.Slides)
                 {
-                    slide.Shapes["ACTIVE_GUID"].Visible = Microsoft.Office.Core.MsoTriState.msoTrue;
-                    slide.Shapes["ACTIVE_GUID"].Fill.ForeColor.RGB = 763355;
+                    try
+                    {
+                        slide.Shapes["ACTIVE_GUID"].Visible = Microsoft.Office.Core.MsoTriState.msoTrue;
+                        slide.Shapes["ACTIVE_GUID"].Fill.ForeColor.RGB = 763355;
+                    }
+                    catch { }
                     A3Globals.SHOW_ACTIVE_GUID = true;
                 }
             }
@@ -178,7 +165,7 @@ namespace Alta3_PPA
             {
                 foreach (PowerPoint.Slide slide in presentation.Slides)
                 {
-                    slide.Shapes["ACTIVE_GUID"].Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
+                    try { slide.Shapes["ACTIVE_GUID"].Visible = Microsoft.Office.Core.MsoTriState.msoFalse; } catch { }
                     A3Globals.SHOW_ACTIVE_GUID = false;
                 }
             }
@@ -188,328 +175,128 @@ namespace Alta3_PPA
             // TODO: Read and update the form before pulling this information
             Clipboard.SetText(this.TBActiveGuid.Text);
         }
-
-        private void CBScrubberKey_SelectedIndexChanged(object sender, EventArgs e)
+        private void SaveGuids()
         {
-            PowerPoint.Slide slide = Globals.ThisAddIn.Application.ActiveWindow.View.Slide;
-            TBScrubberValue.Text = slide.Shapes[CBScrubberKey.SelectedItem].TextFrame.TextRange.Text;
+            A3Globals.A3SLIDE.ActiveGuid = TBActiveGuid.Text;
+            foreach (string hguid in CBHistoricGuid.Items)
+            {
+                A3Globals.A3SLIDE.HistoricGuids.Add(hguid);
+            }
+        }
+
+        // Title Functions
+        private void InitializeTitle()
+        {
+            CBTitleKey.Items.Clear();
+            TBTitleValue.Clear();
+
+            try
+            {
+                foreach (string shapeName in A3Globals.A3SLIDE.ShapeNames)
+                {
+                    CBTitleKey.Items.Add(shapeName);
+                }
+
+                int index = A3Globals.A3SLIDE.ShapeNames.FindIndex(s => s == "TITLE") >= 0 ? A3Globals.A3SLIDE.ShapeNames.FindIndex(s => s == "TITLE") : 0;
+                CBTitleKey.SelectedIndex = index;
+
+                try { TBTitleValue.Text = A3Globals.A3SLIDE.Slide.Shapes[CBTitleKey.SelectedItem].TextFrame.TextRange.Text; } catch { }
+            }
+            catch { }
         }
         private void CBTitleKey_SelectedIndexChanged(object sender, EventArgs e)
         {
-            PowerPoint.Slide slide = Globals.ThisAddIn.Application.ActiveWindow.View.Slide;
-            TBTitleValue.Text = slide.Shapes[CBTitleKey.SelectedItem].TextFrame.TextRange.Text;
+            TBTitleValue.Text = A3Globals.A3SLIDE.Slide.Shapes[CBTitleKey.SelectedItem].TextFrame.TextRange.Text;
+        }
+        private void SaveTitle()
+        {
+            A3Globals.A3SLIDE.Title = TBTitleValue.Text;
         }
 
-        private void UpdateFields(A3Slide a3Slide)
+        // CHAP:SUB Functions
+        private void InitializeChapSub()
         {
-            PowerPoint.Slide slide = a3Slide.Slide;
-            #region Type Setup
-            if (a3Slide.Type == null)
+            try
             {
-                CBType.SelectedIndex = 3;
-                PowerPoint.Shape type = slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 0, 0, 100, 30);
-                type.Name = "TYPE";
-                type.TextFrame.TextRange.Text = "";
-                type.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
-                CBType.Enabled = true;
-            }
-            else
-            {
-                CBType.SelectedItem = slide.Shapes["TYPE"].TextFrame.TextRange.Text;
-            }
-            #endregion
+                CBScrubberKey.Items.Clear();
+                TBScrubberValue.Clear();
 
-            #region Active Guid Setup
-            TBActiveGuid.Enabled = false;
-            if (a3Slide.ActiveGuid == null)
-            {
-                PowerPoint.Shape aguid = slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 0, 500, 400, 30);
-                aguid.Name = "ACTIVE_GUID";
-                aguid.TextFrame.TextRange.Text = Guid.NewGuid().ToString();
-                aguid.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
-                TBActiveGuid.Text = aguid.TextFrame.TextRange.Text;
-            }
-            else
-            {
-                TBActiveGuid.Text = slide.Shapes["ACTIVE_GUID"].TextFrame.TextRange.Text;
-            }
-            #endregion
-
-            #region Historic Guid Setup
-            if (a3Slide.HistoricGuids == null)
-            {
-                PowerPoint.Shape hguid = slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 0, 450, 400, 30);
-                hguid.Name = "HISTORIC_GUID";
-                hguid.TextFrame.TextRange.Text = "";
-                hguid.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
-                CBHistoricGuid.Text = hguid.TextFrame.TextRange.Text;
-            }
-            else
-            {
-                CBHistoricGuid.Text = slide.Shapes["HISTORIC_GUID"].TextFrame.TextRange.Text;
-            }
-            #endregion
-
-            #region Scrubber Setup
-            if (a3Slide.ChapSub == null)
-            {
-                string msg = "Could not find a field named CHAP:SUB\r\nIs one of the textboxes on the slide currently a fields that should be labeled scrubber?";
-                DialogResult dialogResult = MessageBox.Show(msg, "Scrubber Check", MessageBoxButtons.YesNo);
-                if (dialogResult == DialogResult.Yes)
+                foreach (string shapeName in A3Globals.A3SLIDE.ShapeNames)
                 {
-                    CBScrubberKey.Items.AddRange(A3Globals.SHAPE_NAMES.ToArray());
+                    CBScrubberKey.Items.Add(shapeName);
                 }
-                else
-                {
-                    PowerPoint.Shape scrubber = slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 0, 450, 400, 30);
-                    scrubber.Name = "CHAP:SUB";
-                    CBScrubberKey.Items.Add("CHAP:SUB");
-                    CBScrubberKey.SelectedIndex = 0;
-                    CBScrubberKey.Enabled = false;
-                    TBScrubberValue.Text = "";
-                    TBScrubberValue.Enabled = true;
-                }
-            }
-            else
-            {
-                CBScrubberKey.Items.Add("CHAP:SUB");
-                CBScrubberKey.SelectedIndex = 0;
-                CBScrubberKey.Enabled = false;
-                TBScrubberValue.Text = slide.Shapes["CHAP:SUB"].TextFrame.TextRange.Text;
-            }
-            #endregion
 
-            #region Title Setup
-            if (a3Slide.Title == null)
-            {
-                string msg = "Could not find a field named TITLE\r\nIs one of the textboxes on the slide currently a fields that should be labeled title?";
-                DialogResult dialogResult = MessageBox.Show(msg, "Title Check", MessageBoxButtons.YesNo);
-                if (dialogResult == DialogResult.Yes)
-                {
-                    CBTitleKey.Items.AddRange(A3Globals.SHAPE_NAMES.ToArray());
-                }
-                else
-                {
-                    PowerPoint.Shape title = slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 0, 450, 400, 30);
-                    title.Name = "TITLE";
-                    CBTitleKey.Items.Add("TITLE");
-                    CBTitleKey.SelectedIndex = 0;
-                    CBTitleKey.Enabled = false;
-                    TBTitleValue.Text = "";
-                    TBTitleValue.Enabled = true;
-                }
-            }
-            else
-            {
-                CBTitleKey.Items.Add("TITLE");
-                CBTitleKey.SelectedIndex = 0;
-                CBTitleKey.Enabled = false;
-                TBTitleValue.Text = slide.Shapes["TITLE"].TextFrame.TextRange.Text;
-            }
-            #endregion
+                int index = A3Globals.A3SLIDE.ShapeNames.FindIndex(s => s == "CHAP:SUB") > 0 ? A3Globals.A3SLIDE.ShapeNames.FindIndex(s => s == "CHAP:SUB") : 0;
+                CBScrubberKey.SelectedIndex = index;
 
-            #region Day Setup
-            if (a3Slide.Day == null)
-            {
-                PowerPoint.Shape day = slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 0, 450, 400, 30);
-                day.Name = "DAY";
-                day.TextFrame.TextRange.Text = "";
-                day.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
-                TBDay.Text = day.TextFrame.TextRange.Text;
+                try { TBScrubberValue.Text = A3Globals.A3SLIDE.Slide.Shapes[CBScrubberKey.SelectedItem].TextFrame.TextRange.Text; } catch { }
             }
-            else
+            catch
             {
-                TBDay.Text = slide.Shapes["DAY"].TextFrame.TextRange.Text;
+
             }
-            #endregion
+
+        }
+        private void CBScrubberKey_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            TBScrubberValue.Text = A3Globals.A3SLIDE.Slide.Shapes[CBScrubberKey.SelectedItem].TextFrame.TextRange.Text;
+        }
+        private void SaveChapSub()
+        {
+            A3Globals.A3SLIDE.ChapSub = TBScrubberValue.Text;
+        }
+
+        private void Save()
+        {
+            if (CBType.Text == "" || !CBType.Items.Contains(CBType.Text))
+            {
+                MessageBox.Show("YOU MUST SELECT A VALID TYPE!", "SELECT VALID TYPE!", MessageBoxButtons.OK);
+                return;
+            }
+            if (CBTitleKey.Text == CBScrubberKey.Text)
+            {
+                MessageBox.Show("CHAP:SUB AND TITLE MAY NOT BE THE SAME OBJECT", "DUPLICATE ITEM", MessageBoxButtons.OK);
+                return;
+            }
+            if (CBTitleKey.Text == null || CBTitleKey.Text == "")
+            {
+                MessageBox.Show("MUST SELECT A TITLE", "NULL TITLE", MessageBoxButtons.OK);
+                return;
+            }
+            this.SaveType();
+            this.SaveTitle();
+            this.SaveChapSub();
+            this.SaveGuids();
+            A3Globals.A3SLIDE.WriteFromMemory();
+            A3Globals.A3SLIDE.ReadFromSlide();
+            this.DrawSlideInfo();
         }
 
         private void BtnSave_Click(object sender, EventArgs e)
         {
-            if (CBType.Text == "")
-            {
-                MessageBox.Show("YOU MUST SELECT A TYPE!", "NO TYPE!", MessageBoxButtons.OK);
-            }
-            else
-            {
-                if (CBTitleKey.Text == CBScrubberKey.Text)
-                {
-                    MessageBox.Show("CHAP:SUB AND TITLE MAY NOT BE THE SAME OBJECT", "DUPLICATE ITEM", MessageBoxButtons.OK);
-                }
-                else
-                {
-                    if (CBTitleKey.Text == null || CBTitleKey.Text == "" || CBScrubberKey.Text == null || CBScrubberKey.Text == "")
-                    {
-                        MessageBox.Show("MUST SELECT A TITLE AND CHAP:SUB", "NULL TITLE OR CHAP:SUB", MessageBoxButtons.OK);
-                    }
-                    else
-                    {
-                        PowerPoint.Slide slide = Globals.ThisAddIn.Application.ActiveWindow.View.Slide;
-
-                        slide.Shapes[CBScrubberKey.Text].Name = "CHAP:SUB";
-                        slide.Shapes[CBTitleKey.Text].Name = "TITLE";
-
-                        slide.Shapes["TYPE"].TextFrame.TextRange.Text = this.CBType.Text;
-
-                        if (TBActiveGuid.Text == null)
-                        {
-                            slide.Shapes["ACTIVE_GUID"].TextFrame.TextRange.Text = "";
-                        }
-                        else
-                        {
-                            slide.Shapes["ACTIVE_GUID"].TextFrame.TextRange.Text = this.TBActiveGuid.Text;
-                        }
-
-                        if (CBHistoricGuid.Text == null)
-                        {
-                            slide.Shapes["HISTORIC_GUID"].TextFrame.TextRange.Text = "";
-                        }
-                        else
-                        {
-                            slide.Shapes["HISTORIC_GUID"].TextFrame.TextRange.Text = this.CBHistoricGuid.Text;
-                        }
-
-                        if (TBScrubberValue.Text == null)
-                        {
-                            slide.Shapes["CHAP:SUB"].TextFrame.TextRange.Text = "";
-                        }
-                        else
-                        {
-                            slide.Shapes["CHAP:SUB"].TextFrame.TextRange.Text = this.TBScrubberValue.Text;
-                        }
-
-                        if (TBTitleValue.Text == null)
-                        {
-                            slide.Shapes["TITLE"].TextFrame.TextRange.Text = "";
-                        }
-                        else
-                        {
-                            slide.Shapes["TITLE"].TextFrame.TextRange.Text = this.TBTitleValue.Text;
-                        }
-
-                        if (TBDay.Text == null)
-                        {
-                            slide.Shapes["DAY"].TextFrame.TextRange.Text = "";
-                        }
-                        else
-                        {
-                            slide.Shapes["DAY"].TextFrame.TextRange.Text = this.TBDay.Text;
-                        }
-
-                        A3Slide a3Slide = new A3Slide(slide);
-                        Point point = this.Location;
-                        this.Close();
-                        this.Dispose();
-                        SlideMetadata slideMetadata = new SlideMetadata()
-                        {
-                            StartPosition = FormStartPosition.Manual,
-                            Location = point
-                        };
-                        slideMetadata.ShowDialog();
-                    }
-                }
-            }
+            this.Save();
         }
         private void BtnSaveAndProceed_Click(object sender, EventArgs e)
         {
-            if (CBType.Text == "")
-            {
-                MessageBox.Show("YOU MUST SELECT A TYPE!", "NO TYPE!", MessageBoxButtons.OK);
-            }
-            else
-            {
-                if (CBTitleKey.Text == CBScrubberKey.Text)
-                {
-                    MessageBox.Show("CHAP:SUB AND TITLE MAY NOT BE THE SAME OBJECT", "DUPLICATE ITEM", MessageBoxButtons.OK);
-                }
-                else
-                {
-                    if (CBTitleKey.Text == null || CBTitleKey.Text == "" || CBScrubberKey.Text == null || CBScrubberKey.Text == "")
-                    {
-                        MessageBox.Show("MUST SELECT A TITLE AND CHAP:SUB", "NULL TITLE OR CHAP:SUB", MessageBoxButtons.OK);
-                    }
-                    else
-                    {
-                        PowerPoint.Slide slide = Globals.ThisAddIn.Application.ActiveWindow.View.Slide;
-
-                        slide.Shapes[CBScrubberKey.Text].Name = "CHAP:SUB";
-                        slide.Shapes[CBTitleKey.Text].Name = "TITLE";
-
-                        slide.Shapes["TYPE"].TextFrame.TextRange.Text = this.CBType.Text;
-
-                        if (TBActiveGuid.Text == null)
-                        {
-                            slide.Shapes["ACTIVE_GUID"].TextFrame.TextRange.Text = "";
-                        }
-                        else
-                        {
-                            slide.Shapes["ACTIVE_GUID"].TextFrame.TextRange.Text = this.TBActiveGuid.Text;
-                        }
-
-                        if (CBHistoricGuid.Text == null)
-                        {
-                            slide.Shapes["HISTORIC_GUID"].TextFrame.TextRange.Text = "";
-                        }
-                        else
-                        {
-                            slide.Shapes["HISTORIC_GUID"].TextFrame.TextRange.Text = this.CBHistoricGuid.Text;
-                        }
-
-                        if (TBScrubberValue.Text == null)
-                        {
-                            slide.Shapes["CHAP:SUB"].TextFrame.TextRange.Text = "";
-                        }
-                        else
-                        {
-                            slide.Shapes["CHAP:SUB"].TextFrame.TextRange.Text = this.TBScrubberValue.Text;
-                        }
-
-                        if (TBTitleValue.Text == null)
-                        {
-                            slide.Shapes["TITLE"].TextFrame.TextRange.Text = "";
-                        }
-                        else
-                        {
-                            slide.Shapes["TITLE"].TextFrame.TextRange.Text = this.TBTitleValue.Text;
-                        }
-
-                        if (TBDay.Text == null)
-                        {
-                            slide.Shapes["DAY"].TextFrame.TextRange.Text = "";
-                        }
-                        else
-                        {
-                            slide.Shapes["DAY"].TextFrame.TextRange.Text = this.TBDay.Text;
-                        }
-                    }
-                }
-            }
+            this.Save();
             this.Close();
             A3Globals.QUIT_FROM_CURRENT_LOOP = false;
         }
-        private void SaveTitle()
-        {
-
-        }
-        private void SaveChapSubchap()
-        {
-
-        }
-        private void SaveDay()
-        {
-
-        }
         
-        #region TODO: IMPLEMENT
         private void BtnPreviousSlide_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("NOT IMPLEMENTED AT THIS TIME", "ERROR", MessageBoxButtons.OK);
+            int slideIndex = A3Globals.A3SLIDE.Slide.SlideIndex - 1;
+            try { A3Slide.SetActiveSlide(Globals.ThisAddIn.Application.ActivePresentation.Slides[slideIndex]); A3Globals.A3SLIDE.ReadShapes(); this.DrawSlideInfo(); }
+            catch { MessageBox.Show("BEGINING OF SLIDE SHOW", "ERROR", MessageBoxButtons.OK); }
         }
         private void BtnNextSlide_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("NOT IMPLEMENTED AT THIS TIME", "ERROR", MessageBoxButtons.OK);
+            int slideIndex = A3Globals.A3SLIDE.Slide.SlideIndex + 1;
+            try { A3Slide.SetActiveSlide(Globals.ThisAddIn.Application.ActivePresentation.Slides[slideIndex]); A3Globals.A3SLIDE.ReadShapes(); this.DrawSlideInfo(); }
+            catch { MessageBox.Show("END OF SLIDE SHOW", "ERROR", MessageBoxButtons.OK); }
         }
 
+        #region TODO: IMPLEMENT
         private void BtnNewScrubber_Click(object sender, EventArgs e)
         {
             MessageBox.Show("NOT IMPLEMENTED AT THIS TIME", "ERROR", MessageBoxButtons.OK);

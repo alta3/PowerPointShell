@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Alta3_PPA
 {
@@ -14,28 +15,43 @@ namespace Alta3_PPA
         {
             if (uri.LocalPath == "invalid")
             {
-                System.Windows.Forms.MessageBox.Show("ERROR: Please rewrite");
-
+                System.Windows.Forms.MessageBox.Show("ERROR: URI Is Incorrect - Please rewrite");
+                return;
             }
             HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(uri);
             httpWebRequest.ContentType = "application/json";
             httpWebRequest.Method = "POST";
-            
-            using (StreamWriter streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+
+            try
             {
-                streamWriter.Write(json);
-                streamWriter.Flush();
-                streamWriter.Close();
+                using (StreamWriter streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+                {
+                    streamWriter.Write(json);
+                    streamWriter.Flush();
+                    streamWriter.Close();
+                }
+            }
+            catch
+            {
+                MessageBox.Show("FAILED TO SEND! IS THE SERVER UP?", "ERROR!", MessageBoxButtons.OK);
+                return;
             }
 
-            HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-            using (StreamReader streamReader = new StreamReader(httpWebResponse.GetResponseStream()))
+            try
             {
-                string result = streamReader.ReadToEnd();
-                System.Windows.Forms.MessageBox.Show(result);
+                HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                using (StreamReader streamReader = new StreamReader(httpWebResponse.GetResponseStream()))
+                {
+                    string result = streamReader.ReadToEnd();
+                    System.Windows.Forms.MessageBox.Show(result);
+                }
             }
+            catch (Exception)
+            {
+                MessageBox.Show("NO RESPONSE RECIEVED", "ERROR!", MessageBoxButtons.OK);
+            }
+
         }
-       
         public static Uri ConvertToUri(string uri)
         {
             try

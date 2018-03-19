@@ -46,6 +46,7 @@
             this.BtnPublish = this.Factory.CreateRibbonButton();
             this.BtnRecord = this.Factory.CreateRibbonButton();
             this.OpenYamlForGen = new System.Windows.Forms.OpenFileDialog();
+            this.button1 = this.Factory.CreateRibbonButton();
             this.TabA3.SuspendLayout();
             this.GrpInitialize.SuspendLayout();
             this.GrpActiveDev.SuspendLayout();
@@ -73,6 +74,11 @@
             this.BtnGenFromYaml.Label = "Generate From YAML";
             this.BtnGenFromYaml.Name = "BtnGenFromYaml";
             this.BtnGenFromYaml.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.BtnGenFromYaml_Click);
+            // 
+            // BtnInitialize
+            // 
+            this.BtnInitialize.Label = "";
+            this.BtnInitialize.Name = "BtnInitialize";
             // 
             // GrpActiveDev
             // 
@@ -102,6 +108,7 @@
             // GrpProduce
             // 
             this.GrpProduce.Items.Add(this.BtnPublish);
+            this.GrpProduce.Items.Add(this.button1);
             this.GrpProduce.Items.Add(this.BtnRecord);
             this.GrpProduce.Label = "Produce";
             this.GrpProduce.Name = "GrpProduce";
@@ -112,9 +119,20 @@
             this.BtnPublish.Name = "BtnPublish";
             this.BtnPublish.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.BtnPublish_Click);
             // 
+            // BtnRecord
+            // 
+            this.BtnRecord.Label = "";
+            this.BtnRecord.Name = "BtnRecord";
+            // 
             // OpenYamlForGen
             // 
             this.OpenYamlForGen.FileOk += new System.ComponentModel.CancelEventHandler(this.OpenYamlForGen_FileOk);
+            // 
+            // button1
+            // 
+            this.button1.Label = "Record Slides";
+            this.button1.Name = "button1";
+            this.button1.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.button1_Click);
             // 
             // A3_Ribbon
             // 
@@ -148,6 +166,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton BtnFixAllMetadata;
         private System.Windows.Forms.OpenFileDialog OpenYamlForGen;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton BtnShowSlideMetadata;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton button1;
     }
 
     partial class ThisRibbonCollection

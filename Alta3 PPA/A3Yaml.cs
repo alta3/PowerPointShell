@@ -19,30 +19,16 @@ namespace Alta3_PPA
             string text = File.ReadAllText(yamlPath);
 
             // Lint the YAML file before attempting to deserialize the outline
-            // A3Yaml.Lint(logFile, text);
+            A3Yaml.Lint(logFile, text);
 
             // Log that we are about to try and desearilize this will help to see if our linting is effective or not
-            // logFile.WriteInfo("YAML lint complete. About to desearilize outline.");
+            logFile.WriteInfo("YAML lint complete. About to desearilize outline.");
 
             // Create the outline from the YAML file
             Deserializer deserializer = new DeserializerBuilder().WithNamingConvention(new CamelCaseNamingConvention()).Build();
             A3Outline outline = new A3Outline();
             try { outline = deserializer.Deserialize<A3Outline>(text); }
             catch (Exception ex) { logFile.WriteError(ex.Message); }
-
-            // outline.Validate(logFile, "GenFromYaml");
-
-            /*
-            if (logFile.HasError())
-            {
-                string errorMsg = String.Concat("There were errors during the validation process.\r\n",
-                    "The first error in the log is: ", logFile.Entries[0].Message,
-                    "Please check the error file located at: ", logFile.Path, " for more information.\r\n",
-                    "In order to successfully run the operation you must fix these errors.");
-                MessageBox.Show(errorMsg, "Errors During Build", MessageBoxButtons.OK);
-                return;
-            }
-            */
 
             // Open a copy of the blank PowerPoint in the current PowerPoint context
             Microsoft.Office.Interop.PowerPoint.Presentation ppt = Globals.ThisAddIn.Application.Presentations.Open(A3Globals.BLANK_POWERPOINT, 0, 0, Microsoft.Office.Core.MsoTriState.msoTrue);

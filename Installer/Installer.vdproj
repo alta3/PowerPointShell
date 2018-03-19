@@ -51,6 +51,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_440E4B6EB7B64A4B976F6AD51903EBDE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_4B4517926014F9FBBAB18E9AE0C1F76F"
         "OwnerKey" = "8:_D7B2A610B96444D5AA48EB373A627D8A"
         "MsmSig" = "8:_UNDEFINED"
@@ -69,7 +75,25 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_64CB8E1D3AFE4C6F9A550BD37A20E85F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8703E9BD07C34B7690933E636D626E15"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_8A75C5AB13EA4C7F83FF20A85E8FE387"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A335247AD4DA43059FDC294CC56AFA41"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -99,18 +123,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_CC6D903F85194182852A2712D6757CE4"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D117C8CCD62B458D82B4ABC3CA684376"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_D7B2A610B96444D5AA48EB373A627D8A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -118,6 +130,12 @@
         "Entry"
         {
         "MsmKey" = "8:_F89FFC5ED3E6446C81CF450B22EDD457"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F9532DEDD2414EFC82CC3D4A3D42FCBE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -408,6 +426,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_440E4B6EB7B64A4B976F6AD51903EBDE"
+            {
+            "SourcePath" = "8:..\\resources\\ChocoInstalls.ps1"
+            "TargetName" = "8:ChocoInstalls.ps1"
+            "Tag" = "8:"
+            "Folder" = "8:_91977092478349C5A5B72B524F56951D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_4B4517926014F9FBBAB18E9AE0C1F76F"
             {
             "AssemblyRegister" = "3:1"
@@ -470,12 +508,72 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_64CB8E1D3AFE4C6F9A550BD37A20E85F"
+            {
+            "SourcePath" = "8:..\\resources\\pres.thmx"
+            "TargetName" = "8:pres.thmx"
+            "Tag" = "8:"
+            "Folder" = "8:_91977092478349C5A5B72B524F56951D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8703E9BD07C34B7690933E636D626E15"
+            {
+            "SourcePath" = "8:..\\resources\\pdflatex.ps1"
+            "TargetName" = "8:pdflatex.ps1"
+            "Tag" = "8:"
+            "Folder" = "8:_91977092478349C5A5B72B524F56951D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8A75C5AB13EA4C7F83FF20A85E8FE387"
             {
             "SourcePath" = "8:..\\Alta3 PPA\\bin\\Release\\Alta3 PPA.dll.manifest"
             "TargetName" = "8:Alta3 PPA.dll.manifest"
             "Tag" = "8:"
             "Folder" = "8:_1091ABB96C49449AA7B20E3D58A11B8C"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A335247AD4DA43059FDC294CC56AFA41"
+            {
+            "SourcePath" = "8:..\\resources\\pandoc.ps1"
+            "TargetName" = "8:pandoc.ps1"
+            "Tag" = "8:"
+            "Folder" = "8:_91977092478349C5A5B72B524F56951D"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -581,50 +679,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CC6D903F85194182852A2712D6757CE4"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\AppData\\Roaming\\Microsoft\\Templates\\Document Themes\\book.thmx"
-            "TargetName" = "8:book.thmx"
-            "Tag" = "8:"
-            "Folder" = "8:_91977092478349C5A5B72B524F56951D"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D117C8CCD62B458D82B4ABC3CA684376"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\AppData\\Roaming\\Microsoft\\Templates\\Document Themes\\pres.thmx"
-            "TargetName" = "8:pres.thmx"
-            "Tag" = "8:"
-            "Folder" = "8:_91977092478349C5A5B72B524F56951D"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F89FFC5ED3E6446C81CF450B22EDD457"
             {
             "SourcePath" = "8:..\\resources\\blank.pptm"
             "TargetName" = "8:blank.pptm"
+            "Tag" = "8:"
+            "Folder" = "8:_91977092478349C5A5B72B524F56951D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F9532DEDD2414EFC82CC3D4A3D42FCBE"
+            {
+            "SourcePath" = "8:..\\resources\\book.thmx"
+            "TargetName" = "8:book.thmx"
             "Tag" = "8:"
             "Folder" = "8:_91977092478349C5A5B72B524F56951D"
             "Condition" = "8:"
@@ -709,7 +787,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:A3PPA"
         "ProductCode" = "8:{7E1AFEBE-62DE-4ECC-B1D3-89DEABBC6285}"
-        "PackageCode" = "8:{48EBCD21-1313-4322-AC35-9EFDE13836B5}"
+        "PackageCode" = "8:{63F419EE-0ABC-4708-90E4-89B6F8A82D33}"
         "UpgradeCode" = "8:{C4EEDCA0-4092-43A1-9EEE-B48F36B11249}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"

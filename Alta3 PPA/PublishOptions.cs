@@ -22,16 +22,6 @@ namespace Alta3_PPA
 
         private void btnPublish_Click(object sender, EventArgs e)
         {
-            System.IO.DirectoryInfo di = new DirectoryInfo(A3Globals.A3_PUBLISH);
-            foreach (FileInfo file in di.GetFiles())
-            {
-                file.Delete();
-            }
-            foreach (DirectoryInfo dir in di.GetDirectories())
-            {
-                dir.Delete(true);
-            }
-
             A3Environment.StartUp();
 
             A3LogFile logFile = new A3LogFile();
@@ -42,13 +32,15 @@ namespace Alta3_PPA
             A3Outline outline = a3Presentation.ToOutline(logFile);
 
             if (chkPowerPoint.Checked) { A3Publish.PublishPowerPoint(); }
-            if (chkPDF.Checked) { A3Publish.PublishPDF(presentation, outline); }
-            if (chkLatex.Checked) { A3Publish.PublishLaTex(presentation, outline); }
-            if (chkMarkdown.Checked) { A3Publish.PublishMarkdown(outline); }
-            if (chkPNG.Checked) { A3Publish.PublishPNGs(presentation); }
+            if (chkPNG.Checked) { A3Publish.PublishPresentationPNGs(presentation); A3Publish.PublishBookPNGs(presentation); }
             if (chkYAML.Checked) { A3Publish.PublishYAML(logFile, outline); }
+            if (chkMarkdown.Checked) { A3Publish.PublishMarkdown(outline); }
+            if (chkLatex.Checked) { A3Publish.PublishLaTex(presentation, outline); }
+            if (chkPDF.Checked) { A3Publish.PublishPDF(presentation, outline); }           
             if (chkQuestion.Checked) { A3Publish.PublishQuestions(); }
             if (chkVocab.Checked) { A3Publish.PublishVocabulary(); }
+
+            this.Dispose();
         }
 
         private void btnFldBrowser_Click(object sender, EventArgs e)

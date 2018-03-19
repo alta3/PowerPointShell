@@ -18,10 +18,13 @@ namespace Alta3_PPA
         // The Alta3 directory structure variables
         public static string A3_PATH = String.Concat(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), @"\Documents\Alta3 PowerPoints");
         public static string A3_WORKING = String.Concat(A3_PATH, @"\working");
+
         public static string A3_PUBLISH = String.Concat(A3_PATH, @"\publish");
-        public static string A3_PNGS = String.Concat(A3_PUBLISH, @"\pngs");
+        public static string A3_PRES_PNGS = String.Concat(A3_PUBLISH, @"\pres_pngs");
+        public static string A3_BOOK_PNGS = String.Concat(A3_PUBLISH, @"\book_pngs");
         public static string A3_LATEX = String.Concat(A3_PUBLISH, @"\latex");
         public static string A3_MARKDOWN = String.Concat(A3_PUBLISH, @"\markdown");
+
         public static string A3_LOG = String.Concat(A3_PATH, @"\log");
 
         // Alta3 Resoures location
@@ -34,8 +37,6 @@ namespace Alta3_PPA
         public static string QUESTION_VBA = File.ReadAllText(String.Concat(A3_RESOURCE, @"\question_vba.txt"));
 
         // References to active/current presentation and slide
-        public static A3Presentation A3PRESENTATION;
         public static A3Slide A3SLIDE;
-        public static List<string> SHAPE_NAMES = new List<string>();
     }
 }
