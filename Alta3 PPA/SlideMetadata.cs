@@ -31,10 +31,10 @@ namespace Alta3_PPA
         {
             // Initialize the controls
             A3Globals.A3SLIDE.Slide.Select();
-            this.InitializeType();
             this.InitializeTitle();
             this.InitializeChapSub();
             this.InitializeActiveGuid();
+            this.InitializeType();
         }
 
         // Type Functions
@@ -49,6 +49,8 @@ namespace Alta3_PPA
             CBType.Items.Add("Do Not Publish Slide");
             CBType.Items.Add("Question Slide");
 
+            CBType.SelectedIndex = 3;
+
             // Select the proper index to display based on the current type indicated by the slide
             try
             {
@@ -56,6 +58,7 @@ namespace Alta3_PPA
                 {
                     case "COURSE":
                         CBType.SelectedIndex = 0;
+
                         break;
                     case "TOC":
                         CBType.SelectedIndex = 1;
@@ -79,7 +82,7 @@ namespace Alta3_PPA
             }
             catch 
             {
-                CBType.SelectedIndex = 3;
+                
             }
         }
         private void CBType_SelectedIndexChanged(object sender, EventArgs e)
@@ -187,6 +190,7 @@ namespace Alta3_PPA
         // Title Functions
         private void InitializeTitle()
         {
+            CBTitleKey.SelectedIndex = -1;
             CBTitleKey.Items.Clear();
             TBTitleValue.Clear();
 
@@ -203,14 +207,19 @@ namespace Alta3_PPA
                 try { TBTitleValue.Text = A3Globals.A3SLIDE.Slide.Shapes[CBTitleKey.SelectedItem].TextFrame.TextRange.Text; } catch { }
             }
             catch { }
+            CBTitleKey.Update();
+            CBTitleKey.Show();
         }
         private void CBTitleKey_SelectedIndexChanged(object sender, EventArgs e)
         {
-            TBTitleValue.Text = A3Globals.A3SLIDE.Slide.Shapes[CBTitleKey.SelectedItem].TextFrame.TextRange.Text;
+            try { TBTitleValue.Text = A3Globals.A3SLIDE.Slide.Shapes[CBTitleKey.SelectedItem].TextFrame.TextRange.Text; } catch { }
         }
         private void SaveTitle()
         {
             A3Globals.A3SLIDE.Title = TBTitleValue.Text;
+            PowerPoint.Shape shape = A3Globals.A3SLIDE.Slide.Shapes[CBTitleKey.SelectedItem];
+            shape.Name = "TITLE";
+            shape.Title = "TITLE";
         }
 
         // CHAP:SUB Functions
@@ -268,13 +277,13 @@ namespace Alta3_PPA
             this.SaveChapSub();
             this.SaveGuids();
             A3Globals.A3SLIDE.WriteFromMemory();
-            A3Globals.A3SLIDE.ReadFromSlide();
-            this.DrawSlideInfo();
         }
 
         private void BtnSave_Click(object sender, EventArgs e)
         {
             this.Save();
+            A3Globals.A3SLIDE.ReadFromSlide();
+            this.DrawSlideInfo();
         }
         private void BtnSaveAndProceed_Click(object sender, EventArgs e)
         {

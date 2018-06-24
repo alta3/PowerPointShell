@@ -67,6 +67,7 @@
             this.BtnNewScrubber = new System.Windows.Forms.Button();
             this.BtnSwapScrubber = new System.Windows.Forms.Button();
             this.BtnSaveAndProceed = new System.Windows.Forms.Button();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.GrpGUID.SuspendLayout();
             this.GrpSearch.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -400,6 +401,7 @@
             this.groupBox2.Controls.Add(this.label6);
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Controls.Add(this.CBTitleKey);
+            this.groupBox2.Controls.Add(this.menuStrip1);
             this.groupBox2.Location = new System.Drawing.Point(8, 248);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(666, 121);
@@ -457,6 +459,14 @@
             this.BtnSaveAndProceed.UseVisualStyleBackColor = true;
             this.BtnSaveAndProceed.Click += new System.EventHandler(this.BtnSaveAndProceed_Click);
             // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Location = new System.Drawing.Point(3, 16);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(660, 24);
+            this.menuStrip1.TabIndex = 39;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
             // SlideMetadata
             // 
             this.AcceptButton = this.BtnSaveAndProceed;
@@ -470,6 +480,7 @@
             this.Controls.Add(this.BtnPreviousSlide);
             this.Controls.Add(this.GrpGUID);
             this.Controls.Add(this.BtnSave);
+            this.MainMenuStrip = this.menuStrip1;
             this.Name = "SlideMetadata";
             this.Text = "Slide Metadata";
             this.GrpGUID.ResumeLayout(false);
@@ -522,5 +533,6 @@
         private System.Windows.Forms.Button BtnNewTitle;
         private System.Windows.Forms.Button BtnSwapTitle;
         private System.Windows.Forms.Button BtnNewScrubber;
+        private System.Windows.Forms.MenuStrip menuStrip1;
     }
 }

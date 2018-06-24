@@ -42,11 +42,13 @@
             this.BtnEnvironmentSettings = this.Factory.CreateRibbonButton();
             this.BtnShowSlideMetadata = this.Factory.CreateRibbonButton();
             this.BtnFixAllMetadata = this.Factory.CreateRibbonButton();
+            this.BtnNewBaseline = this.Factory.CreateRibbonButton();
+            this.BtnFillSubChaps = this.Factory.CreateRibbonButton();
             this.GrpProduce = this.Factory.CreateRibbonGroup();
             this.BtnPublish = this.Factory.CreateRibbonButton();
+            this.button1 = this.Factory.CreateRibbonButton();
             this.BtnRecord = this.Factory.CreateRibbonButton();
             this.OpenYamlForGen = new System.Windows.Forms.OpenFileDialog();
-            this.button1 = this.Factory.CreateRibbonButton();
             this.TabA3.SuspendLayout();
             this.GrpInitialize.SuspendLayout();
             this.GrpActiveDev.SuspendLayout();
@@ -85,6 +87,8 @@
             this.GrpActiveDev.Items.Add(this.BtnEnvironmentSettings);
             this.GrpActiveDev.Items.Add(this.BtnShowSlideMetadata);
             this.GrpActiveDev.Items.Add(this.BtnFixAllMetadata);
+            this.GrpActiveDev.Items.Add(this.BtnNewBaseline);
+            this.GrpActiveDev.Items.Add(this.BtnFillSubChaps);
             this.GrpActiveDev.Label = "Active Development";
             this.GrpActiveDev.Name = "GrpActiveDev";
             // 
@@ -105,6 +109,18 @@
             this.BtnFixAllMetadata.Name = "BtnFixAllMetadata";
             this.BtnFixAllMetadata.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.BtnFixAllMetadata_Click);
             // 
+            // BtnNewBaseline
+            // 
+            this.BtnNewBaseline.Label = "New Baseline";
+            this.BtnNewBaseline.Name = "BtnNewBaseline";
+            this.BtnNewBaseline.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.BtnNewBaseline_Click);
+            // 
+            // BtnFillSubChaps
+            // 
+            this.BtnFillSubChaps.Label = "Fill Subchapters";
+            this.BtnFillSubChaps.Name = "BtnFillSubChaps";
+            this.BtnFillSubChaps.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.BtnFillSubChaps_Click);
+            // 
             // GrpProduce
             // 
             this.GrpProduce.Items.Add(this.BtnPublish);
@@ -119,6 +135,12 @@
             this.BtnPublish.Name = "BtnPublish";
             this.BtnPublish.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.BtnPublish_Click);
             // 
+            // button1
+            // 
+            this.button1.Label = "Record Slides";
+            this.button1.Name = "button1";
+            this.button1.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.button1_Click);
+            // 
             // BtnRecord
             // 
             this.BtnRecord.Label = "";
@@ -127,12 +149,6 @@
             // OpenYamlForGen
             // 
             this.OpenYamlForGen.FileOk += new System.ComponentModel.CancelEventHandler(this.OpenYamlForGen_FileOk);
-            // 
-            // button1
-            // 
-            this.button1.Label = "Record Slides";
-            this.button1.Name = "button1";
-            this.button1.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.button1_Click);
             // 
             // A3_Ribbon
             // 
@@ -167,6 +183,8 @@
         private System.Windows.Forms.OpenFileDialog OpenYamlForGen;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton BtnShowSlideMetadata;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton button1;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton BtnNewBaseline;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton BtnFillSubChaps;
     }
 
     partial class ThisRibbonCollection

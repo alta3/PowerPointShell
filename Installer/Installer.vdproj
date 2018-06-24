@@ -111,12 +111,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_CAF99A24AD353080642E3873E5EA1AF0"
-        "OwnerKey" = "8:_D7B2A610B96444D5AA48EB373A627D8A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_D7B2A610B96444D5AA48EB373A627D8A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -143,12 +137,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_8F091A1370C6F8DBAE5D79E1A9A155A7"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_CAF99A24AD353080642E3873E5EA1AF0"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -227,7 +215,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:release\\alta3-ppax86.msi"
+        "OutputFilename" = "8:release\\alta3-ppax64.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -650,37 +638,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_CAF99A24AD353080642E3873E5EA1AF0"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Magick.NET-Q16-AnyCPU, Version=7.4.3.0, Culture=neutral, PublicKeyToken=2004825badfa91ec, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_CAF99A24AD353080642E3873E5EA1AF0"
-                    {
-                    "Name" = "8:Magick.NET-Q16-AnyCPU.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:Magick.NET-Q16-AnyCPU.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_1091ABB96C49449AA7B20E3D58A11B8C"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F89FFC5ED3E6446C81CF450B22EDD457"
             {
             "SourcePath" = "8:..\\resources\\blank.pptm"
@@ -769,7 +726,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:A3PPA"
         "ProductCode" = "8:{7E1AFEBE-62DE-4ECC-B1D3-89DEABBC6285}"
-        "PackageCode" = "8:{63F419EE-0ABC-4708-90E4-89B6F8A82D33}"
+        "PackageCode" = "8:{C6F6A379-8CCE-4CED-8A8C-ABE44325362A}"
         "UpgradeCode" = "8:{C4EEDCA0-4092-43A1-9EEE-B48F36B11249}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -1392,7 +1349,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D7B2A610B96444D5AA48EB373A627D8A"
             {
-            "SourcePath" = "8:..\\Alta3 PPA\\obj\\Debug\\Alta3 PPA.dll"
+            "SourcePath" = "8:..\\Alta3 PPA\\obj\\Release\\Alta3 PPA.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_1091ABB96C49449AA7B20E3D58A11B8C"

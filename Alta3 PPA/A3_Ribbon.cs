@@ -28,7 +28,7 @@ namespace Alta3_PPA
         {
             PowerPoint.Slide slide = Globals.ThisAddIn.Application.ActiveWindow.View.Slide;
             A3Slide.SetActiveSlide(slide);
-            A3Globals.A3SLIDE.ReadShapes();
+            // A3Globals.A3SLIDE.ReadShapes();
             A3Slide.ShowMetadataForm();
         }
 
@@ -71,6 +71,19 @@ namespace Alta3_PPA
             Record record = new Record();
             record.DrawSlideInfo();
             record.Show();
+        }
+
+        private void BtnNewBaseline_Click(object sender, RibbonControlEventArgs e)
+        {
+            A3LogFile logFile = new A3LogFile();
+            PowerPoint.Presentation presentation = Globals.ThisAddIn.Application.ActivePresentation;
+            A3Presentation.NewBaseline(presentation, logFile);
+        }
+
+        private void BtnFillSubChaps_Click(object sender, RibbonControlEventArgs e)
+        {
+            PowerPoint.Presentation presentation = Globals.ThisAddIn.Application.ActivePresentation;
+            A3Presentation.FillSubChapters(presentation);
         }
     }
 }

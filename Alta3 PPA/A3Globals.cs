@@ -14,6 +14,9 @@ namespace Alta3_PPA
         public static bool QUIT_FROM_CURRENT_LOOP = false;
         public static bool DEV_INITIALIZED = false;
         public static bool SHOW_ACTIVE_GUID = false;
+        public static bool ALLOW_INFER_FROM_SLIDE = false;
+        public static bool ALLOW_DEFAULT_INFER_FROM_SLIDE = false;
+        public static bool ENFORCE_CHAP_SUB_SPLITTING = true;
 
         // The Alta3 directory structure variables
         public static string A3_PATH = String.Concat(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), @"\Documents\Alta3 PowerPoints");

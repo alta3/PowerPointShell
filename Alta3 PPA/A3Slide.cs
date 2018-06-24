@@ -21,19 +21,11 @@ namespace Alta3_PPA
         public string Notes { get; set; }
         public List<string> ShapeNames { get; set; }
         public PowerPoint.Slide Slide { get; set; }
-        
+
         public A3Slide(PowerPoint.Slide slide)
         {
             this.Slide = slide;
-            this.ReadActiveGuid();
-            this.ReadHistoricGuid();
-            this.ReadType();
-            this.ReadChapSub();
-            this.ReadChapter();
-            this.ReadSubchapter();
-            this.ReadTitle();
-            this.ReadDay();
-            this.ReadNotes();
+            this.ReadFromSlide();
         }
 
         public static void SetActiveSlide(PowerPoint.Slide slide)
@@ -54,9 +46,29 @@ namespace Alta3_PPA
         {
             A3Globals.A3SLIDE.Slide.Select();
             string msg = null;
+
+            List<string> typesAllowed = new List<string> {
+                "course",
+                "toc",
+                "chapter",
+                "content",
+                "no-pub",
+                "question"
+            };
+
             if (A3Globals.A3SLIDE.Type == null)
             {
                 msg = String.Concat("A Type Must Be Specified -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
+            }
+            else if (!typesAllowed.Contains(A3Globals.A3SLIDE.Type.ToLower()))
+            {
+                msg = String.Concat("A Proper Type Must Be Specified -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
+                if (A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE == true)
+                {
+                    A3Globals.A3SLIDE.Type = "CONTENT";
+                    A3Globals.A3SLIDE.WriteType();
+                    msg = null;
+                }
             }
             else if (A3Globals.A3SLIDE.ActiveGuid == null)
             {
@@ -66,16 +78,15 @@ namespace Alta3_PPA
             {
                 if (A3Globals.A3SLIDE.Title == null ||
                     A3Globals.A3SLIDE.ChapSub == null ||
-                    A3Globals.A3SLIDE.Chapter == null ||
-                    A3Globals.A3SLIDE.Subchapter == null)
+                    (A3Globals.A3SLIDE.Chapter == null && A3Globals.ENFORCE_CHAP_SUB_SPLITTING == true) ||
+                    (A3Globals.A3SLIDE.Subchapter == null && A3Globals.ENFORCE_CHAP_SUB_SPLITTING == true))
                 {
-                    msg = String.Concat("A Title, ActiveGuid, ChapSub, Chapter, and Subchapter must be specified -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
+                    msg = String.Concat("A Title, ActiveGuid, and ChapSub must be specified. Chapter and Subchapter must be split by the \":\" character -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
                 }
             }
             else if (A3Globals.A3SLIDE.Type.ToUpper() == "CHAPTER")
             {
                 if (A3Globals.A3SLIDE.Title == null ||
-                    A3Globals.A3SLIDE.ActiveGuid == null ||
                     A3Globals.A3SLIDE.ChapSub == null)
                 {
                     msg = String.Concat("A Ttitle, ActiveGuid, and ChapSub must be specified -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
@@ -88,13 +99,12 @@ namespace Alta3_PPA
                     msg = String.Concat("A Title And AtiveGuid Must Be Specified -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
                 }
             }
-            else { }
 
             if (firstCheck)
             {
                 if (msg != null)
                 {
-                    A3Globals.A3SLIDE.ReadShapes();
+                    //A3Globals.A3SLIDE.ReadShapes();
                     A3Slide.ShowMetadataForm();
                     A3Slide.FixNullMetadata(false, logFile);
                 }
@@ -107,12 +117,35 @@ namespace Alta3_PPA
                     DialogResult dialogResult = MessageBox.Show(msg, "Properties Still Contain A Null", MessageBoxButtons.YesNo);
                     if (dialogResult == DialogResult.Yes)
                     {
-                        A3Globals.A3SLIDE.ReadShapes();
+                        //A3Globals.A3SLIDE.ReadShapes();
                         A3Slide.ShowMetadataForm();
                         A3Slide.FixNullMetadata(false, logFile);
                     }
                 }
             }     
+        }
+        public static void NewBaseline(PowerPoint.Slide slide, string chapterName, bool before_chap, bool after_question, A3LogFile logFile)
+        {
+            // Set current slide
+            A3Slide.SetActiveSlide(slide);
+            
+            // Set new guid
+            A3Globals.A3SLIDE.ActiveGuid = Guid.NewGuid().ToString();
+            A3Globals.A3SLIDE.WriteActiveGuid();
+
+            // Fix unacceptable null metadata fields
+            A3Slide.FixNullMetadata(true, logFile);
+
+            // Reconstruct the chapter line and write it to the slide
+            if (!before_chap && !after_question && A3Globals.A3SLIDE.Type != "CHAPTER" && A3Globals.A3SLIDE.Type != "COURSE" && A3Globals.A3SLIDE.Type != "QUESTION")
+            {
+                A3Globals.A3SLIDE.ChapSub = String.Concat(chapterName, @": Contents");
+            }
+            A3Globals.A3SLIDE.WriteChapSub();
+        }
+        public static void FillSubChapter(PowerPoint.Slide slide, string subChapName)
+        {
+
         }
 
         public object TypeConversion()
@@ -153,6 +186,7 @@ namespace Alta3_PPA
 
         public void ReadFromSlide()
         {
+            this.ReadShapes();
             this.ReadActiveGuid();
             this.ReadHistoricGuid();
             this.ReadType();
@@ -182,12 +216,49 @@ namespace Alta3_PPA
         public void ReadType()
         {
             try { this.Type = this.Slide.Shapes["TYPE"].TextFrame.TextRange.Text; }
-            catch { this.Type = null; }
+            catch
+            {
+                if (A3Globals.ALLOW_INFER_FROM_SLIDE == true)
+                {
+                    this.InferType();
+                    this.ReadShapes();
+                }
+                else
+                {
+                    this.Type = null;
+                }
+            }
         }
         public void ReadChapSub()
         {
-            try { this.ChapSub = this.Slide.Shapes["CHAP:SUB"].TextFrame.TextRange.Text; }
-            catch { this.ChapSub = null; }
+            try
+            {
+                this.ChapSub = this.Slide.Shapes["CHAP:SUB"].TextFrame.TextRange.Text;
+            }
+            catch
+            {
+                if (A3Globals.ALLOW_INFER_FROM_SLIDE == true)
+                {
+                    string chapSub = this.InferChapSub(this.Type);
+                    try
+                    {
+                        this.ChapSub = this.Slide.Shapes[chapSub].TextFrame.TextRange.Text;
+                        PowerPoint.Shape shape = this.Slide.Shapes[chapSub];
+                        shape.Name = "CHAP:SUB";
+                        shape.Title = "CHAP:SUB";
+                        this.ReadShapes();
+                    }
+                    catch
+                    { 
+                        this.ChapSub = null;
+                    }
+                }
+                else
+                {
+                    this.ChapSub = null;
+                }
+                
+            }
         }
         public void ReadChapter()
         {
@@ -201,8 +272,33 @@ namespace Alta3_PPA
         }
         public void ReadTitle()
         {
-            try { this.Title = this.Slide.Shapes["TITLE"].TextFrame.TextRange.Text; }
-            catch { this.Title = null; }
+            try
+            {
+                this.Title = this.Slide.Shapes["TITLE"].TextFrame.TextRange.Text;
+            }
+            catch
+            {
+                if (A3Globals.ALLOW_INFER_FROM_SLIDE == true)
+                {
+                    string title = this.InferTitle(this.Type);
+                    try
+                    {
+                        this.Title = this.Slide.Shapes[title].TextFrame.TextRange.Text;
+                        PowerPoint.Shape shape = this.Slide.Shapes[title];
+                        shape.Name = "TITLE";
+                        shape.Title = "TITLE";
+                        this.ReadShapes();
+                    }
+                    catch
+                    {
+                        this.Title = null;
+                    }
+                }
+                else
+	            {
+                    this.Title = null;
+                }
+            }
         }
         public void ReadDay()
         {
@@ -250,53 +346,200 @@ namespace Alta3_PPA
             }
         }
 
-        public string InferType()
+        public void InferType()
         {
-            switch (this.Slide.CustomLayout.Name)
+            // Check For Course Slide Indications
+            if (this.Slide.SlideNumber == 1)
             {
-                case "Course Title":
-                    return "COURSE";
-                case "Chapter Title":
-                    return "CHAPTER";
-                case "Review Questions":
-                    return "QUESTION";
+                DialogResult dialogResult = MessageBox.Show("Is the first slide of this deck the Course Title Slide?", "Infering First Slides Type", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.Yes)
+                {
+                    this.MakeSlideType();
+                    this.Type = "COURSE";
+                    this.Slide.Shapes["TYPE"].TextFrame.TextRange.Text = "COURSE";
+                    return;
+                }
+            }
+
+            // Check for shape names indications both chapter and questions slides
+            List<string> chapShapeNames = new List<string>
+            {
+                "wordquan",
+                "wordcounter",
+                "wordsufer",
+                "chapternumber",
+                "vocabwordbox",
+                "vocabbox"
+            };
+            List<string> questionShapeNames = new List<string>
+            {
+                "addquestion",
+                "editquestion",
+                "forward",
+                "back",
+                "qindex",
+                "q",
+                "bluetest",
+                "greentest",
+                "repair",
+                "returnslide",
+                "whyabox",
+                "whybbox",
+                "whycbox",
+                "whydbox",
+                "questionbox"
+            };
+            try
+            {
+                foreach (string shapeName in this.ShapeNames)
+                {
+                    if (chapShapeNames.Contains(shapeName.ToLower()))
+                    {
+                        this.Type = "CHAPTER";
+                        this.WriteType();
+                        return;
+                    }
+                    if (questionShapeNames.Contains(shapeName.ToLower()))
+                    {
+                        this.Type = "QUESTION";
+                        this.WriteType();
+                        return;
+                    }
+                }
+            }
+            catch
+            {
+
+            }
+
+            // Check for chapter slide size indications
+            bool chapChapSub = false;
+            bool chapTitle = false;
+            foreach (string shapeName in this.ShapeNames)
+            {
+                if (this.Slide.Shapes[shapeName].Height >= 47
+                    && this.Slide.Shapes[shapeName].Height <= 55
+                    && this.Slide.Shapes[shapeName].Width >= 900
+                    && this.Slide.Shapes[shapeName].Width <= 1100
+                    && this.Slide.Shapes[shapeName].Top >= 5
+                    && this.Slide.Shapes[shapeName].Top <= 15)
+                {
+                    chapChapSub = true;
+                }
+                else if (this.Slide.Shapes[shapeName].Height >= 45
+                    && this.Slide.Shapes[shapeName].Height <= 55
+                    && this.Slide.Shapes[shapeName].Width >= 850
+                    && this.Slide.Shapes[shapeName].Width <= 1100
+                    && this.Slide.Shapes[shapeName].Top >= 75
+                    && this.Slide.Shapes[shapeName].Top <= 85)
+                {
+                    chapTitle = true;
+                }
+            }
+            if (chapTitle && chapChapSub)
+            {
+                this.Type = "CHAPTER";
+                this.WriteType();
+                return;
+            }
+
+            // Default To Type of Content If Allow Default Infer Is Set to True.
+            if (A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE == true)
+            {
+                this.MakeSlideType();
+                this.Type = "CONTENT";
+                this.Slide.Shapes["TYPE"].TextFrame.TextRange.Text = "CONTENT";
+            }
+        }
+        public string InferChapSub(string type)
+        {
+            List<int> checks = new List<int>();
+            switch (type)
+            {
+                case "CHAPTER":
+                    checks.Add(47);
+                    checks.Add(55);
+                    checks.Add(900);
+                    checks.Add(1100);
+                    checks.Add(5);
+                    checks.Add(15);
+                    break;
                 default:
-                    return "CONTENT";
+                    checks.Add(20);
+                    checks.Add(33);
+                    checks.Add(700);
+                    checks.Add(1000);
+                    checks.Add(0);
+                    checks.Add(20);
+                    break;
             }
-        }
-        public string InferChapSub()
-        {
-            foreach (string shapeName in A3Globals.A3SLIDE.ShapeNames)
+
+            if (this.ShapeNames.Count >= 1)
             {
-                if (A3Globals.A3SLIDE.Slide.Shapes[shapeName].Height >= 20
-                    && A3Globals.A3SLIDE.Slide.Shapes[shapeName].Height <= 33
-                    && A3Globals.A3SLIDE.Slide.Shapes[shapeName].Width >= 700
-                    && A3Globals.A3SLIDE.Slide.Shapes[shapeName].Width <= 1000
-                    && A3Globals.A3SLIDE.Slide.Shapes[shapeName].Top >= 0
-                    && A3Globals.A3SLIDE.Slide.Shapes[shapeName].Top <= 20)
+                foreach (string shapeName in this.ShapeNames)
                 {
-                    return shapeName;
+                    try
+                    {
+                        if (this.Slide.Shapes[shapeName].Height >= checks[0]
+                            && this.Slide.Shapes[shapeName].Height <= checks[1]
+                            && this.Slide.Shapes[shapeName].Width >= checks[2]
+                            && this.Slide.Shapes[shapeName].Width <= checks[3]
+                            && this.Slide.Shapes[shapeName].Top >= checks[4]
+                            && this.Slide.Shapes[shapeName].Top <= checks[5])
+                        {
+                            return shapeName;
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+
                 }
             }
             return null;
         }
-        public string InferTitle()
+        public string InferTitle(string type)
         {
-            foreach (string shapeName in A3Globals.A3SLIDE.ShapeNames)
+            List<int> checks = new List<int>();
+            switch (type)
             {
-                if (A3Globals.A3SLIDE.Slide.Shapes[shapeName].Height >= 30
-                    && A3Globals.A3SLIDE.Slide.Shapes[shapeName].Height <= 60
-                    && A3Globals.A3SLIDE.Slide.Shapes[shapeName].Width >= 700
-                    && A3Globals.A3SLIDE.Slide.Shapes[shapeName].Width <= 900
-                    && A3Globals.A3SLIDE.Slide.Shapes[shapeName].Top >= 21
-                    && A3Globals.A3SLIDE.Slide.Shapes[shapeName].Top <= 50)
+                case "CHAPTER":
+                    checks.Add(45);
+                    checks.Add(55);
+                    checks.Add(850);
+                    checks.Add(1100);
+                    checks.Add(75);
+                    checks.Add(85);
+                    break;
+                default:
+                    checks.Add(30);
+                    checks.Add(60);
+                    checks.Add(600);
+                    checks.Add(1100);
+                    checks.Add(15);
+                    checks.Add(50);
+                    break;
+            }
+
+            if (this.ShapeNames.Count >= 1)
+            {
+                foreach (string shapeName in this.ShapeNames)
                 {
-                    return shapeName;
+                    if (this.Slide.Shapes[shapeName].Height >= checks[0]
+                        && this.Slide.Shapes[shapeName].Height <= checks[1]
+                        && this.Slide.Shapes[shapeName].Width >= checks[2]
+                        && this.Slide.Shapes[shapeName].Width <= checks[3]
+                        && this.Slide.Shapes[shapeName].Top >= checks[4]
+                        && this.Slide.Shapes[shapeName].Top <= checks[5])
+                    {
+                        return shapeName;
+                    }
                 }
             }
             return null;
         }
-        public string InferDay()
+        /* public string InferDay()
         {
             int slideIndex = this.Slide.SlideIndex;
             PowerPoint.Slide previousSlide = this.Slide.Application.ActivePresentation.Slides[slideIndex - 1];
@@ -304,6 +547,7 @@ namespace Alta3_PPA
             try { previousDay = previousSlide.Shapes["DAY"].TextFrame.TextRange.Text; } catch { }
             return previousDay;
         }
+        */
 
         public void WriteFromMemory()
         {
