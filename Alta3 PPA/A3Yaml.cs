@@ -18,6 +18,7 @@ namespace Alta3_PPA
             // Read the file into a string for processing
             string text = File.ReadAllText(yamlPath);
 
+            // TODO: Normailze the text for now make it convert easy, but in the future change it to be consiste with everything else. 
             // Lint the YAML file before attempting to deserialize the outline
             A3Yaml.Lint(logFile, text);
 
@@ -31,7 +32,7 @@ namespace Alta3_PPA
             catch (Exception ex) { logFile.WriteError(ex.Message); }
 
             // Open a copy of the blank PowerPoint in the current PowerPoint context
-            Microsoft.Office.Interop.PowerPoint.Presentation ppt = Globals.ThisAddIn.Application.Presentations.Open(A3Globals.BLANK_POWERPOINT, 0, 0, Microsoft.Office.Core.MsoTriState.msoTrue);
+            Microsoft.Office.Interop.PowerPoint.Presentation ppt = Globals.ThisAddIn.Application.Presentations.Open(A3Globals.MODEL_POWERPOINT, 0, 0, Microsoft.Office.Core.MsoTriState.msoTrue);
 
             // Save the powerpoint presentation to the working directory so that changes do not affect the model presentation
             string saveDir = String.Concat(A3Globals.A3_WORKING, "\\", outline.Course);
@@ -45,9 +46,24 @@ namespace Alta3_PPA
             }
             ppt.SaveAs(String.Concat(savePath, ".pptm"));
 
+            // Grab the current global infer states and then switch them to true while generating the powerpoint from yaml
+            bool inferState = A3Globals.ALLOW_INFER_FROM_SLIDE;
+            bool defaultInferState = A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE;
+            A3Globals.ALLOW_INFER_FROM_SLIDE = true;
+            A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE = true;
+
             // Generate the Presentation
             outline.GeneratePresentation(ppt);
 
+            // Return to the original state of the infer global states 
+            A3Globals.ALLOW_INFER_FROM_SLIDE = inferState;
+            A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE = defaultInferState;
+
+            for (int i = 0; i < 6; i++)
+            {
+                ppt.Slides[1].Delete();
+            }
+            
             // Save the newly generated Presentation
             ppt.Save();
 
@@ -64,10 +80,39 @@ namespace Alta3_PPA
             List<string> subchapterKeys = new List<string> { "slides" };
             List<string> slideKeys = new List<string> { "notes" };
 
+            // TODO: GET RID OF THIS ENTIRE SECTION BY MAKING IT REPORT CORRECTLY FROM THE GROUND UP THIS IS ONLY A TEMPORARY SOLUTION. 
+            /*string newYamlText = null;
+            foreach (string yamlLine in yamlLines)
+            {
+                string newYamlLine = null;
+                List<string> keys = new List<string>();
+                keys.Add("name");
+                keys.AddRange(outlineKeys);
+                keys.AddRange(titleKey);
+                keys.AddRange(chapterKeys);
+                keys.AddRange(subchapterKeys);
+                keys.AddRange(slideKeys);
+                foreach (string key in keys)
+                {
+                    if (yamlLine.Split(':')[0].ToLower() == key)
+                    {
+                        if (key == "name")
+                        {
+                            newYamlLine = String.Concat("course:", yamlLine.Split(':')[1]);
+                        }
+                        newYamlLine = String.Concat(yamlLine.Split(':')[0].ToLower(), ":", yamlLine.Split(':')[1]);
+                    }
+                }
+                newYamlText = String.Concat(newYamlText, newYamlLine, Environment.NewLine);
+            }
+
+            List<string> newYamlLines = new List<string>(Regex.Split(newYamlText, Environment.NewLine));
+            */
+
             #region Course
             List<string> courses = yamlLines.FindAll(s => s.Split(':')[0].ToLower() == "course");
             A3Yaml.LogNotPresent(logFile, courses, 2, "Course");
-            A3Yaml.ErrorNullCheck(logFile, "course", courses[0], false);
+            try { A3Yaml.ErrorNullCheck(logFile, "course", courses[0], false); } catch { }
             A3Yaml.ErrorDuplicateMapping(logFile, yamlLines, courses);
             #endregion
 
@@ -85,6 +130,7 @@ namespace Alta3_PPA
             
             List<string> labs = yamlLines.FindAll(str => str.Split(':')[0].ToLower() == "labs");
             #endregion
+            // return newYamlText;
         }
         public static void ProduceYaml(A3LogFile logFile, A3Outline _outline)
         {
@@ -93,10 +139,18 @@ namespace Alta3_PPA
             // Check for NO-PUB slides and remove them from the outline
             foreach (A3Chapter chapter in outline.Chapters)
             {
+                chapter.Day = null;
+                chapter.Vocab = null;
+                chapter.HistoricGuids = null;
                 foreach (A3Subchapter subchapter in chapter.Subchapters)
                 {
                     foreach (A3Content slide in subchapter.Slides)
                     {
+                        slide.Day = null;
+                        slide.Type = null;
+                        slide.Chapter = null;
+                        slide.Subchapter = null;
+                        slide.HistoricGuids = null;                       
                         if (slide.Type == "NO-PUB" || slide.Type == "BLANK")
                         {
                             subchapter.Slides.Remove(slide);

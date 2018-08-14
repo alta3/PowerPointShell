@@ -57,13 +57,13 @@ namespace Alta3_PPA
         private void btnNextSlide_Click(object sender, EventArgs e)
         {
             int slideIndex = A3Globals.A3SLIDE.Slide.SlideIndex + 1;
-            try { A3Slide.SetActiveSlide(Globals.ThisAddIn.Application.ActivePresentation.Slides[slideIndex]); this.DrawSlideInfo(); }
+            try { A3Slide.SetA3SlideFromPPTSlide(Globals.ThisAddIn.Application.ActivePresentation.Slides[slideIndex]); this.DrawSlideInfo(); }
             catch { MessageBox.Show("END OF SLIDE SHOW", "ERROR", MessageBoxButtons.OK); }
         }
         private void btnPrevious_Click(object sender, EventArgs e)
         {
             int slideIndex = A3Globals.A3SLIDE.Slide.SlideIndex - 1;
-            try { A3Slide.SetActiveSlide(Globals.ThisAddIn.Application.ActivePresentation.Slides[slideIndex]); this.DrawSlideInfo(); }
+            try { A3Slide.SetA3SlideFromPPTSlide(Globals.ThisAddIn.Application.ActivePresentation.Slides[slideIndex]); this.DrawSlideInfo(); }
             catch { MessageBox.Show("BEGINING OF SLIDE SHOW", "ERROR", MessageBoxButtons.OK); }
         }
 

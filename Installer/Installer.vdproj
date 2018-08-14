@@ -666,7 +666,7 @@
         {
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_1091ABB96C49449AA7B20E3D58A11B8C"
             {
-            "DefaultLocation" = "8:[ProgramFiles64Folder][Manufacturer]\\[ProductName]"
+            "DefaultLocation" = "8:[ProgramFilesFolder][Manufacturer]\\[ProductName]"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:TRUE"
             "Condition" = "8:"
@@ -726,7 +726,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:A3PPA"
         "ProductCode" = "8:{7E1AFEBE-62DE-4ECC-B1D3-89DEABBC6285}"
-        "PackageCode" = "8:{C6F6A379-8CCE-4CED-8A8C-ABE44325362A}"
+        "PackageCode" = "8:{14BAD61D-54E1-40D5-A97C-EEA121155AAF}"
         "UpgradeCode" = "8:{C4EEDCA0-4092-43A1-9EEE-B48F36B11249}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -747,7 +747,7 @@
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
-        "TargetPlatform" = "3:1"
+        "TargetPlatform" = "3:0"
         "PreBuildEvent" = "8:"
         "PostBuildEvent" = "8:"
         "RunPostBuildEvent" = "3:0"
@@ -767,6 +767,122 @@
                     "Transitive" = "11:FALSE"
                         "Keys"
                         {
+                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_6D3DDD7A3FD14AA780D0380D7882C815"
+                            {
+                            "Name" = "8:Wow6432Node"
+                            "Condition" = "8:"
+                            "AlwaysCreate" = "11:FALSE"
+                            "DeleteAtUninstall" = "11:FALSE"
+                            "Transitive" = "11:FALSE"
+                                "Keys"
+                                {
+                                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_4B613284845C440898E6CDD7BC6C93E5"
+                                    {
+                                    "Name" = "8:Microsoft"
+                                    "Condition" = "8:"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "DeleteAtUninstall" = "11:FALSE"
+                                    "Transitive" = "11:FALSE"
+                                        "Keys"
+                                        {
+                                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_06F34101D7404D58B85A9F5E9787C7B0"
+                                            {
+                                            "Name" = "8:Office"
+                                            "Condition" = "8:"
+                                            "AlwaysCreate" = "11:FALSE"
+                                            "DeleteAtUninstall" = "11:FALSE"
+                                            "Transitive" = "11:FALSE"
+                                                "Keys"
+                                                {
+                                                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_1E7C238044784359BA37D547C395D3DE"
+                                                    {
+                                                    "Name" = "8:PowerPoint"
+                                                    "Condition" = "8:"
+                                                    "AlwaysCreate" = "11:FALSE"
+                                                    "DeleteAtUninstall" = "11:FALSE"
+                                                    "Transitive" = "11:FALSE"
+                                                        "Keys"
+                                                        {
+                                                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_65C13E51C5D54545B0477C9293F3A465"
+                                                            {
+                                                            "Name" = "8:Addins"
+                                                            "Condition" = "8:"
+                                                            "AlwaysCreate" = "11:FALSE"
+                                                            "DeleteAtUninstall" = "11:FALSE"
+                                                            "Transitive" = "11:FALSE"
+                                                                "Keys"
+                                                                {
+                                                                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_C1ECBE17B6394B2A9EA3C07C01895AF1"
+                                                                    {
+                                                                    "Name" = "8:Alta3.PowerPointAddin"
+                                                                    "Condition" = "8:"
+                                                                    "AlwaysCreate" = "11:FALSE"
+                                                                    "DeleteAtUninstall" = "11:FALSE"
+                                                                    "Transitive" = "11:FALSE"
+                                                                        "Keys"
+                                                                        {
+                                                                        }
+                                                                        "Values"
+                                                                        {
+                                                                            "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_395F9382D4AB4F22830EE7F1604F46A0"
+                                                                            {
+                                                                            "Name" = "8:Description"
+                                                                            "Condition" = "8:"
+                                                                            "Transitive" = "11:FALSE"
+                                                                            "ValueTypes" = "3:1"
+                                                                            "Value" = "8:Alta3 Plugin"
+                                                                            }
+                                                                            "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_8FACB3D5185446C48CEE299BBB739F10"
+                                                                            {
+                                                                            "Name" = "8:FriendlyName"
+                                                                            "Condition" = "8:"
+                                                                            "Transitive" = "11:FALSE"
+                                                                            "ValueTypes" = "3:1"
+                                                                            "Value" = "8:Alta3 Plugin"
+                                                                            }
+                                                                            "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_9BCC0ECDE8D2468E8D0D3E9BCD976CE1"
+                                                                            {
+                                                                            "Name" = "8:Manifest"
+                                                                            "Condition" = "8:"
+                                                                            "Transitive" = "11:FALSE"
+                                                                            "ValueTypes" = "3:1"
+                                                                            "Value" = "8:[TARGETDIR]Alta3 PPA.vsto|vstolocal"
+                                                                            }
+                                                                            "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_EA0CBFC5DD5F485CBF63348BC91C7E79"
+                                                                            {
+                                                                            "Name" = "8:LoadBehavior"
+                                                                            "Condition" = "8:"
+                                                                            "Transitive" = "11:FALSE"
+                                                                            "ValueTypes" = "3:3"
+                                                                            "Value" = "3:3"
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                                "Values"
+                                                                {
+                                                                }
+                                                            }
+                                                        }
+                                                        "Values"
+                                                        {
+                                                        }
+                                                    }
+                                                }
+                                                "Values"
+                                                {
+                                                }
+                                            }
+                                        }
+                                        "Values"
+                                        {
+                                        }
+                                    }
+                                }
+                                "Values"
+                                {
+                                }
+                            }
                             "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_85D5F6BCDD7241E6BD686F66F5EE8A8C"
                             {
                             "Name" = "8:[Manufacturer]"
@@ -1349,7 +1465,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D7B2A610B96444D5AA48EB373A627D8A"
             {
-            "SourcePath" = "8:..\\Alta3 PPA\\obj\\Release\\Alta3 PPA.dll"
+            "SourcePath" = "8:..\\Alta3 PPA\\obj\\x86\\Release\\Alta3 PPA.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_1091ABB96C49449AA7B20E3D58A11B8C"

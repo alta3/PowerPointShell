@@ -21,10 +21,11 @@ namespace Alta3_PPA
 
         public void Generate(PowerPoint.Presentation presentation, string chapSub)
         {
-            presentation.Slides.AddSlide(presentation.Slides.Count + 1, presentation.SlideMaster.CustomLayouts[3]);
+            presentation.Slides[3].Duplicate().MoveTo(presentation.Slides.Count);
             A3Slide a3ActiveSlide = new A3Slide(presentation.Slides[presentation.Slides.Count])
             {
                 Title = this.Title,
+                Type = "CONTENT",
                 ChapSub = chapSub,
                 ActiveGuid = Guid.NewGuid().ToString(),
                 Notes = this.Notes

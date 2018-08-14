@@ -30,7 +30,7 @@ namespace Alta3_PPA
         private void GenerateChapterSlide(PowerPoint.Presentation presentation, int chapterCount)
         {
             // Open the appropriate slide and set it to the active slide in the presentation
-            presentation.Slides.InsertFromFile(A3Globals.MODEL_POWERPOINT, presentation.Slides.Count + 1, 2);
+            presentation.Slides[2].Duplicate().MoveTo(presentation.Slides.Count);
 
             // Change the title of the slide and the scrubber to accurately reflect the outline
             A3Slide a3ActiveSlide = new A3Slide(presentation.Slides[presentation.Slides.Count])
@@ -42,15 +42,29 @@ namespace Alta3_PPA
             a3ActiveSlide.WriteFromMemory();
 
             // Ensure the slide TOC button is linked to the second slide in the presentation
-            a3ActiveSlide.Slide.Shapes.Range("TOC").ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick].Hyperlink.Address = null;
-            a3ActiveSlide.Slide.Shapes.Range("TOC").ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick].Hyperlink.SubAddress = null;
-            a3ActiveSlide.Slide.Shapes.Range("TOC").TextFrame.TextRange.ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick].Hyperlink.Address = null;
-            a3ActiveSlide.Slide.Shapes.Range("TOC").TextFrame.TextRange.ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick].Hyperlink.SubAddress = presentation.Slides[2].SlideID + "," + presentation.Slides[2].SlideIndex + "," + presentation.Slides[2].Name;
+            PowerPoint.Shape activeShape;
+            foreach (PowerPoint.Shape shape in a3ActiveSlide.Slide.Shapes)
+            {
+                if (shape.Title == "TOC" || shape.Name == "TOC")
+                {
+                    activeShape = shape;
+                    activeShape.ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick].Hyperlink.Address = null;
+                    activeShape.ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick].Hyperlink.SubAddress = null;
+                    activeShape.TextFrame.TextRange.ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick].Hyperlink.Address = null;
+                    activeShape.TextFrame.TextRange.ActionSettings[PowerPoint.PpMouseActivation.ppMouseClick].Hyperlink.SubAddress = presentation.Slides[2].SlideID + "," + presentation.Slides[2].SlideIndex + "," + presentation.Slides[2].Name;
+                }
+            }
 
             // Write the Chapter VBA to the slide itself
-            string index = String.Concat("Slide", presentation.Slides.Count);
-            Microsoft.Vbe.Interop.VBComponent component = presentation.VBProject.VBComponents.Item(index);
-            component.CodeModule.AddFromString(A3Globals.CHAPTER_VBA);
+            string index = String.Concat("Slide ", presentation.Slides.Count);
+            foreach (Microsoft.Vbe.Interop.VBComponent component in presentation.VBProject.VBComponents)
+            {
+                if (component.Name.ToLower().StartsWith("slide"))
+                {
+                    component.CodeModule.AddFromString(A3Globals.CHAPTER_VBA);
+                }
+            }
+
         }
         private void GenerateSubChapters(PowerPoint.Presentation presentation)
         {

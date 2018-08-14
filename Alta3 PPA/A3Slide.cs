@@ -10,6 +10,7 @@ namespace Alta3_PPA
 {
     public class A3Slide
     {
+
         public string ActiveGuid { get; set; }
         public List<string> HistoricGuids { get; set; }
         public string Day { get; set; }
@@ -28,7 +29,13 @@ namespace Alta3_PPA
             this.ReadFromSlide();
         }
 
-        public static void SetActiveSlide(PowerPoint.Slide slide)
+        // TODO: Further test the functionality of the REST API that I setup... and expand/enhance its capability
+        // TODO: Create the helper script to build the pdf for latex documents
+        // TODO: Enhance the user interface dramatically to improve functionality, make the settings persist in memory and have a place to set them seperate from everything else.
+        // TODO: Clean the code and make it more consistent throughout
+        // TODO: Get rid of references to SCRUBBER throughout the code and make it more unified. 
+        // TODO: Determine whether or not this is a useful function call... I doubt it so get rid of SetA3Slide and Most Likely ShowMetadataForm calls. 
+        public static void SetA3SlideFromPPTSlide(PowerPoint.Slide slide)
         {
             A3Globals.A3SLIDE = new A3Slide(slide);
         }
@@ -40,8 +47,9 @@ namespace Alta3_PPA
                 StartPosition = FormStartPosition.CenterScreen
             };
             slideMetadata.DrawSlideInfo();
-            slideMetadata.ShowDialog();
+            slideMetadata.Show();
         }
+        // TODO: Clean this code to not have to be a static solution. 
         public static void FixNullMetadata(bool firstCheck, A3LogFile logFile)
         {
             A3Globals.A3SLIDE.Slide.Select();
@@ -55,6 +63,7 @@ namespace Alta3_PPA
                 "no-pub",
                 "question"
             };
+            A3Slide.ScrubMetadata(A3Globals.A3SLIDE);
 
             if (A3Globals.A3SLIDE.Type == null)
             {
@@ -86,10 +95,9 @@ namespace Alta3_PPA
             }
             else if (A3Globals.A3SLIDE.Type.ToUpper() == "CHAPTER")
             {
-                if (A3Globals.A3SLIDE.Title == null ||
-                    A3Globals.A3SLIDE.ChapSub == null)
+                if (A3Globals.A3SLIDE.Title == null) 
                 {
-                    msg = String.Concat("A Ttitle, ActiveGuid, and ChapSub must be specified -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
+                    msg = String.Concat("A Title and ActiveGuid must be specified -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
                 }
             }
             else if (A3Globals.A3SLIDE.Type.ToUpper() == "COURSE")
@@ -104,7 +112,6 @@ namespace Alta3_PPA
             {
                 if (msg != null)
                 {
-                    //A3Globals.A3SLIDE.ReadShapes();
                     A3Slide.ShowMetadataForm();
                     A3Slide.FixNullMetadata(false, logFile);
                 }
@@ -124,10 +131,12 @@ namespace Alta3_PPA
                 }
             }     
         }
+        
+        // TODO: Move this method to a more appropriate place perhaps A3Presentation? 
         public static void NewBaseline(PowerPoint.Slide slide, string chapterName, bool before_chap, bool after_question, A3LogFile logFile)
         {
             // Set current slide
-            A3Slide.SetActiveSlide(slide);
+            A3Slide.SetA3SlideFromPPTSlide(slide);
             
             // Set new guid
             A3Globals.A3SLIDE.ActiveGuid = Guid.NewGuid().ToString();
@@ -143,11 +152,46 @@ namespace Alta3_PPA
             }
             A3Globals.A3SLIDE.WriteChapSub();
         }
-        public static void FillSubChapter(PowerPoint.Slide slide, string subChapName)
+        public static void ScrubMetadata(A3Slide a3Slide)
         {
-
+            a3Slide.ReadShapes();
+            if (a3Slide.ShapeNames.Contains("SCRUBBER"))
+            {
+                if (a3Slide.Type.ToUpper() == "COURSE" || a3Slide.Type.ToUpper() == "CHAPTER")
+                {
+                    if (a3Slide.ShapeNames.Contains("TITLE"))
+                    {
+                        a3Slide.Slide.Shapes["TITLE"].Delete();
+                    }
+                    PowerPoint.Shape shape = a3Slide.Slide.Shapes["SCRUBBER"];
+                    shape.Name = "TITLE";
+                    shape.Title = "TITLE";
+                }
+                else
+                {
+                    if (a3Slide.ShapeNames.Contains("CHAP:SUB"))
+                    {
+                        a3Slide.Slide.Shapes["CHAP:SUB"].Delete();
+                    }
+                    PowerPoint.Shape shape = a3Slide.Slide.Shapes["SCRUBBER"];
+                    shape.Name = "CHAP:SUB";
+                    shape.Title = "CHAP:SUB";
+                }
+            }
         }
+        
+        // TODO: Create a file for several types of enums that can be used throughout the code for more useful functions calls. 
+        // TODO: Implement the following functions and consolidate and clean code to better fit within these contexts.
+        public void CheckType() { }
+        public void CheckActiveGuid() { }
+        public void CheckHistoricGuid() { }
+        public void CheckTitle() { }
+        public void CheckChapter() { }
+        public void CheckSubchapter() { }
+        public void CheckPreviousTerms() { }
+        public void CheckMetadata() { }
 
+        // TODO: Document the following function to include its purpose; implementation; and how it works. 
         public object TypeConversion()
         {
             switch (this.Type.ToLower())
@@ -184,6 +228,8 @@ namespace Alta3_PPA
             } 
         }
 
+        // TODO: Document the following functions to include their purpose; implementations; and basic understanding of how it gathers information.
+        // TODO: Determine if any of this metadata should ever be let to fall into a null state, it is causing problems with YAML ingestion, probably better to find sane defaults: For now enabling INFER_FROM _SLIDE for YAML generation. 
         public void ReadFromSlide()
         {
             this.ReadShapes();
@@ -346,6 +392,7 @@ namespace Alta3_PPA
             }
         }
 
+        // TODO: Document the following functions to incldue their purpose; implementations; and basic understanding of how they preform infrences
         public void InferType()
         {
             // Check For Course Slide Indications
@@ -549,6 +596,7 @@ namespace Alta3_PPA
         }
         */
 
+        // TODO: Document the following functiosn to include their purpose; implementations; and basic understading of how they write information to the slide.
         public void WriteFromMemory()
         {
             this.WriteType();
@@ -591,7 +639,7 @@ namespace Alta3_PPA
         {
             PowerPoint.Shape type;
             try { type = this.Slide.Shapes["TYPE"]; } catch { type = this.MakeSlideType(); }
-            type.TextFrame.TextRange.Text = this.Type.ToUpper();
+            try { type.TextFrame.TextRange.Text = this.Type.ToUpper(); } catch { type.TextFrame.TextRange.Text = ""; }
             if (this.Type.ToUpper() == "COURSE" || this.Type.ToUpper() == "CHAPTER" || this.Type.ToUpper() == "QUESTION")
             {
                 this.Slide.CustomLayout.Name = this.Type.ToUpper();
@@ -629,9 +677,23 @@ namespace Alta3_PPA
         }
         public void WriteNotes()
         {
+            try
+            {
+                foreach (PowerPoint.Shape shape in this.Slide.NotesPage.Shapes)
+                {
+                    if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
+                    {
+                        shape.TextFrame.TextRange.Text = this.Notes;
+                    }
+                }
+            }
+            catch
+            {
 
+            }
         }
 
+        // TODO: Document the following functiosn to include their purpose; implemenations; invocations; and basic understanding of how and when they are utilized. 
         public PowerPoint.Shape MakeActiveGuid()
         {
             PowerPoint.Shape aguid = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 0, 400, 500, 30);

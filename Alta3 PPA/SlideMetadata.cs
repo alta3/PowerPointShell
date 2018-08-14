@@ -58,7 +58,6 @@ namespace Alta3_PPA
                 {
                     case "COURSE":
                         CBType.SelectedIndex = 0;
-
                         break;
                     case "TOC":
                         CBType.SelectedIndex = 1;
@@ -87,7 +86,7 @@ namespace Alta3_PPA
         }
         private void CBType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (this.CBType.SelectedIndex == 0 || this.CBType.SelectedIndex == 5)
+            if (this.CBType.SelectedIndex == 0 || this.CBType.SelectedIndex == 2 || this.CBType.SelectedIndex == 5)
             {
                 this.CBScrubberKey.Enabled = false;
                 this.TBScrubberValue.Enabled = false;
@@ -295,13 +294,13 @@ namespace Alta3_PPA
         private void BtnPreviousSlide_Click(object sender, EventArgs e)
         {
             int slideIndex = A3Globals.A3SLIDE.Slide.SlideIndex - 1;
-            try { A3Slide.SetActiveSlide(Globals.ThisAddIn.Application.ActivePresentation.Slides[slideIndex]); A3Globals.A3SLIDE.ReadShapes(); this.DrawSlideInfo(); }
+            try { A3Slide.SetA3SlideFromPPTSlide(Globals.ThisAddIn.Application.ActivePresentation.Slides[slideIndex]); A3Globals.A3SLIDE.ReadShapes(); this.DrawSlideInfo(); }
             catch { MessageBox.Show("BEGINING OF SLIDE SHOW", "ERROR", MessageBoxButtons.OK); }
         }
         private void BtnNextSlide_Click(object sender, EventArgs e)
         {
             int slideIndex = A3Globals.A3SLIDE.Slide.SlideIndex + 1;
-            try { A3Slide.SetActiveSlide(Globals.ThisAddIn.Application.ActivePresentation.Slides[slideIndex]); A3Globals.A3SLIDE.ReadShapes(); this.DrawSlideInfo(); }
+            try { A3Slide.SetA3SlideFromPPTSlide(Globals.ThisAddIn.Application.ActivePresentation.Slides[slideIndex]); A3Globals.A3SLIDE.ReadShapes(); this.DrawSlideInfo(); }
             catch { MessageBox.Show("END OF SLIDE SHOW", "ERROR", MessageBoxButtons.OK); }
         }
 

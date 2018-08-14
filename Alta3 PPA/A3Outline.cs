@@ -14,8 +14,14 @@ namespace Alta3_PPA
     public class A3Outline
     {
         #region Outline Properites
-        public string Id { get; set; }
+        //public string Id { get; set; }
         public string Course { get; set; }
+        //public string Name { get; set; }
+        //public string Filename { get; set; }
+        //public bool HasLabs { get; set;}
+        //public bool HasSlides { get; set; }
+        //public bool HasVideos { get; set; }
+        //public string Weburl { get; set; }
         public List<A3Content> TOC { get; set; }
         public List<A3Chapter> Chapters { get; set; }
         public List<A3Lab> Labs { get; set; }
@@ -44,23 +50,23 @@ namespace Alta3_PPA
         private void GenerateCourseSlide(PowerPoint.Presentation presentation)
         {
             // Insert the course slide from the model PowerPoint
-            presentation.Slides.AddSlide(presentation.Slides.Count + 1, presentation.SlideMaster.CustomLayouts[1]);
+            presentation.Slides[1].Duplicate().MoveTo(presentation.Slides.Count);
 
             // Change the title to the course title given in the yaml file
             A3Slide a3ActiveSlide = new A3Slide(presentation.Slides[presentation.Slides.Count])
             {
                 Title = this.Course,
                 Type = "COURSE",
-                ActiveGuid = Guid.NewGuid().ToString()
+                ActiveGuid = Guid.NewGuid().ToString(),
+                //Notes = String.Concat("name: ", this.Course, "\r\nfilename: ", this.Filename, "\r\nhas-labs: ", this.HasLabs, "\r\nhas-slides: ", this.HasSlides, "\r\nhas-videos: ", this.HasVideos, "\r\nweburl: ", this.Weburl)
             };
             a3ActiveSlide.WriteFromMemory();
         }
         private void GenerateEndOfDeckSlide(PowerPoint.Presentation presentation)
         {
             // Insert a title slide from the model PowerPoint
-            presentation.Slides.AddSlide(presentation.Slides.Count + 1, presentation.SlideMaster.CustomLayouts[4]);
-            PowerPoint.SlideRange activeslide = presentation.Slides.Range(presentation.Slides.Count);
-
+            presentation.Slides[3].Duplicate().MoveTo(presentation.Slides.Count);
+            
             // Change the title, chapsub, type, and active guid to accurately reflect what is happening
             A3Slide a3ActiveSlide = new A3Slide(presentation.Slides[presentation.Slides.Count])
             {
@@ -74,7 +80,7 @@ namespace Alta3_PPA
         private void GenerateTOCSlide(PowerPoint.Presentation presentation)
         {
             // Insert a split slide from the model PowerPoint
-            presentation.Slides.AddSlide(presentation.Slides.Count + 1, presentation.SlideMaster.CustomLayouts[4]);
+            presentation.Slides[4].Duplicate().MoveTo(presentation.Slides.Count);
 
             // Populate the appropriate values of the slide deck here
             A3Slide a3ActiveSlide = new A3Slide(presentation.Slides[presentation.Slides.Count])
@@ -91,7 +97,7 @@ namespace Alta3_PPA
         private void GenerateQuizSlide(PowerPoint.Presentation presentation)
         {
             // Insert a question slide from the model PowerPoint
-            presentation.Slides.InsertFromFile(A3Globals.MODEL_POWERPOINT, presentation.Slides.Count + 1, 6);       
+            presentation.Slides[6].Duplicate().MoveTo(presentation.Slides.Count);
 
             // Ensure the title is Knowledge Check and move on 
             A3Slide a3ActiveSlide = new A3Slide(presentation.Slides[presentation.Slides.Count])

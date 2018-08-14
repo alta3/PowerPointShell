@@ -28,7 +28,7 @@ namespace Alta3_PPA
             bool after_chap = false;
             foreach (PowerPoint.Slide slide in presentation.Slides)
             {
-                A3Slide.SetActiveSlide(slide);
+                A3Slide.SetA3SlideFromPPTSlide(slide);
                 if (A3Globals.A3SLIDE.Type.ToLower() == "chapter")
                 {
                     subChapName = "Contents";
@@ -113,7 +113,7 @@ namespace Alta3_PPA
             {
                 if (!A3Globals.QUIT_FROM_CURRENT_LOOP)
                 {
-                    A3Slide.SetActiveSlide(slide);
+                    A3Slide.SetA3SlideFromPPTSlide(slide);
                     A3Slide.FixNullMetadata(true, logFile);
                 }
             }

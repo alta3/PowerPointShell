@@ -27,7 +27,7 @@ namespace Alta3_PPA
         private void BtnShowSlideMetadata_Click(object sender, RibbonControlEventArgs e)
         {
             PowerPoint.Slide slide = Globals.ThisAddIn.Application.ActiveWindow.View.Slide;
-            A3Slide.SetActiveSlide(slide);
+            A3Slide.SetA3SlideFromPPTSlide(slide);
             // A3Globals.A3SLIDE.ReadShapes();
             A3Slide.ShowMetadataForm();
         }
@@ -67,7 +67,7 @@ namespace Alta3_PPA
         private void button1_Click(object sender, RibbonControlEventArgs e)
         {
             PowerPoint.Slide slide = Globals.ThisAddIn.Application.ActiveWindow.View.Slide;
-            A3Slide.SetActiveSlide(slide);
+            A3Slide.SetA3SlideFromPPTSlide(slide);
             Record record = new Record();
             record.DrawSlideInfo();
             record.Show();
