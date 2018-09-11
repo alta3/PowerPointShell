@@ -16,21 +16,21 @@ namespace Alta3_PPA
         public string Day { get; set; }
         public string Notes { get; set; }
         public string Type { get; set; }
-        public string ActiveGuid { get; set; }
+        public string Guid { get; set; }
         public List<string> HistoricGuids { get; set; }
 
         public void Generate(PowerPoint.Presentation presentation, string chapSub)
         {
             presentation.Slides[3].Duplicate().MoveTo(presentation.Slides.Count);
-            A3Slide a3ActiveSlide = new A3Slide(presentation.Slides[presentation.Slides.Count])
+            A3Slide a3Slide = new A3Slide(presentation.Slides[presentation.Slides.Count])
             {
                 Title = this.Title,
                 Type = "CONTENT",
                 ChapSub = chapSub,
-                ActiveGuid = Guid.NewGuid().ToString(),
+                Guid = System.Guid.NewGuid().ToString(),
                 Notes = this.Notes
             };
-            a3ActiveSlide.WriteFromMemory();
+            a3Slide.WriteFromMemory();
         }
     }
 }

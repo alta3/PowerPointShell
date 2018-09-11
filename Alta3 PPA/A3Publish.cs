@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
 namespace Alta3_PPA
@@ -59,7 +55,7 @@ namespace Alta3_PPA
                         //find average
                         int avg = (r + g + b) / 3;
 
-                        //set new pixel value
+                        //set new pixel valu
                         bmp.SetPixel(x, y, Color.FromArgb(a, avg, avg, avg));
                     }
                 }
@@ -74,7 +70,7 @@ namespace Alta3_PPA
                 {
                     foreach (A3Content content in subchapter.Slides)
                     {
-                        A3Notes.ToMarkdown(content.Notes, content.ActiveGuid);
+                        A3Notes.ToMarkdown(content.Notes, content.Guid);
                     }
                 }
             }
@@ -104,7 +100,7 @@ namespace Alta3_PPA
                 CreateNoWindow = false,
                 FileName = "pdflatex.exe",
                 WindowStyle = ProcessWindowStyle.Hidden,
-                Arguments = String.Concat(@"-job-name=", outline.Course, @" -output-directory=", A3Globals.A3_PUBLISH, @" -aux-directory=", A3Globals.A3_LATEX, @"main.tex")
+                Arguments = String.Concat(@"-job-name=", outline.Name, @" -output-directory=", A3Globals.A3_PUBLISH, @" -aux-directory=", A3Globals.A3_LATEX, @"main.tex")
             };
             try
             {

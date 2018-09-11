@@ -15,7 +15,7 @@ namespace Alta3_PPA
         public List<A3Subchapter> Subchapters { get; set; }
         public List<A3Vocab> Vocab { get; set; }
         public string Day { get; set; }
-        public string ActiveGuid { get; set; }
+        public string Guid { get; set; }
         public List<string> HistoricGuids { get; set; }
 
         public void Generate(PowerPoint.Presentation presentation, int chapterCount)
@@ -33,17 +33,17 @@ namespace Alta3_PPA
             presentation.Slides[2].Duplicate().MoveTo(presentation.Slides.Count);
 
             // Change the title of the slide and the scrubber to accurately reflect the outline
-            A3Slide a3ActiveSlide = new A3Slide(presentation.Slides[presentation.Slides.Count])
+            A3Slide a3Slide = new A3Slide(presentation.Slides[presentation.Slides.Count])
             {
                 Title = "Vocabluary",
                 ChapSub = this.Title,
-                ActiveGuid = Guid.NewGuid().ToString()
+                Guid = System.Guid.NewGuid().ToString()
             };
-            a3ActiveSlide.WriteFromMemory();
+            a3Slide.WriteFromMemory();
 
             // Ensure the slide TOC button is linked to the second slide in the presentation
             PowerPoint.Shape activeShape;
-            foreach (PowerPoint.Shape shape in a3ActiveSlide.Slide.Shapes)
+            foreach (PowerPoint.Shape shape in a3Slide.Slide.Shapes)
             {
                 if (shape.Title == "TOC" || shape.Name == "TOC")
                 {
@@ -84,36 +84,6 @@ namespace Alta3_PPA
                 {
                     word.Generate(chapterCount);
                 }
-            }
-        }
-
-        public void Validate(int chapterCount, A3LogFile logFile, int process)
-        {
-            this.ValidateTitle(chapterCount, logFile);
-            // If process dicatates different checks make a switch statement here locally but pass the process varaible to the chapter and labs so that it can independently handle those
-            this.ValidateSubchapters(chapterCount, logFile);
-            this.ValidateVocab(chapterCount, logFile);
-        }
-
-        private void ValidateTitle(int chapterCount, A3LogFile logFile)
-        {
-            if (this.Title == null || this.Title.Count(c => !Char.IsWhiteSpace(c)) == 0)
-            {
-                logFile.WriteError(String.Concat("Chapter ", chapterCount.ToString(), ": No Title Found"));
-            }
-        }
-        private void ValidateSubchapters(int chapterCount, A3LogFile logFile)
-        {
-            foreach (A3Subchapter subchapter in this.Subchapters)
-            {
-                //subchapter.Valid();
-            }
-        }
-        private void ValidateVocab(int chapterCount, A3LogFile logFile)
-        {
-            foreach (A3Vocab vocab in this.Vocab)
-            {
-                //vocab.Valid();
             }
         }
     }

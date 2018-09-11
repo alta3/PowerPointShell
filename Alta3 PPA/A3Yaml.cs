@@ -35,14 +35,14 @@ namespace Alta3_PPA
             Microsoft.Office.Interop.PowerPoint.Presentation ppt = Globals.ThisAddIn.Application.Presentations.Open(A3Globals.MODEL_POWERPOINT, 0, 0, Microsoft.Office.Core.MsoTriState.msoTrue);
 
             // Save the powerpoint presentation to the working directory so that changes do not affect the model presentation
-            string saveDir = String.Concat(A3Globals.A3_WORKING, "\\", outline.Course);
+            string saveDir = String.Concat(A3Globals.A3_WORKING, "\\", outline.Name);
             try { Directory.CreateDirectory(saveDir); } catch { }
-            string savePath = String.Concat(saveDir, "\\", outline.Course);
+            string savePath = String.Concat(saveDir, "\\", outline.Name);
             int version = 0;
             while (File.Exists(String.Concat(savePath, ".pptm")))
             {
                 version += 1;
-                savePath = string.Concat(saveDir, "\\", outline.Course, version.ToString());
+                savePath = string.Concat(saveDir, "\\", outline.Name, version.ToString());
             }
             ppt.SaveAs(String.Concat(savePath, ".pptm"));
 

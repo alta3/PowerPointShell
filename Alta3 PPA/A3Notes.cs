@@ -10,7 +10,7 @@ namespace Alta3_PPA
 {
     class A3Notes
     {
-        public static string ToMarkdown(string notes, string activeGuid)
+        public static string ToMarkdown(string notes, string guid)
         {
             Encoding utf8 = Encoding.UTF8;
             Encoding ascii = Encoding.ASCII;
@@ -22,7 +22,7 @@ namespace Alta3_PPA
                 asciiMarkdown = ascii.GetString(Encoding.Convert(utf8, ascii, utf8.GetBytes(notes)));
             }
 
-            File.WriteAllText(String.Concat(A3Globals.A3_MARKDOWN, @"\", activeGuid, @".md"), asciiMarkdown);
+            File.WriteAllText(String.Concat(A3Globals.A3_MARKDOWN, @"\", guid, @".md"), asciiMarkdown);
 
             return asciiMarkdown;
         }
