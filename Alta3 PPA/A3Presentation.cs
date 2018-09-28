@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
@@ -65,10 +63,9 @@ namespace Alta3_PPA {
             string chapterName = null;
             bool before_chap = true;
             bool after_question = false;
-            DialogResult dialogResult = MessageBox.Show("About to create a new baseline presentation. This will be saved to the working directory. A message box will pop up at the end of the process, please do not attempt to interact with PowerPoint while this operation completes.", "About to run!", MessageBoxButtons.OK);
             foreach (PowerPoint.Slide slide in presentation.Slides) {
                 if (!A3Globals.QUIT_FROM_CURRENT_LOOP) {
-                    A3Slide.NewBaseline(slide, chapterName, before_chap, after_question,logFile);
+                    A3Slide.NewBaseline(slide, chapterName, before_chap, after_question, logFile);
                 }
                 if (A3Globals.A3SLIDE.Type.ToLower() == "chapter") {
                     chapterName = A3Globals.A3SLIDE.Chapter;

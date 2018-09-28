@@ -34,12 +34,12 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
-            this.CBScrubberKey = new System.Windows.Forms.ComboBox();
+            this.CBChapSubKey = new System.Windows.Forms.ComboBox();
             this.CBTitleKey = new System.Windows.Forms.ComboBox();
             this.CBType = new System.Windows.Forms.ComboBox();
             this.TBActiveGuid = new System.Windows.Forms.TextBox();
             this.BtnSave = new System.Windows.Forms.Button();
-            this.TBScrubberValue = new System.Windows.Forms.TextBox();
+            this.TBChapSubValue = new System.Windows.Forms.TextBox();
             this.TBTitleValue = new System.Windows.Forms.TextBox();
             this.TBDay = new System.Windows.Forms.TextBox();
             this.TBCriteria = new System.Windows.Forms.TextBox();
@@ -64,10 +64,10 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.BtnNewTitle = new System.Windows.Forms.Button();
             this.BtnSwapTitle = new System.Windows.Forms.Button();
-            this.BtnNewScrubber = new System.Windows.Forms.Button();
-            this.BtnSwapScrubber = new System.Windows.Forms.Button();
-            this.BtnSaveAndProceed = new System.Windows.Forms.Button();
+            this.BtnNewChapSub = new System.Windows.Forms.Button();
+            this.BtnSwapChapSub = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.BtnSaveAndProceed = new System.Windows.Forms.Button();
             this.GrpGUID.SuspendLayout();
             this.GrpSearch.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -127,14 +127,14 @@
             this.label6.TabIndex = 6;
             this.label6.Text = "SLIDE TITLE";
             // 
-            // CBScrubberKey
+            // CBChapSubKey
             // 
-            this.CBScrubberKey.FormattingEnabled = true;
-            this.CBScrubberKey.Location = new System.Drawing.Point(364, 42);
-            this.CBScrubberKey.Name = "CBScrubberKey";
-            this.CBScrubberKey.Size = new System.Drawing.Size(160, 21);
-            this.CBScrubberKey.TabIndex = 10;
-            this.CBScrubberKey.SelectedIndexChanged += new System.EventHandler(this.CBScrubberKey_SelectedIndexChanged);
+            this.CBChapSubKey.FormattingEnabled = true;
+            this.CBChapSubKey.Location = new System.Drawing.Point(364, 42);
+            this.CBChapSubKey.Name = "CBChapSubKey";
+            this.CBChapSubKey.Size = new System.Drawing.Size(160, 21);
+            this.CBChapSubKey.TabIndex = 10;
+            this.CBChapSubKey.SelectedIndexChanged += new System.EventHandler(this.CBChapSubKey_SelectedIndexChanged);
             // 
             // CBTitleKey
             // 
@@ -171,12 +171,12 @@
             this.BtnSave.UseVisualStyleBackColor = true;
             this.BtnSave.Click += new System.EventHandler(this.BtnSave_Click);
             // 
-            // TBScrubberValue
+            // TBChapSubValue
             // 
-            this.TBScrubberValue.Location = new System.Drawing.Point(102, 43);
-            this.TBScrubberValue.Name = "TBScrubberValue";
-            this.TBScrubberValue.Size = new System.Drawing.Size(256, 20);
-            this.TBScrubberValue.TabIndex = 24;
+            this.TBChapSubValue.Location = new System.Drawing.Point(102, 43);
+            this.TBChapSubValue.Name = "TBChapSubValue";
+            this.TBChapSubValue.Size = new System.Drawing.Size(256, 20);
+            this.TBChapSubValue.TabIndex = 24;
             // 
             // TBTitleValue
             // 
@@ -389,13 +389,13 @@
             // 
             this.groupBox2.Controls.Add(this.BtnNewTitle);
             this.groupBox2.Controls.Add(this.BtnSwapTitle);
-            this.groupBox2.Controls.Add(this.BtnNewScrubber);
-            this.groupBox2.Controls.Add(this.BtnSwapScrubber);
+            this.groupBox2.Controls.Add(this.BtnNewChapSub);
+            this.groupBox2.Controls.Add(this.BtnSwapChapSub);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Controls.Add(this.CBType);
             this.groupBox2.Controls.Add(this.label5);
-            this.groupBox2.Controls.Add(this.CBScrubberKey);
-            this.groupBox2.Controls.Add(this.TBScrubberValue);
+            this.groupBox2.Controls.Add(this.CBChapSubKey);
+            this.groupBox2.Controls.Add(this.TBChapSubValue);
             this.groupBox2.Controls.Add(this.TBDay);
             this.groupBox2.Controls.Add(this.TBTitleValue);
             this.groupBox2.Controls.Add(this.label6);
@@ -429,25 +429,33 @@
             this.BtnSwapTitle.UseVisualStyleBackColor = true;
             this.BtnSwapTitle.Click += new System.EventHandler(this.BtnSwapTitle_Click);
             // 
-            // BtnNewScrubber
+            // BtnNewChapSub
             // 
-            this.BtnNewScrubber.Location = new System.Drawing.Point(530, 41);
-            this.BtnNewScrubber.Name = "BtnNewScrubber";
-            this.BtnNewScrubber.Size = new System.Drawing.Size(63, 23);
-            this.BtnNewScrubber.TabIndex = 36;
-            this.BtnNewScrubber.Text = "New";
-            this.BtnNewScrubber.UseVisualStyleBackColor = true;
-            this.BtnNewScrubber.Click += new System.EventHandler(this.BtnNewScrubber_Click);
+            this.BtnNewChapSub.Location = new System.Drawing.Point(530, 41);
+            this.BtnNewChapSub.Name = "BtnNewChapSub";
+            this.BtnNewChapSub.Size = new System.Drawing.Size(63, 23);
+            this.BtnNewChapSub.TabIndex = 36;
+            this.BtnNewChapSub.Text = "New";
+            this.BtnNewChapSub.UseVisualStyleBackColor = true;
+            this.BtnNewChapSub.Click += new System.EventHandler(this.BtnNewChapSub_Click);
             // 
-            // BtnSwapScrubber
+            // BtnSwapChapSub
             // 
-            this.BtnSwapScrubber.Location = new System.Drawing.Point(596, 41);
-            this.BtnSwapScrubber.Name = "BtnSwapScrubber";
-            this.BtnSwapScrubber.Size = new System.Drawing.Size(63, 23);
-            this.BtnSwapScrubber.TabIndex = 34;
-            this.BtnSwapScrubber.Text = "Swap";
-            this.BtnSwapScrubber.UseVisualStyleBackColor = true;
-            this.BtnSwapScrubber.Click += new System.EventHandler(this.BtnSwapScrubber_Click);
+            this.BtnSwapChapSub.Location = new System.Drawing.Point(596, 41);
+            this.BtnSwapChapSub.Name = "BtnSwapChapSub";
+            this.BtnSwapChapSub.Size = new System.Drawing.Size(63, 23);
+            this.BtnSwapChapSub.TabIndex = 34;
+            this.BtnSwapChapSub.Text = "Swap";
+            this.BtnSwapChapSub.UseVisualStyleBackColor = true;
+            this.BtnSwapChapSub.Click += new System.EventHandler(this.BtnSwapChapSub_Click);
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Location = new System.Drawing.Point(3, 16);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(660, 24);
+            this.menuStrip1.TabIndex = 39;
+            this.menuStrip1.Text = "menuStrip1";
             // 
             // BtnSaveAndProceed
             // 
@@ -458,14 +466,6 @@
             this.BtnSaveAndProceed.Text = "Save and Proceed";
             this.BtnSaveAndProceed.UseVisualStyleBackColor = true;
             this.BtnSaveAndProceed.Click += new System.EventHandler(this.BtnSaveAndProceed_Click);
-            // 
-            // menuStrip1
-            // 
-            this.menuStrip1.Location = new System.Drawing.Point(3, 16);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(660, 24);
-            this.menuStrip1.TabIndex = 39;
-            this.menuStrip1.Text = "menuStrip1";
             // 
             // SlideMetadata
             // 
@@ -500,12 +500,12 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.ComboBox CBScrubberKey;
+        private System.Windows.Forms.ComboBox CBChapSubKey;
         private System.Windows.Forms.ComboBox CBTitleKey;
         private System.Windows.Forms.ComboBox CBType;
         private System.Windows.Forms.TextBox TBActiveGuid;
         private System.Windows.Forms.Button BtnSave;
-        private System.Windows.Forms.TextBox TBScrubberValue;
+        private System.Windows.Forms.TextBox TBChapSubValue;
         private System.Windows.Forms.TextBox TBTitleValue;
         private System.Windows.Forms.TextBox TBDay;
         private System.Windows.Forms.TextBox TBCriteria;
@@ -528,11 +528,11 @@
         private System.Windows.Forms.Button BtnPreviousResult;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.Button BtnSwapScrubber;
+        private System.Windows.Forms.Button BtnSwapChapSub;
         private System.Windows.Forms.Button BtnSaveAndProceed;
         private System.Windows.Forms.Button BtnNewTitle;
         private System.Windows.Forms.Button BtnSwapTitle;
-        private System.Windows.Forms.Button BtnNewScrubber;
+        private System.Windows.Forms.Button BtnNewChapSub;
         private System.Windows.Forms.MenuStrip menuStrip1;
     }
 }

@@ -32,7 +32,7 @@ namespace Alta3_PPA
             // Open the appropriate slide and set it to the active slide in the presentation
             presentation.Slides[2].Duplicate().MoveTo(presentation.Slides.Count);
 
-            // Change the title of the slide and the scrubber to accurately reflect the outline
+            // Change the title of the slide and the chap:sub to accurately reflect the outline
             A3Slide a3Slide = new A3Slide(presentation.Slides[presentation.Slides.Count])
             {
                 Title = "Vocabluary",

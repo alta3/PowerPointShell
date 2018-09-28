@@ -20,7 +20,7 @@ namespace Alta3_PPA
 
         private static Random random = new Random();
 
-        public void Generate(string scrubber)
+        public void Generate(string chapSub)
         {
             //TODO: CONVERT TO STRING BUILDER 
             string lines = null;
@@ -28,7 +28,7 @@ namespace Alta3_PPA
             string path = A3Globals.A3_PATH + "\\quiz.txt";
 
             lines += "id: " + this.ID(16) + "\r\n";
-            lines += "chapsubchap: " + scrubber + "\r\n";
+            lines += "chapsubchap: " + chapSub + "\r\n";
             lines += "MediaURL: \r\n";
             lines += "Points: " + this.Value + "\r\n";
             lines += "Question: " + this.Text + "\r\n";

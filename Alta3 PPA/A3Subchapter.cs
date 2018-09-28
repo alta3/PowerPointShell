@@ -27,19 +27,19 @@ namespace Alta3_PPA
             this.Questions = new List<A3Question>();
         }
 
-        public void Generate(PowerPoint.Presentation presentation, string scrubber)
+        public void Generate(PowerPoint.Presentation presentation, string chapSub)
         {
-            this.GenerateBodySlides(presentation, scrubber);
-            this.GenerateQuestions(scrubber);
+            this.GenerateBodySlides(presentation, chapSub);
+            this.GenerateQuestions(chapSub);
         }
 
-        private void GenerateBodySlides(PowerPoint.Presentation presentation, string scrubber)
+        private void GenerateBodySlides(PowerPoint.Presentation presentation, string chapSub)
         {
             if (this.Slides != null)
             {
                 foreach (var slide in this.Slides)
                 {
-                    slide.Generate(presentation, scrubber);
+                    slide.Generate(presentation, chapSub);
                 }
             }
             else
@@ -48,17 +48,17 @@ namespace Alta3_PPA
                 {
                     Title = "SLIDE TITLE"
                 };
-                slide.Generate(presentation, scrubber);
+                slide.Generate(presentation, chapSub);
             }
             // Add Question Triangle Here To the Last Slide Of The Subchapter
         }
-        private void GenerateQuestions(string scrubber)
+        private void GenerateQuestions(string chapSub)
         {
             if (this.Questions != null)
             {
                 foreach (var question in this.Questions)
                 {
-                    question.Generate(scrubber);
+                    question.Generate(chapSub);
                 }
             }
         }

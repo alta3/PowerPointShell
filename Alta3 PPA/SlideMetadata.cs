@@ -70,20 +70,20 @@ namespace Alta3_PPA {
         }
         private void CBType_SelectedIndexChanged(object sender, EventArgs e) {
             if (this.CBType.SelectedIndex == 0 || this.CBType.SelectedIndex == 2 || this.CBType.SelectedIndex == 5) {
-                this.CBScrubberKey.Enabled = false;
-                this.TBScrubberValue.Enabled = false;
-                this.TBScrubberValue.Clear();
-                this.CBScrubberKey.Items.Clear();
-                this.CBScrubberKey.Text = "";
-                this.BtnNewScrubber.Enabled = false;
-                this.BtnSwapScrubber.Enabled = false;
+                this.CBChapSubKey.Enabled = false;
+                this.TBChapSubValue.Enabled = false;
+                this.TBChapSubValue.Clear();
+                this.CBChapSubKey.Items.Clear();
+                this.CBChapSubKey.Text = "";
+                this.BtnNewChapSub.Enabled = false;
+                this.BtnSwapChapSub.Enabled = false;
             }
             else {
-                this.CBScrubberKey.Enabled = true;
-                this.TBScrubberValue.Enabled = true;
+                this.CBChapSubKey.Enabled = true;
+                this.TBChapSubValue.Enabled = true;
                 this.InitializeChapSub();
-                this.BtnNewScrubber.Enabled = true;
-                this.BtnSwapScrubber.Enabled = true;
+                this.BtnNewChapSub.Enabled = true;
+                this.BtnSwapChapSub.Enabled = true;
             }
         }
         private void SaveType() {
@@ -192,18 +192,18 @@ namespace Alta3_PPA {
         private void InitializeChapSub() {
             try
             {
-                CBScrubberKey.Items.Clear();
-                TBScrubberValue.Clear();
+                CBChapSubKey.Items.Clear();
+                TBChapSubValue.Clear();
 
                 foreach (string shapeName in A3Globals.A3SLIDE.ShapeNames) {
-                    CBScrubberKey.Items.Add(shapeName);
+                    CBChapSubKey.Items.Add(shapeName);
                 }
 
                 int index = A3Globals.A3SLIDE.ShapeNames.FindIndex(s => s == "CHAP:SUB") > 0 ? A3Globals.A3SLIDE.ShapeNames.FindIndex(s => s == "CHAP:SUB") : 0;
-                CBScrubberKey.SelectedIndex = index;
+                CBChapSubKey.SelectedIndex = index;
 
                 try {
-                    TBScrubberValue.Text = A3Globals.A3SLIDE.Slide.Shapes[CBScrubberKey.SelectedItem].TextFrame.TextRange.Text;
+                    TBChapSubValue.Text = A3Globals.A3SLIDE.Slide.Shapes[CBChapSubKey.SelectedItem].TextFrame.TextRange.Text;
                 }
                 catch { }
             }
@@ -213,12 +213,12 @@ namespace Alta3_PPA {
             }
 
         }
-        private void CBScrubberKey_SelectedIndexChanged(object sender, EventArgs e) {
-            TBScrubberValue.Text = A3Globals.A3SLIDE.Slide.Shapes[CBScrubberKey.SelectedItem].TextFrame.TextRange.Text;
+        private void CBChapSubKey_SelectedIndexChanged(object sender, EventArgs e) {
+            TBChapSubValue.Text = A3Globals.A3SLIDE.Slide.Shapes[CBChapSubKey.SelectedItem].TextFrame.TextRange.Text;
         }
         private void SaveChapSub() {
-            A3Globals.A3SLIDE.ChapSub = TBScrubberValue.Text;
-            PowerPoint.Shape shape = A3Globals.A3SLIDE.Slide.Shapes[CBScrubberKey.SelectedItem];
+            A3Globals.A3SLIDE.ChapSub = TBChapSubValue.Text;
+            PowerPoint.Shape shape = A3Globals.A3SLIDE.Slide.Shapes[CBChapSubKey.SelectedItem];
             shape.Name = "CHAP:SUB";
             shape.Title = "CHAP:SUB";
         }
@@ -228,7 +228,7 @@ namespace Alta3_PPA {
                 MessageBox.Show("YOU MUST SELECT A VALID TYPE!", "SELECT VALID TYPE!", MessageBoxButtons.OK);
                 return;
             }
-            if (CBTitleKey.Text == CBScrubberKey.Text) {
+            if (CBTitleKey.Text == CBChapSubKey.Text) {
                 MessageBox.Show("CHAP:SUB AND TITLE MAY NOT BE THE SAME OBJECT", "DUPLICATE ITEM", MessageBoxButtons.OK);
                 return;
             }
@@ -283,11 +283,11 @@ namespace Alta3_PPA {
         }
 
         #region TODO: IMPLEMENT
-        private void BtnNewScrubber_Click(object sender, EventArgs e)
+        private void BtnNewChapSub_Click(object sender, EventArgs e)
         {
             MessageBox.Show("NOT IMPLEMENTED AT THIS TIME", "ERROR", MessageBoxButtons.OK);
         }
-        private void BtnSwapScrubber_Click(object sender, EventArgs e)
+        private void BtnSwapChapSub_Click(object sender, EventArgs e)
         {
             MessageBox.Show("NOT IMPLEMENTED AT THIS TIME", "ERROR", MessageBoxButtons.OK);
         }

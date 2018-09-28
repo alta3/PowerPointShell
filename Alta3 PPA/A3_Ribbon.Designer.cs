@@ -39,7 +39,6 @@
             this.BtnGenFromYaml = this.Factory.CreateRibbonButton();
             this.BtnInitialize = this.Factory.CreateRibbonButton();
             this.GrpActiveDev = this.Factory.CreateRibbonGroup();
-            this.BtnEnvironmentSettings = this.Factory.CreateRibbonButton();
             this.BtnShowSlideMetadata = this.Factory.CreateRibbonButton();
             this.BtnFixAllMetadata = this.Factory.CreateRibbonButton();
             this.BtnNewBaseline = this.Factory.CreateRibbonButton();
@@ -84,18 +83,12 @@
             // 
             // GrpActiveDev
             // 
-            this.GrpActiveDev.Items.Add(this.BtnEnvironmentSettings);
             this.GrpActiveDev.Items.Add(this.BtnShowSlideMetadata);
             this.GrpActiveDev.Items.Add(this.BtnFixAllMetadata);
             this.GrpActiveDev.Items.Add(this.BtnNewBaseline);
             this.GrpActiveDev.Items.Add(this.BtnFillSubChaps);
             this.GrpActiveDev.Label = "Active Development";
             this.GrpActiveDev.Name = "GrpActiveDev";
-            // 
-            // BtnEnvironmentSettings
-            // 
-            this.BtnEnvironmentSettings.Label = "Environment Settings";
-            this.BtnEnvironmentSettings.Name = "BtnEnvironmentSettings";
             // 
             // BtnShowSlideMetadata
             // 
@@ -177,7 +170,6 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup GrpProduce;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton BtnPublish;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton BtnRecord;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton BtnEnvironmentSettings;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton BtnInitialize;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton BtnFixAllMetadata;
         private System.Windows.Forms.OpenFileDialog OpenYamlForGen;

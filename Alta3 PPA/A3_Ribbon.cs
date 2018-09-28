@@ -85,5 +85,10 @@ namespace Alta3_PPA
             PowerPoint.Presentation presentation = Globals.ThisAddIn.Application.ActivePresentation;
             A3Presentation.FillSubChapters(presentation);
         }
+
+        private void BtnEnvironmentSettings_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
     }
 }

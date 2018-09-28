@@ -28,7 +28,6 @@ namespace Alta3_PPA {
         // TODO: Create the helper script to build the pdf for latex documents
         // TODO: Enhance the user interface dramatically to improve functionality, make the settings persist in memory and have a place to set them seperate from everything else.
         // TODO: Clean the code and make it more consistent throughout
-        // TODO: Get rid of references to SCRUBBER throughout the code and make it more unified. 
         // TODO: Determine whether or not this is a useful function call... I doubt it so get rid of SetA3Slide and Most Likely ShowMetadataForm calls. 
         public static void SetA3SlideFromPPTSlide(PowerPoint.Slide slide) {
             A3Globals.A3SLIDE = new A3Slide(slide);
@@ -46,62 +45,20 @@ namespace Alta3_PPA {
             A3Globals.A3SLIDE.Slide.Select();
             string msg = null;
 
-            List<string> typesAllowed = new List<string> {
-                "course",
-                "toc",
-                "chapter",
-                "content",
-                "no-pub",
-                "question"
-            };
-            A3Slide.ScrubMetadata(A3Globals.A3SLIDE);
+            //check type, then check title, then check chap:sub info
 
-            if (A3Globals.A3SLIDE.Type == null) {
-                msg = String.Concat("A Type Must Be Specified -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
+            if (firstCheck && msg != null) {
+                A3Slide.ShowMetadataForm();
+                A3Slide.FixNullMetadata(false, logFile);
             }
-            else if (!typesAllowed.Contains(A3Globals.A3SLIDE.Type.ToLower())) {
-                msg = String.Concat("A Proper Type Must Be Specified -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
-                if (A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE == true) {
-                    A3Globals.A3SLIDE.Type = "CONTENT";
-                    A3Globals.A3SLIDE.WriteType();
-                    msg = null;
-                }
-            }
-            else if (A3Globals.A3SLIDE.Guid == null) {
-                A3Globals.A3SLIDE.WriteActiveGuid();
-            }
-            else if (A3Globals.A3SLIDE.Type.ToUpper() == "CONTENT") {
-                if (A3Globals.A3SLIDE.Title == null || A3Globals.A3SLIDE.ChapSub == null || (A3Globals.A3SLIDE.Chapter == null && A3Globals.ENFORCE_CHAP_SUB_SPLITTING == true) || (A3Globals.A3SLIDE.Subchapter == null && A3Globals.ENFORCE_CHAP_SUB_SPLITTING == true)) {
-                    msg = String.Concat("A Title, ActiveGuid, and ChapSub must be specified. Chapter and Subchapter must be split by the \":\" character -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
-                }
-            }
-            else if (A3Globals.A3SLIDE.Type.ToUpper() == "CHAPTER") {
-                if (A3Globals.A3SLIDE.Title == null) {
-                    msg = String.Concat("A Title and ActiveGuid must be specified -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
-                }
-            }
-            else if (A3Globals.A3SLIDE.Type.ToUpper() == "COURSE") {
-                if (A3Globals.A3SLIDE.Title == null) {
-                    msg = String.Concat("A Title And AtiveGuid Must Be Specified -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
-                }
-            }
-
-            if (firstCheck) {
-                if (msg != null) {
+            else if (msg != null){
+                logFile.WriteError(msg);
+                DialogResult dialogResult = MessageBox.Show(msg, "Properties Still Contain A Null", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.Yes) {
+                    A3Globals.A3SLIDE.ReadShapes();
                     A3Slide.ShowMetadataForm();
-                    A3Slide.FixNullMetadata(false, logFile);
                 }
-            }
-            else {
-                if (msg != null) {
-                    logFile.WriteError(msg);
-                    DialogResult dialogResult = MessageBox.Show(msg, "Properties Still Contain A Null", MessageBoxButtons.YesNo);
-                    if (dialogResult == DialogResult.Yes) {
-                        A3Globals.A3SLIDE.ReadShapes();
-                        A3Slide.ShowMetadataForm();
-                    }
-                    A3Slide.FixNullMetadata(false, logFile);
-                }
+                A3Slide.FixNullMetadata(false, logFile);
             }     
         }
         
@@ -123,27 +80,6 @@ namespace Alta3_PPA {
             }
             A3Globals.A3SLIDE.WriteChapSub();
         }
-        public static void ScrubMetadata(A3Slide a3Slide) {
-            a3Slide.ReadShapes();
-            if (a3Slide.ShapeNames.Contains("SCRUBBER")) {
-                if (a3Slide.Type.ToUpper() == "COURSE" || a3Slide.Type.ToUpper() == "CHAPTER") {
-                    if (a3Slide.ShapeNames.Contains("TITLE")) {
-                        a3Slide.Slide.Shapes["TITLE"].Delete();
-                    }
-                    PowerPoint.Shape shape = a3Slide.Slide.Shapes["SCRUBBER"];
-                    shape.Name = "TITLE";
-                    shape.Title = "TITLE";
-                }
-                else {
-                    if (a3Slide.ShapeNames.Contains("CHAP:SUB")) {
-                        a3Slide.Slide.Shapes["CHAP:SUB"].Delete();
-                    }
-                    PowerPoint.Shape shape = a3Slide.Slide.Shapes["SCRUBBER"];
-                    shape.Name = "CHAP:SUB";
-                    shape.Title = "CHAP:SUB";
-                }
-            }
-        }
         
         // TODO: Create a file for several types of enums that can be used throughout the code for more useful functions calls. 
         // TODO: Implement the following functions and consolidate and clean code to better fit within these contexts.
@@ -156,7 +92,7 @@ namespace Alta3_PPA {
         public void CheckPreviousTerms() { }
         public void CheckMetadata() { }
 
-        // TODO: Document the following function to include its purpose; implementation; and how it works. 
+        // Utilized to change an A3Slide into an A3Outline Object for creating YAML files during the publishing process
         public object TypeConversion() {
             switch (this.Type.ToLower()) {
                 case "course":
@@ -326,12 +262,11 @@ namespace Alta3_PPA {
             try {
                 this.ShapeNames = new List<string>();
                 foreach (PowerPoint.Shape shape in this.Slide.Shapes) {
-                    try {
-                        if (shape.TextFrame.TextRange.Text != null) {
+                    if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue) { 
+                        if (shape.TextFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue) {
                             this.ShapeNames.Add(shape.Name);
                         }
                     }
-                    catch { }
                 }
             }
             catch {
@@ -341,17 +276,6 @@ namespace Alta3_PPA {
 
         // TODO: Document the following functions to incldue their purpose; implementations; and basic understanding of how they preform infrences
         public void InferType() {
-            // Check For Course Slide Indications
-            if (this.Slide.SlideNumber == 1) {
-                DialogResult dialogResult = MessageBox.Show("Is the first slide of this deck the Course Title Slide?", "Infering First Slides Type", MessageBoxButtons.YesNo);
-                if (dialogResult == DialogResult.Yes) {
-                    this.MakeSlideType();
-                    this.Type = "COURSE";
-                    this.Slide.Shapes["TYPE"].TextFrame.TextRange.Text = "COURSE";
-                    return;
-                }
-            }
-
             // Check for shape names indications both chapter and questions slides
             List<string> chapShapeNames = new List<string> {
                 "wordquan",
@@ -418,6 +342,15 @@ namespace Alta3_PPA {
             if (chapTitle && chapChapSub) {
                 this.Type = "CHAPTER";
                 this.WriteType();
+                return;
+            }
+
+            // Check For Course Slide Indications
+            if (this.Slide.SlideNumber == 1)
+            {
+                this.MakeSlideType();
+                this.Type = "COURSE";
+                this.Slide.Shapes["TYPE"].TextFrame.TextRange.Text = "COURSE";
                 return;
             }
 
@@ -501,15 +434,6 @@ namespace Alta3_PPA {
             }
             return null;
         }
-        /* public string InferDay()
-        {
-            int slideIndex = this.Slide.SlideIndex;
-            PowerPoint.Slide previousSlide = this.Slide.Application.ActivePresentation.Slides[slideIndex - 1];
-            string previousDay = "1";
-            try { previousDay = previousSlide.Shapes["DAY"].TextFrame.TextRange.Text; } catch { }
-            return previousDay;
-        }
-        */
 
         // TODO: Document the following functiosn to include their purpose; implementations; and basic understading of how they write information to the slide.
         public void WriteFromMemory() {
