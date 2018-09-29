@@ -36,28 +36,17 @@ namespace Alta3_PPA
 
             // Save the powerpoint presentation to the working directory so that changes do not affect the model presentation
             string saveDir = String.Concat(A3Globals.A3_WORKING, "\\", outline.Name);
-            try { Directory.CreateDirectory(saveDir); } catch { }
-            string savePath = String.Concat(saveDir, "\\", outline.Name);
-            int version = 0;
-            while (File.Exists(String.Concat(savePath, ".pptm")))
-            {
-                version += 1;
-                savePath = string.Concat(saveDir, "\\", outline.Name, version.ToString());
-            }
-            ppt.SaveAs(String.Concat(savePath, ".pptm"));
+            A3Presentation.SavePresentation(ppt, saveDir, outline.Name);
 
-            // Grab the current global infer states and then switch them to true while generating the powerpoint from yaml
-            bool inferState = A3Globals.ALLOW_INFER_FROM_SLIDE;
-            bool defaultInferState = A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE;
-            A3Globals.ALLOW_INFER_FROM_SLIDE = true;
-            A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE = true;
+            // Infer Defaults
+            A3Environment.DefaultInfer();
+
 
             // Generate the Presentation
             outline.GeneratePresentation(ppt);
 
-            // Return to the original state of the infer global states 
-            A3Globals.ALLOW_INFER_FROM_SLIDE = inferState;
-            A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE = defaultInferState;
+            // Clean the environment
+            A3Environment.Clean();
 
             for (int i = 0; i < 6; i++)
             {
@@ -68,7 +57,7 @@ namespace Alta3_PPA
             ppt.Save();
 
             // Alert the user the operation has concluded
-            string message = String.Concat("The PowerPoint has been successfully built and saved to the following location:\r\n", savePath);
+            string message = String.Concat("The PowerPoint has been successfully built and saved.");
             MessageBox.Show(message, "Build Success", MessageBoxButtons.OK);
         }
         public static void Lint(A3LogFile logFile, string yamlText)
@@ -151,7 +140,7 @@ namespace Alta3_PPA
                         slide.Chapter = null;
                         slide.Subchapter = null;
                         slide.HistoricGuids = null;                       
-                        if (slide.Type == "NO-PUB" || slide.Type == "BLANK")
+                        if (slide.Type == "NOPUB" || slide.Type == "BLANK")
                         {
                             subchapter.Slides.Remove(slide);
                         }

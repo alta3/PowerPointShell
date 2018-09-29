@@ -41,35 +41,16 @@ namespace Alta3_PPA {
             CBType.SelectedIndex = 3;
 
             // Select the proper index to display based on the current type indicated by the slide
-            try {
-                switch (A3Globals.A3SLIDE.Type.ToUpper()) {
-                    case "COURSE":
-                        CBType.SelectedIndex = 0;
-                        break;
-                    case "TOC":
-                        CBType.SelectedIndex = 1;
-                        break;
-                    case "CHAPTER":
-                        CBType.SelectedIndex = 2;
-                        break;
-                    case "CONTENT":
-                        CBType.SelectedIndex = 3;
-                        break;
-                    case "NO-PUB":
-                        CBType.SelectedIndex = 4;
-                        break;
-                    case "QUESTION":
-                        CBType.SelectedIndex = 5;
-                        break;
-                    default:
-                        CBType.SelectedIndex = 3;
-                        break;
-                }
+            A3Slide.SlideType slideType;
+            if (Enum.TryParse<A3Slide.SlideType>(A3Globals.A3SLIDE.Type.ToUpper(), out slideType)) {
+                CBType.SelectedIndex = (int)slideType;
             }
-            catch  { }
+            else {
+                CBType.SelectedIndex = 3;
+            }
         }
         private void CBType_SelectedIndexChanged(object sender, EventArgs e) {
-            if (this.CBType.SelectedIndex == 0 || this.CBType.SelectedIndex == 2 || this.CBType.SelectedIndex == 5) {
+            if (this.CBType.SelectedIndex == (int)A3Slide.SlideType.COURSE || this.CBType.SelectedIndex == (int)A3Slide.SlideType.CHAPTER || this.CBType.SelectedIndex == (int)A3Slide.SlideType.QUESTION) {
                 this.CBChapSubKey.Enabled = false;
                 this.TBChapSubValue.Enabled = false;
                 this.TBChapSubValue.Clear();
@@ -87,29 +68,7 @@ namespace Alta3_PPA {
             }
         }
         private void SaveType() {
-            switch (this.CBType.Text) {
-                case "Course Title Card":
-                    A3Globals.A3SLIDE.Type = "COURSE";
-                    break;
-                case "Table Of Contents Slide":
-                    A3Globals.A3SLIDE.Type = "TOC";
-                    break;
-                case "Chapter Title Card":
-                    A3Globals.A3SLIDE.Type = "CHAPTER";
-                    break;
-                case "Content Slide":
-                    A3Globals.A3SLIDE.Type = "CONTENT";
-                    break;
-                case "Do Not Publish Slide":
-                    A3Globals.A3SLIDE.Type = "NO-PUB";
-                    break;
-                case "Question Slide":
-                    A3Globals.A3SLIDE.Type = "QUESTION";
-                    break;
-                default:
-                    A3Globals.A3SLIDE.Type = null;
-                    break;
-            }
+            A3Globals.A3SLIDE.Type = A3Slide.TypeStrings[this.CBType.SelectedIndex];
         }
 
         // Guid Functions

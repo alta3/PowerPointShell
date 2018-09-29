@@ -10,8 +10,11 @@ namespace Alta3_PPA {
         public static bool ALLOW_INFER_FROM_SLIDE = false;
         public static bool ALLOW_DEFAULT_INFER_FROM_SLIDE = false;
         public static bool ENFORCE_CHAP_SUB_SPLITTING = true;
+
         public static bool SLIDE_ITTERATION_AFTER_CHAPTER = false;
         public static bool SLIDE_ITTERATION_AFTER_QUESTION = false;
+        public static string SLIDE_ITTERATION_CURRENT_CHAPTER = null;
+        public static string SLIDE_ITTERATION_CURRENT_SUBCHAPTER = null;
 
         // The Alta3 directory structure variables
         public static string A3_PATH = String.Concat(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), @"\Documents\Alta3 PowerPoints");

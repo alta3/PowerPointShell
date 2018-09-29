@@ -16,28 +16,34 @@ namespace Alta3_PPA {
             }
         }
 
+        public static void SavePresentation(PowerPoint.Presentation presentation, string directory, string fileName) {
+            try { Directory.CreateDirectory(directory); } catch { }
+            string savePath = String.Concat(directory, "\\", fileName);
+            int version = 0;
+            while (File.Exists(String.Concat(savePath, ".pptm"))) {
+                version += 1;
+                savePath = string.Concat(directory, "\\", fileName, version.ToString());
+            }
+            presentation.SaveAs(String.Concat(savePath, ".pptm"));
+        }
+
         public static void FillSubChapters(PowerPoint.Presentation presentation) {
-            string ChapName = "";
+            string chapName = "";
             string subChapName = "Contents";
-            bool after_chap = false;
             foreach (PowerPoint.Slide slide in presentation.Slides) {
                 A3Slide.SetA3SlideFromPPTSlide(slide);
                 if (A3Globals.A3SLIDE.Type.ToLower() == "chapter") {
-                    ChapName = A3Globals.A3SLIDE.ChapSub;
+                    chapName = A3Globals.A3SLIDE.Title;
                     subChapName = "Contents";
-                    after_chap = true;
+                    A3Globals.SLIDE_ITTERATION_AFTER_CHAPTER = true;
                 }
-                if (A3Globals.A3SLIDE.Type.ToLower() == "content" && after_chap) {
-                    try
+                if (A3Globals.A3SLIDE.Type.ToLower() == "content" && A3Globals.SLIDE_ITTERATION_AFTER_CHAPTER) {
+                    if (A3Globals.A3SLIDE.Subchapter != subChapName && A3Globals.A3SLIDE.Subchapter != null)
                     {
-                        if (A3Globals.A3SLIDE.Subchapter != "Contents" && A3Globals.A3SLIDE.Subchapter != subChapName && A3Globals.A3SLIDE.Subchapter.Trim() == "" && A3Globals.A3SLIDE.Subchapter.Trim() == null)
-                        {
-                            subChapName = A3Globals.A3SLIDE.Subchapter;
-                        }
+                        subChapName = A3Globals.A3SLIDE.Subchapter;
                     }
-                    catch { }
 
-                    A3Globals.A3SLIDE.ChapSub = String.Concat(ChapName, @": ", subChapName);
+                    A3Globals.A3SLIDE.ChapSub = String.Concat(chapName, @": ", subChapName);
                     A3Globals.A3SLIDE.WriteChapSub();
                 }
                 if (A3Globals.A3SLIDE.Type.ToLower() == "question") {
@@ -46,64 +52,40 @@ namespace Alta3_PPA {
             }
         }
         public static void NewBaseline(PowerPoint.Presentation presentation, A3LogFile logFile) {
-            string timestamp = DateTimeOffset.Now.DateTime.ToString().Replace('/', '.').Replace(':', '.').Replace(' ', '-');
+            string fileName = String.Concat("new-baseline-", DateTimeOffset.Now.DateTime.ToString().Replace('/', '.').Replace(':', '.').Replace(' ', '-'));
             string saveDir = String.Concat(A3Globals.A3_WORKING, @"\new-baseline");
-            try { Directory.CreateDirectory(saveDir); } catch { }
-            string savePath = String.Concat(saveDir, @"\new-baseline", timestamp);
-            int version = 0;
-            while (File.Exists(String.Concat(savePath, ".pptm"))) {
-                version += 1;
-                savePath = string.Concat(savePath, version.ToString());
-            }
-            presentation.SaveAs(String.Concat(savePath, ".pptm"));
+            SavePresentation(presentation, saveDir, fileName);
 
-            A3Globals.ALLOW_INFER_FROM_SLIDE = true;
-            A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE = true;
-            A3Globals.ENFORCE_CHAP_SUB_SPLITTING = false;
-            string chapterName = null;
-            bool before_chap = true;
-            bool after_question = false;
+            A3Environment.DefaultInfer();
             foreach (PowerPoint.Slide slide in presentation.Slides) {
-                if (!A3Globals.QUIT_FROM_CURRENT_LOOP) {
-                    A3Slide.NewBaseline(slide, chapterName, before_chap, after_question, logFile);
+                A3Slide.NewBaseline(slide, logFile);
+                if (A3Globals.A3SLIDE.Type == A3Slide.TypeStrings[(int)A3Slide.SlideType.CHAPTER]) {
+                    try { A3Globals.SLIDE_ITTERATION_CURRENT_CHAPTER = A3Globals.A3SLIDE.Title; }
+                    catch { A3Globals.SLIDE_ITTERATION_CURRENT_CHAPTER = "Chapter"; }
+                    A3Globals.SLIDE_ITTERATION_CURRENT_SUBCHAPTER = "Contents";
+                    A3Globals.SLIDE_ITTERATION_AFTER_CHAPTER = true;
                 }
-                if (A3Globals.A3SLIDE.Type.ToLower() == "chapter") {
-                    chapterName = A3Globals.A3SLIDE.Chapter;
-                    before_chap = false;
-                }
-                else if (A3Globals.A3SLIDE.Type.ToLower() == "question") {
-                    after_question = true;
+                else if (A3Globals.A3SLIDE.Type == A3Slide.TypeStrings[(int)A3Slide.SlideType.QUESTION]) {
+                    A3Globals.SLIDE_ITTERATION_AFTER_QUESTION = true;
                 }
 
             }
-            A3Globals.QUIT_FROM_CURRENT_LOOP = false;
-            A3Globals.ALLOW_INFER_FROM_SLIDE = false;
-            A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE = false;
-            A3Globals.ENFORCE_CHAP_SUB_SPLITTING = true;
+            A3Environment.Clean();
             DialogResult dialog = MessageBox.Show("Finished running new baseline.", "Completed!", MessageBoxButtons.OK);
         }
         public static void FixMetadata(PowerPoint.Presentation presentation, A3LogFile logFile) {
-            DialogResult dialogResult = MessageBox.Show("Allow the program to Infer Metadata information from the slide rather than forcing user to ensure the data?", "Allow Infer?", MessageBoxButtons.YesNo);
-            if (dialogResult == DialogResult.Yes) {
-                A3Globals.ALLOW_INFER_FROM_SLIDE = true;
-                DialogResult dialogResult2 = MessageBox.Show("If the program cannot Infer the metadata from the slide would you like to allow the program to default to types of metadata? -- Default: Content Slide; will make the textboxes for other information if not already present.", "Allow Default Infer?", MessageBoxButtons.YesNo);
-                if (dialogResult2 == DialogResult.Yes) {
-                    A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE = true;
-                }
-            }
+            A3Environment.Clean();
             foreach (PowerPoint.Slide slide in presentation.Slides) {
-                if (!A3Globals.QUIT_FROM_CURRENT_LOOP) {
-                    A3Slide.SetA3SlideFromPPTSlide(slide);
-                    A3Globals.A3SLIDE.Guid = System.Guid.NewGuid().ToString();
-                    A3Globals.A3SLIDE.WriteActiveGuid();
-                    A3Slide.FixNullMetadata(true, logFile);
+                if (A3Globals.QUIT_FROM_CURRENT_LOOP) {
+                    break;
                 }
+                A3Slide.SetA3SlideFromPPTSlide(slide);
+                A3Slide.FixMetadataErrors(false, logFile);
             }
-
-            A3Globals.QUIT_FROM_CURRENT_LOOP = false;
-            A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE = false;
-            A3Globals.ALLOW_INFER_FROM_SLIDE = false;
+            A3Environment.Clean();
         }
+
+        #region Outline
         public A3Outline ToOutline(A3LogFile logFile) {
             A3Outline outline = new A3Outline();
 
@@ -141,7 +123,7 @@ namespace Alta3_PPA {
             List<A3Slide> a3SlidesChapters = new List<A3Slide>();
             a3SlidesChapters = this.Slides.FindAll(a3Slide => a3Slide.Type.ToLower() == "chapter");
             foreach (A3Slide a3Chapter in a3SlidesChapters) {
-                outline.Chapters.Add((A3Chapter)a3Chapter.TypeConversion());
+                outline.Chapters.Add((A3Chapter)a3Chapter.ObjectConversion());
             }
             if (outline.Chapters.Count < 1) {
                 logFile.WriteWarn("NO CHAPTERS FOUND!!!");
@@ -149,7 +131,7 @@ namespace Alta3_PPA {
         }
         private void GetSubChapters(A3Chapter a3Chapter, A3LogFile logFile) {
             List<A3Slide> a3Slides = new List<A3Slide>();
-            a3Slides = this.Slides.FindAll(a3Slide => (a3Slide.Type.ToLower() == "content" || a3Slide.Type.ToLower() == "no-pub") && a3Slide.Chapter == a3Chapter.Title);
+            a3Slides = this.Slides.FindAll(a3Slide => (a3Slide.Type.ToLower() == "content" || a3Slide.Type.ToLower() == "nopub") && a3Slide.Chapter == a3Chapter.Title);
 
             List<string> subTitles = new List<string>();
             foreach (A3Slide a3Slide in a3Slides) {
@@ -166,7 +148,7 @@ namespace Alta3_PPA {
                 a3SubSlides = a3Slides.FindAll(slide => slide.Subchapter == subTitle);
                 List<A3Content> a3SubContentSlides = new List<A3Content>();
                 foreach (A3Slide a3SubSlide in a3SubSlides) {
-                    a3SubContentSlides.Add((A3Content)a3SubSlide.TypeConversion());
+                    a3SubContentSlides.Add((A3Content)a3SubSlide.ObjectConversion());
                 }
                 A3Subchapter a3Subchapter = new A3Subchapter {
                     Title = subTitle,
@@ -179,5 +161,6 @@ namespace Alta3_PPA {
                 logFile.WriteWarn(String.Concat(a3Chapter.Title, " NO SUBCHAPTERS FOUND"));
             }
         }
+        #endregion
     }
 }

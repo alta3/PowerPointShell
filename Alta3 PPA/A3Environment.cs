@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 using Microsoft.Win32;
 
 namespace Alta3_PPA
@@ -15,6 +10,19 @@ namespace Alta3_PPA
         public static void Clean()
         {
             A3Globals.QUIT_FROM_CURRENT_LOOP = false;
+            A3Globals.DEV_INITIALIZED = false;
+            A3Globals.SHOW_ACTIVE_GUID = false;
+            A3Globals.ALLOW_INFER_FROM_SLIDE = false;
+            A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE = false;
+            A3Globals.ENFORCE_CHAP_SUB_SPLITTING = true;
+            A3Globals.SLIDE_ITTERATION_AFTER_CHAPTER = false;
+            A3Globals.SLIDE_ITTERATION_AFTER_QUESTION = false;
+        }
+
+        public static void DefaultInfer() {
+            A3Globals.ALLOW_INFER_FROM_SLIDE = false;
+            A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE = false;
+            A3Globals.ENFORCE_CHAP_SUB_SPLITTING = false;
         }
 
         public static void StartUp()
