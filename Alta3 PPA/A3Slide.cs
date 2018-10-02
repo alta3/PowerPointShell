@@ -124,6 +124,7 @@ namespace Alta3_PPA {
 
             // Reconstruct the chapter line and write it to the slide
             if (A3Globals.SLIDE_ITTERATION_AFTER_CHAPTER && !A3Globals.SLIDE_ITTERATION_AFTER_QUESTION && A3Globals.A3SLIDE.Type == TypeStrings[(int)SlideType.CONTENT]) {
+		// make it so if there is a properly formated subchapter we choose that but if there is no subchapter make sure that if anything is written it is not the chapter title and use it instead
                 try { A3Globals.SLIDE_ITTERATION_CURRENT_SUBCHAPTER = A3Globals.A3SLIDE.Subchapter; }
                 catch { A3Globals.SLIDE_ITTERATION_CURRENT_SUBCHAPTER = "Contents"; }
                 A3Globals.A3SLIDE.ChapSub = String.Concat(A3Globals.SLIDE_ITTERATION_CURRENT_CHAPTER, @": ", A3Globals.SLIDE_ITTERATION_CURRENT_SUBCHAPTER);
