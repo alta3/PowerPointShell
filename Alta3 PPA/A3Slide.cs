@@ -117,18 +117,23 @@ namespace Alta3_PPA {
 
             // Set new guid
             A3Globals.A3SLIDE.Guid = System.Guid.NewGuid().ToString();
-            A3Globals.A3SLIDE.WriteActiveGuid();
-
-            // Log metadata errors
-            logFile.WriteError(FindMetadataErrors());
 
             // Reconstruct the chapter line and write it to the slide
             if (A3Globals.SLIDE_ITTERATION_AFTER_CHAPTER && !A3Globals.SLIDE_ITTERATION_AFTER_QUESTION && A3Globals.A3SLIDE.Type == TypeStrings[(int)SlideType.CONTENT]) {
-		// make it so if there is a properly formated subchapter we choose that but if there is no subchapter make sure that if anything is written it is not the chapter title and use it instead
-                try { A3Globals.SLIDE_ITTERATION_CURRENT_SUBCHAPTER = A3Globals.A3SLIDE.Subchapter; }
-                catch { A3Globals.SLIDE_ITTERATION_CURRENT_SUBCHAPTER = "Contents"; }
+                A3Globals.SLIDE_ITTERATION_CURRENT_SUBCHAPTER = A3Globals.A3SLIDE.Subchapter; 
+                if (A3Globals.SLIDE_ITTERATION_CURRENT_SUBCHAPTER == null && A3Globals.A3SLIDE.ChapSub != null && A3Globals.A3SLIDE.Chapter != A3Globals.SLIDE_ITTERATION_CURRENT_CHAPTER) {
+		    A3Globals.SLIDE_ITTERATION_CURRENT_SUBCHAPTER = A3Globals.A3SLIDE.ChapSub;
+		}
+	        else {
+		    A3Globals.SLIDE_ITTERATION_CURRENT_SUBCHAPTER = "Contents";
+		}	
                 A3Globals.A3SLIDE.ChapSub = String.Concat(A3Globals.SLIDE_ITTERATION_CURRENT_CHAPTER, @": ", A3Globals.SLIDE_ITTERATION_CURRENT_SUBCHAPTER);
             }
+
+            // Log metadata errors
+            logFile.WriteError(FindMetadataErrors());
+      
+	    // Write the content to the slide
             A3Globals.A3SLIDE.WriteFromMemory();
         }
 
