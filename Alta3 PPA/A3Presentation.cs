@@ -57,6 +57,7 @@ namespace Alta3_PPA {
             SavePresentation(presentation, saveDir, fileName);
 
             A3Environment.DefaultInfer();
+            A3Globals.SLIDE_ITTERNATION_CURRENT_SECTION = presentation.Slides[0].sectionIndex;
             foreach (PowerPoint.Slide slide in presentation.Slides) {
                 A3Slide.NewBaseline(slide, logFile);
                 if (A3Globals.A3SLIDE.Type == A3Slide.TypeStrings[(int)A3Slide.SlideType.CHAPTER]) {

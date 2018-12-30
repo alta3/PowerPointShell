@@ -20,8 +20,8 @@ namespace Alta3_PPA
         }
 
         public static void DefaultInfer() {
-            A3Globals.ALLOW_INFER_FROM_SLIDE = false;
-            A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE = false;
+            A3Globals.ALLOW_INFER_FROM_SLIDE = true;
+            A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE = true;
             A3Globals.ENFORCE_CHAP_SUB_SPLITTING = false;
         }
 
@@ -36,7 +36,7 @@ namespace Alta3_PPA
             try { Directory.CreateDirectory(A3Globals.A3_BOOK_PNGS); } catch { }
             try { Directory.CreateDirectory(A3Globals.A3_MARKDOWN); } catch { }
             try { Directory.CreateDirectory(A3Globals.A3_LATEX); } catch { }
-            if (!A3Environment.IsApplictionInstalled("pandoc") || !A3Environment.IsApplictionInstalled("texstudio") || !A3Environment.IsApplictionInstalled("miktex"))
+            if (!IsApplictionInstalled("pandoc") || !IsApplictionInstalled("texstudio") || !IsApplictionInstalled("miktex"))
             {
                 // RUN THE UPDATE CHOCO SCRIPT
             }

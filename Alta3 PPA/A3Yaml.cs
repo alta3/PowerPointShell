@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -20,7 +18,7 @@ namespace Alta3_PPA
 
             // TODO: Normailze the text for now make it convert easy, but in the future change it to be consiste with everything else. 
             // Lint the YAML file before attempting to deserialize the outline
-            A3Yaml.Lint(logFile, text);
+            // A3Yaml.Lint(logFile, text);
 
             // Log that we are about to try and desearilize this will help to see if our linting is effective or not
             logFile.WriteInfo("YAML lint complete. About to desearilize outline.");

@@ -15,6 +15,7 @@ namespace Alta3_PPA {
         public static bool SLIDE_ITTERATION_AFTER_QUESTION = false;
         public static string SLIDE_ITTERATION_CURRENT_CHAPTER = null;
         public static string SLIDE_ITTERATION_CURRENT_SUBCHAPTER = null;
+        public static int SLIDE_ITTERNATION_CURRENT_SECTION = 0;
 
         // The Alta3 directory structure variables
         public static string A3_PATH = String.Concat(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), @"\Documents\Alta3 PowerPoints");

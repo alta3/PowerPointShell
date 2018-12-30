@@ -254,6 +254,20 @@ namespace Alta3_PPA {
 
         public void InferType() {
             PowerPoint.Shape type = this.MakeSlideType();
+            // Check to see if the slide master matches one of the key types
+            Dictionary<string, string> slideLayoutNames = new Dictionary<string, string>() {
+                { "COURSE","COURSE" },
+                { "CHAPTER", "CHAPTER" },
+                { "KNOWLEDGE CHECK", "QUESTION"},
+                { "QUESTION", "QUESTION"}
+            };
+            string layout = this.Slide.Layout.ToString().ToUpper();
+            if (slideLayoutNames.ContainsKey(layout)) {
+                this.Type = slideLayoutNames[layout];
+                this.WriteType();
+                return;
+            }
+
             // Check for shape names indications both chapter and questions slides
             List<string> chapShapeNames = new List<string> {
                 "wordquan",
@@ -290,6 +304,14 @@ namespace Alta3_PPA {
                 }
             }
 
+            // Check if new section has been defined // most likely a chapter slide
+            if (this.Slide.sectionIndex != A3Globals.SLIDE_ITTERNATION_CURRENT_SECTION) {
+                A3Globals.SLIDE_ITTERNATION_CURRENT_SECTION = this.Slide.sectionIndex;
+                this.Type = TypeStrings[(int)SlideType.CHAPTER];
+                this.WriteType();
+                return;
+            }
+
             // Check for chapter slide size indications
             bool chapChapSub = false;
             bool chapTitle = false;
@@ -303,7 +325,7 @@ namespace Alta3_PPA {
                 }
             }
             if (chapTitle && chapChapSub) {
-                this.Type = "CHAPTER";
+                this.Type = TypeStrings[(int)SlideType.CHAPTER];
                 this.WriteType();
                 return;
             }
@@ -333,17 +355,17 @@ namespace Alta3_PPA {
                 if (shape.Height >= 20 && shape.Height <= 33 && shape.Width >= 700 && shape.Width <= 1000 && shape.Top >= 0 && shape.Top <= 20) {
                     shape.Name = "CHAP:SUB";
                     shape.Title = "CHAP:SUB";
-		    this.ReadChapSub();
+		            this.ReadChapSub();
                     return;
                 }
             }
 
 	        if (A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE) {
-	            PowerPoint.Shape chapSub = this.Shapes[0];
-                    foreach (PowerPoint.Shape shape in this.Shapes) {
-		                if (shape.HasTextFrame) {
-		    	            if (shape.TextFrame.HasText) {
-			                    if (shape.Left <= chapSub.Left && shape.Top < chapSub.Top && shape.Left >= this.Shapes["TITLE"].Left && shape.Top > this.Shapes["TITLE"].Top ) {
+	            PowerPoint.Shape chapSub = this.Slide.Shapes[0];
+                    foreach (PowerPoint.Shape shape in this.Slide.Shapes) {
+		                if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue) {
+		    	            if (shape.TextFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue) {
+			                    if (shape.Left <= chapSub.Left && shape.Top < chapSub.Top && shape.Left >= this.Slide.Shapes["TITLE"].Left && shape.Top > this.Slide.Shapes["TITLE"].Top ) {
 				                    chapSub = shape;
 			                    }
 			                }
@@ -379,10 +401,10 @@ namespace Alta3_PPA {
             }
 	    
 	        if (A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE) {
-	            PowerPoint.Shape title = this.Shapes[0];
-                foreach (PowerPoint.Shape shape in this.Shapes) {
-		            if (shape.HasTextFrame) {
-		    	        if (shape.TextFrame.HasText) {
+	            PowerPoint.Shape title = this.Slide.Shapes[0];
+                foreach (PowerPoint.Shape shape in this.Slide.Shapes) {
+		            if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue) {
+		    	        if (shape.TextFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue) {
 			                if (shape.Left <= title.Left && shape.Top < title.Top) {
 				                title = shape;
 			                }
@@ -475,6 +497,11 @@ namespace Alta3_PPA {
         }
 
         public PowerPoint.Shape MakeActiveGuid() {
+            foreach (PowerPoint.Shape shape in this.Slide.Shapes) {
+                if (shape.Name.ToUpper() == "ACTIVE_GUID" || shape.Title.ToUpper() == "ACTIVE_GUID") {
+                    shape.Delete();
+                }
+            }
             PowerPoint.Shape aguid = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 0, 400, 500, 30);
             aguid.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
             aguid.Name = "ACTIVE_GUID";
@@ -482,6 +509,11 @@ namespace Alta3_PPA {
             return aguid;
         }
         public PowerPoint.Shape MakeHistoricGuid() {
+            foreach (PowerPoint.Shape shape in this.Slide.Shapes) {
+                if (shape.Name.ToUpper() == "HISTORIC_GUID" || shape.Title.ToUpper() == "HISOTRIC_GUID") {
+                    shape.Delete();
+                }
+            }
             PowerPoint.Shape hguid = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 0, 430, 500, 30);
             hguid.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
             hguid.Name = "HISTORIC_GUID";
@@ -489,6 +521,11 @@ namespace Alta3_PPA {
             return hguid;
         }
         public PowerPoint.Shape MakeSlideType() {
+            foreach (PowerPoint.Shape shape in this.Slide.Shapes) {
+                if (shape.Name.ToUpper() == "TYPE" || shape.Title.ToUpper() == "TYPE") {
+                    shape.Delete();
+                }
+            }
             PowerPoint.Shape type = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 500, 400, 500, 30);
             type.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
             type.Name = "TYPE";
@@ -496,17 +533,27 @@ namespace Alta3_PPA {
             return type;
         }
         public PowerPoint.Shape MakeChapSub() {
+            foreach (PowerPoint.Shape shape in this.Slide.Shapes) {
+                if (shape.Name.ToUpper() == "CHAP:SUB" || shape.Title.ToUpper() == "CHAP:SUB") {
+                    shape.Delete();
+                }
+            }
             PowerPoint.Shape chapsub = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 12, 1, 720, 28);
             chapsub.TextFrame.TextRange.Characters().Font.Size = 16;
             chapsub.TextFrame.TextRange.Font.Color.ObjectThemeColor = Microsoft.Office.Core.MsoThemeColorIndex.msoThemeColorAccent5;
             chapsub.Name = "CHAP:SUB";
             chapsub.Title = "CHAP:SUB";
-            if (this.Type == "COURSE") {
+            if (this.Type ==  TypeStrings[(int)SlideType.COURSE]|| this.Type == TypeStrings[(int)SlideType.CHAPTER]) {
                 chapsub.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
             }
             return chapsub;
         }
         public PowerPoint.Shape MakeTitle() {
+            foreach (PowerPoint.Shape shape in this.Slide.Shapes) {
+                if (shape.Name.ToUpper() == "TITLE" || shape.Title.ToUpper() == "TITLE") {
+                    shape.Delete();
+                }
+            }
             PowerPoint.Shape title;
             switch (this.Type) {
                 case "COURSE":
