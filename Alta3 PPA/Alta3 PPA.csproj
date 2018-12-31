@@ -124,8 +124,8 @@
   -->
   <ItemGroup>
     <Reference Include="Accessibility" />
-    <Reference Include="Markdig, Version=0.15.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Markdig.0.15.1\lib\net40\Markdig.dll</HintPath>
+    <Reference Include="Markdig, Version=0.15.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Markdig.0.15.6\lib\net40\Markdig.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Office.Interop.PowerPoint, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -145,8 +145,8 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="YamlDotNet, Version=0.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
-      <HintPath>..\packages\YamlDotNet.Signed.5.0.1\lib\net45\YamlDotNet.dll</HintPath>
+    <Reference Include="YamlDotNet, Version=5.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
+      <HintPath>..\packages\YamlDotNet.Signed.5.3.0\lib\net45\YamlDotNet.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -192,7 +192,6 @@
     <Compile Include="A3LogEntry.cs" />
     <Compile Include="A3Globals.cs" />
     <Compile Include="A3Environment.cs" />
-    <Compile Include="A3Lab.cs" />
     <Compile Include="A3LogFile.cs" />
     <Compile Include="A3Notes.cs" />
     <Compile Include="A3Outline.cs" />

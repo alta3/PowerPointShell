@@ -42,7 +42,6 @@
             this.TBScrubberValue = new System.Windows.Forms.TextBox();
             this.TBTitleValue = new System.Windows.Forms.TextBox();
             this.TBDay = new System.Windows.Forms.TextBox();
-            this.TBCriteria = new System.Windows.Forms.TextBox();
             this.GrpGUID = new System.Windows.Forms.GroupBox();
             this.CBHistoricGuid = new System.Windows.Forms.ComboBox();
             this.BtnCopyActiveGuid = new System.Windows.Forms.Button();
@@ -54,22 +53,14 @@
             this.BtnNewGuid = new System.Windows.Forms.Button();
             this.BtnPreviousSlide = new System.Windows.Forms.Button();
             this.BtnNextSlide = new System.Windows.Forms.Button();
-            this.GrpSearch = new System.Windows.Forms.GroupBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.CBFilter = new System.Windows.Forms.ComboBox();
-            this.BtnSearch = new System.Windows.Forms.Button();
-            this.BtnNextResult = new System.Windows.Forms.Button();
-            this.BtnPreviousResult = new System.Windows.Forms.Button();
-            this.label8 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.BtnNewTitle = new System.Windows.Forms.Button();
             this.BtnSwapTitle = new System.Windows.Forms.Button();
             this.BtnNewScrubber = new System.Windows.Forms.Button();
             this.BtnSwapScrubber = new System.Windows.Forms.Button();
-            this.BtnSaveAndProceed = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.BtnSaveAndProceed = new System.Windows.Forms.Button();
             this.GrpGUID.SuspendLayout();
-            this.GrpSearch.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -163,9 +154,9 @@
             // 
             // BtnSave
             // 
-            this.BtnSave.Location = new System.Drawing.Point(222, 375);
+            this.BtnSave.Location = new System.Drawing.Point(222, 265);
             this.BtnSave.Name = "BtnSave";
-            this.BtnSave.Size = new System.Drawing.Size(238, 23);
+            this.BtnSave.Size = new System.Drawing.Size(238, 25);
             this.BtnSave.TabIndex = 22;
             this.BtnSave.Text = "Save";
             this.BtnSave.UseVisualStyleBackColor = true;
@@ -192,13 +183,6 @@
             this.TBDay.Size = new System.Drawing.Size(557, 20);
             this.TBDay.TabIndex = 26;
             // 
-            // TBCriteria
-            // 
-            this.TBCriteria.Location = new System.Drawing.Point(69, 19);
-            this.TBCriteria.Name = "TBCriteria";
-            this.TBCriteria.Size = new System.Drawing.Size(591, 20);
-            this.TBCriteria.TabIndex = 28;
-            // 
             // GrpGUID
             // 
             this.GrpGUID.Controls.Add(this.CBHistoricGuid);
@@ -212,7 +196,7 @@
             this.GrpGUID.Controls.Add(this.label3);
             this.GrpGUID.Controls.Add(this.label2);
             this.GrpGUID.Controls.Add(this.TBActiveGuid);
-            this.GrpGUID.Location = new System.Drawing.Point(8, 122);
+            this.GrpGUID.Location = new System.Drawing.Point(7, 12);
             this.GrpGUID.Name = "GrpGUID";
             this.GrpGUID.Size = new System.Drawing.Size(666, 120);
             this.GrpGUID.TabIndex = 29;
@@ -295,9 +279,9 @@
             // 
             // BtnPreviousSlide
             // 
-            this.BtnPreviousSlide.Location = new System.Drawing.Point(8, 375);
+            this.BtnPreviousSlide.Location = new System.Drawing.Point(8, 265);
             this.BtnPreviousSlide.Name = "BtnPreviousSlide";
-            this.BtnPreviousSlide.Size = new System.Drawing.Size(208, 23);
+            this.BtnPreviousSlide.Size = new System.Drawing.Size(208, 25);
             this.BtnPreviousSlide.TabIndex = 31;
             this.BtnPreviousSlide.Text = "Previous Slide";
             this.BtnPreviousSlide.UseVisualStyleBackColor = true;
@@ -305,85 +289,13 @@
             // 
             // BtnNextSlide
             // 
-            this.BtnNextSlide.Location = new System.Drawing.Point(465, 375);
+            this.BtnNextSlide.Location = new System.Drawing.Point(465, 265);
             this.BtnNextSlide.Name = "BtnNextSlide";
-            this.BtnNextSlide.Size = new System.Drawing.Size(208, 23);
+            this.BtnNextSlide.Size = new System.Drawing.Size(208, 25);
             this.BtnNextSlide.TabIndex = 32;
             this.BtnNextSlide.Text = "Next Slide";
             this.BtnNextSlide.UseVisualStyleBackColor = true;
             this.BtnNextSlide.Click += new System.EventHandler(this.BtnNextSlide_Click);
-            // 
-            // GrpSearch
-            // 
-            this.GrpSearch.Controls.Add(this.label9);
-            this.GrpSearch.Controls.Add(this.CBFilter);
-            this.GrpSearch.Controls.Add(this.BtnSearch);
-            this.GrpSearch.Controls.Add(this.BtnNextResult);
-            this.GrpSearch.Controls.Add(this.BtnPreviousResult);
-            this.GrpSearch.Controls.Add(this.label8);
-            this.GrpSearch.Controls.Add(this.TBCriteria);
-            this.GrpSearch.Location = new System.Drawing.Point(8, 12);
-            this.GrpSearch.Name = "GrpSearch";
-            this.GrpSearch.Size = new System.Drawing.Size(666, 104);
-            this.GrpSearch.TabIndex = 33;
-            this.GrpSearch.TabStop = false;
-            this.GrpSearch.Text = "Search and Go";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(6, 48);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(44, 13);
-            this.label9.TabIndex = 37;
-            this.label9.Text = "FILTER";
-            // 
-            // CBFilter
-            // 
-            this.CBFilter.FormattingEnabled = true;
-            this.CBFilter.Location = new System.Drawing.Point(69, 45);
-            this.CBFilter.Name = "CBFilter";
-            this.CBFilter.Size = new System.Drawing.Size(591, 21);
-            this.CBFilter.TabIndex = 34;
-            // 
-            // BtnSearch
-            // 
-            this.BtnSearch.Location = new System.Drawing.Point(214, 72);
-            this.BtnSearch.Name = "BtnSearch";
-            this.BtnSearch.Size = new System.Drawing.Size(238, 23);
-            this.BtnSearch.TabIndex = 36;
-            this.BtnSearch.Text = "Search";
-            this.BtnSearch.UseVisualStyleBackColor = true;
-            this.BtnSearch.Click += new System.EventHandler(this.BtnSearch_Click);
-            // 
-            // BtnNextResult
-            // 
-            this.BtnNextResult.Location = new System.Drawing.Point(457, 72);
-            this.BtnNextResult.Name = "BtnNextResult";
-            this.BtnNextResult.Size = new System.Drawing.Size(202, 23);
-            this.BtnNextResult.TabIndex = 34;
-            this.BtnNextResult.Text = "Next Result";
-            this.BtnNextResult.UseVisualStyleBackColor = true;
-            this.BtnNextResult.Click += new System.EventHandler(this.BtnNextResult_Click);
-            // 
-            // BtnPreviousResult
-            // 
-            this.BtnPreviousResult.Location = new System.Drawing.Point(9, 72);
-            this.BtnPreviousResult.Name = "BtnPreviousResult";
-            this.BtnPreviousResult.Size = new System.Drawing.Size(202, 23);
-            this.BtnPreviousResult.TabIndex = 35;
-            this.BtnPreviousResult.Text = "Previous Result";
-            this.BtnPreviousResult.UseVisualStyleBackColor = true;
-            this.BtnPreviousResult.Click += new System.EventHandler(this.BtnPreviousResult_Click);
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 22);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(57, 13);
-            this.label8.TabIndex = 34;
-            this.label8.Text = "CRITERIA";
             // 
             // groupBox2
             // 
@@ -402,7 +314,7 @@
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Controls.Add(this.CBTitleKey);
             this.groupBox2.Controls.Add(this.menuStrip1);
-            this.groupBox2.Location = new System.Drawing.Point(8, 248);
+            this.groupBox2.Location = new System.Drawing.Point(7, 138);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(666, 121);
             this.groupBox2.TabIndex = 34;
@@ -449,16 +361,6 @@
             this.BtnSwapScrubber.UseVisualStyleBackColor = true;
             this.BtnSwapScrubber.Click += new System.EventHandler(this.BtnSwapScrubber_Click);
             // 
-            // BtnSaveAndProceed
-            // 
-            this.BtnSaveAndProceed.Location = new System.Drawing.Point(8, 404);
-            this.BtnSaveAndProceed.Name = "BtnSaveAndProceed";
-            this.BtnSaveAndProceed.Size = new System.Drawing.Size(666, 23);
-            this.BtnSaveAndProceed.TabIndex = 35;
-            this.BtnSaveAndProceed.Text = "Save and Proceed";
-            this.BtnSaveAndProceed.UseVisualStyleBackColor = true;
-            this.BtnSaveAndProceed.Click += new System.EventHandler(this.BtnSaveAndProceed_Click);
-            // 
             // menuStrip1
             // 
             this.menuStrip1.Location = new System.Drawing.Point(3, 16);
@@ -467,15 +369,24 @@
             this.menuStrip1.TabIndex = 39;
             this.menuStrip1.Text = "menuStrip1";
             // 
+            // BtnSaveAndProceed
+            // 
+            this.BtnSaveAndProceed.Location = new System.Drawing.Point(8, 294);
+            this.BtnSaveAndProceed.Name = "BtnSaveAndProceed";
+            this.BtnSaveAndProceed.Size = new System.Drawing.Size(666, 25);
+            this.BtnSaveAndProceed.TabIndex = 35;
+            this.BtnSaveAndProceed.Text = "Save and Proceed";
+            this.BtnSaveAndProceed.UseVisualStyleBackColor = true;
+            this.BtnSaveAndProceed.Click += new System.EventHandler(this.BtnSaveAndProceed_Click);
+            // 
             // SlideMetadata
             // 
             this.AcceptButton = this.BtnSaveAndProceed;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(681, 434);
+            this.ClientSize = new System.Drawing.Size(681, 330);
             this.Controls.Add(this.BtnSaveAndProceed);
             this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.GrpSearch);
             this.Controls.Add(this.BtnNextSlide);
             this.Controls.Add(this.BtnPreviousSlide);
             this.Controls.Add(this.GrpGUID);
@@ -485,8 +396,6 @@
             this.Text = "Slide Metadata";
             this.GrpGUID.ResumeLayout(false);
             this.GrpGUID.PerformLayout();
-            this.GrpSearch.ResumeLayout(false);
-            this.GrpSearch.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
@@ -508,7 +417,6 @@
         private System.Windows.Forms.TextBox TBScrubberValue;
         private System.Windows.Forms.TextBox TBTitleValue;
         private System.Windows.Forms.TextBox TBDay;
-        private System.Windows.Forms.TextBox TBCriteria;
         private System.Windows.Forms.GroupBox GrpGUID;
         private System.Windows.Forms.Button BtnHistoricToWorking;
         private System.Windows.Forms.Button BtnCommitGuid;
@@ -520,13 +428,6 @@
         private System.Windows.Forms.Button BtnPreviousSlide;
         private System.Windows.Forms.Button BtnNextSlide;
         private System.Windows.Forms.ComboBox CBHistoricGuid;
-        private System.Windows.Forms.GroupBox GrpSearch;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.ComboBox CBFilter;
-        private System.Windows.Forms.Button BtnSearch;
-        private System.Windows.Forms.Button BtnNextResult;
-        private System.Windows.Forms.Button BtnPreviousResult;
-        private System.Windows.Forms.Label label8;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button BtnSwapScrubber;
         private System.Windows.Forms.Button BtnSaveAndProceed;

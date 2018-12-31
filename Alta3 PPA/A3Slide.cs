@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
@@ -11,7 +9,7 @@ namespace Alta3_PPA
     public class A3Slide
     {
 
-        public string ActiveGuid { get; set; }
+        public string Guid { get; set; }
         public List<string> HistoricGuids { get; set; }
         public string Day { get; set; }
         public string Type { get; set; }
@@ -79,7 +77,7 @@ namespace Alta3_PPA
                     msg = null;
                 }
             }
-            else if (A3Globals.A3SLIDE.ActiveGuid == null)
+            else if (A3Globals.A3SLIDE.Guid == null)
             {
                 msg = String.Concat("An ActiveGuid Must Be Specified For Every Slide -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
             }
@@ -139,7 +137,7 @@ namespace Alta3_PPA
             A3Slide.SetA3SlideFromPPTSlide(slide);
             
             // Set new guid
-            A3Globals.A3SLIDE.ActiveGuid = Guid.NewGuid().ToString();
+            A3Globals.A3SLIDE.Guid = System.Guid.NewGuid().ToString();
             A3Globals.A3SLIDE.WriteActiveGuid();
 
             // Fix unacceptable null metadata fields
@@ -206,9 +204,8 @@ namespace Alta3_PPA
                 case "chapter":
                     A3Chapter a3Chapter = new A3Chapter()
                     {
-                        ActiveGuid = this.ActiveGuid,
+                        Guid = this.Guid,
                         HistoricGuids = this.HistoricGuids,
-                        Day = this.Day,
                         Title = this.Title,
                         Subchapters = new List<A3Subchapter>()
                     };
@@ -216,9 +213,8 @@ namespace Alta3_PPA
                 default:
                     A3Content a3Content = new A3Content()
                     {
-                        ActiveGuid = this.ActiveGuid,
+                        Guid = this.Guid,
                         HistoricGuids = this.HistoricGuids,
-                        Day = this.Day,
                         Title = this.Title,
                         Type = this.Type,
                         Notes = this.Notes,
@@ -244,8 +240,8 @@ namespace Alta3_PPA
         }
         public void ReadActiveGuid()
         {
-            try { this.ActiveGuid = this.Slide.Shapes["ACTIVE_GUID"].TextFrame.TextRange.Text; }
-            catch { this.ActiveGuid = null; }
+            try { this.Guid = this.Slide.Shapes["GUID"].TextFrame.TextRange.Text; }
+            catch { this.Guid = null; }
         }
         public void ReadHistoricGuid()
         {
@@ -586,15 +582,6 @@ namespace Alta3_PPA
             }
             return null;
         }
-        /* public string InferDay()
-        {
-            int slideIndex = this.Slide.SlideIndex;
-            PowerPoint.Slide previousSlide = this.Slide.Application.ActivePresentation.Slides[slideIndex - 1];
-            string previousDay = "1";
-            try { previousDay = previousSlide.Shapes["DAY"].TextFrame.TextRange.Text; } catch { }
-            return previousDay;
-        }
-        */
 
         // TODO: Document the following functiosn to include their purpose; implementations; and basic understading of how they write information to the slide.
         public void WriteFromMemory()
@@ -610,10 +597,10 @@ namespace Alta3_PPA
         public void WriteActiveGuid()
         {
             PowerPoint.Shape aguid;
-            try { aguid = this.Slide.Shapes["ACTIVE_GUID"]; } catch { aguid = this.MakeActiveGuid(); }
-            aguid.TextFrame.TextRange.Text = this.ActiveGuid;
-            aguid.Name = "ACTIVE_GUID";
-            aguid.Title = "ACTIVE_GUID";
+            try { aguid = this.Slide.Shapes["GUID"]; } catch { aguid = this.MakeActiveGuid(); }
+            aguid.TextFrame.TextRange.Text = this.Guid;
+            aguid.Name = "GUID";
+            aguid.Title = "GUID";
         }
         public void WriteHistoricGuid()
         {
@@ -698,8 +685,8 @@ namespace Alta3_PPA
         {
             PowerPoint.Shape aguid = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 0, 400, 500, 30);
             aguid.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
-            aguid.Name = "ACTIVE_GUID";
-            aguid.Title = "ACTIVE_GUID";
+            aguid.Name = "GUID";
+            aguid.Title = "GUID";
             return aguid;
         }
         public PowerPoint.Shape MakeHistoricGuid()

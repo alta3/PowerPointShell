@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using YamlDotNet.Core;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NodeDeserializers;
 using Markdig;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
@@ -14,17 +10,13 @@ namespace Alta3_PPA
     public class A3Outline
     {
         #region Outline Properites
-        //public string Id { get; set; }
         public string Course { get; set; }
-        //public string Name { get; set; }
-        //public string Filename { get; set; }
-        //public bool HasLabs { get; set;}
-        //public bool HasSlides { get; set; }
-        //public bool HasVideos { get; set; }
-        //public string Weburl { get; set; }
-        public List<A3Content> TOC { get; set; }
+        public string Filename { get; set; }
+        public bool HasLabs { get; set;}
+        public bool HasSlides { get; set; }
+        public bool HasVideos { get; set; }
+        public string Weburl { get; set; }
         public List<A3Chapter> Chapters { get; set; }
-        public List<A3Lab> Labs { get; set; }
         #endregion
 
         #region Generate Presentation
@@ -57,8 +49,8 @@ namespace Alta3_PPA
             {
                 Title = this.Course,
                 Type = "COURSE",
-                ActiveGuid = Guid.NewGuid().ToString(),
-                //Notes = String.Concat("name: ", this.Course, "\r\nfilename: ", this.Filename, "\r\nhas-labs: ", this.HasLabs, "\r\nhas-slides: ", this.HasSlides, "\r\nhas-videos: ", this.HasVideos, "\r\nweburl: ", this.Weburl)
+                Guid = Guid.NewGuid().ToString(),
+                Notes = String.Concat("name: ", this.Course, "\r\nfilename: ", this.Filename, "\r\nhas-labs: ", this.HasLabs, "\r\nhas-slides: ", this.HasSlides, "\r\nhas-videos: ", this.HasVideos, "\r\nweburl: ", this.Weburl)
             };
             a3ActiveSlide.WriteFromMemory();
         }
@@ -72,7 +64,7 @@ namespace Alta3_PPA
             {
                 Title = "End of Deck",
                 ChapSub = String.Concat(this.Course, ": End Of Deck"),
-                ActiveGuid = Guid.NewGuid().ToString(),
+                Guid = Guid.NewGuid().ToString(),
                 Type = "CONTENT"
             };
             a3ActiveSlide.WriteFromMemory();
@@ -88,7 +80,7 @@ namespace Alta3_PPA
                 Title = "Table of Contents",
                 ChapSub = String.Concat(this.Course, ": TOC"),
                 Type = "TOC",
-                ActiveGuid = Guid.NewGuid().ToString()
+                Guid = Guid.NewGuid().ToString()
             };
             a3ActiveSlide.WriteFromMemory();
 
@@ -104,7 +96,7 @@ namespace Alta3_PPA
             {
                 Title = "Knowledge Check",
                 Type = "QUESTION",
-                ActiveGuid = Guid.NewGuid().ToString(),
+                Guid = Guid.NewGuid().ToString(),
             };
             a3ActiveSlide.WriteFromMemory();
             presentation.SectionProperties.AddBeforeSlide(presentation.Slides.Count, "Knowledge Check");
@@ -235,14 +227,14 @@ namespace Alta3_PPA
                     foreach (A3Content a3Content in subchapter.Slides)
                     {
                         sub.Add(@"\begin{figure}[H]");
-                        sub.Add(String.Concat(@"\includegraphics*[width=1\linewidth, height=.425\textheight, trim= 0 0 0 0, clip]{", "\"", A3Globals.A3_BOOK_PNGS.Replace('\\','/'),a3Content.ActiveGuid, "\"}"));
+                        sub.Add(String.Concat(@"\includegraphics*[width=1\linewidth, height=.425\textheight, trim= 0 0 0 0, clip]{", "\"", A3Globals.A3_BOOK_PNGS.Replace('\\','/'),a3Content.Guid, "\"}"));
                         sub.Add(@"\end{figure}");
                         if (a3Content.Notes != null)
                         {
                             if (a3Content.Notes != "")
                             {
-                                int startIndex = notes.FindIndex(s => s.Contains(a3Content.ActiveGuid));
-                                int endIndex = notes.FindLastIndex(s => s.Contains(a3Content.ActiveGuid));
+                                int startIndex = notes.FindIndex(s => s.Contains(a3Content.Guid));
+                                int endIndex = notes.FindLastIndex(s => s.Contains(a3Content.Guid));
                                 startIndex++;
                                 endIndex--;
 
@@ -271,7 +263,6 @@ namespace Alta3_PPA
             this.ValidateTitle(logFile);
             // If process dicatates different checks make a switch statement here locally but pass the process varaible to the chapter and labs so that it can independently handle those
             this.ValidateChapters(logFile, processingLevel);
-            this.ValidateLabs(logFile, processingLevel);
         }
 
         private void ValidateTitle(A3LogFile logFile)
@@ -288,15 +279,6 @@ namespace Alta3_PPA
             {
                 chapter.Validate(chapterCount, logFile, processingLevel);
                 chapterCount++;
-            }
-        }
-        private void ValidateLabs(A3LogFile logFile, int processingLevel)
-        {
-            int labCount = 1;
-            foreach (A3Lab lab in this.Labs)
-            {
-                // lab.Validate(logFile, process);
-                labCount++;
             }
         }
         #endregion

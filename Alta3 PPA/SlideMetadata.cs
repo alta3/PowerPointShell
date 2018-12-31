@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
@@ -138,9 +131,9 @@ namespace Alta3_PPA
         {
             TBActiveGuid.Clear();
             TBActiveGuid.Enabled = false;
-            if (A3Globals.A3SLIDE.ActiveGuid != null)
+            if (A3Globals.A3SLIDE.Guid != null)
             {
-                TBActiveGuid.Text = A3Globals.A3SLIDE.ActiveGuid;
+                TBActiveGuid.Text = A3Globals.A3SLIDE.Guid;
             }
             else
             {
@@ -150,25 +143,25 @@ namespace Alta3_PPA
         private void BtnShowActiveGuids_Click(object sender, EventArgs e)
         {
             PowerPoint.Presentation presentation = Globals.ThisAddIn.Application.ActivePresentation;
-            if (!A3Globals.SHOW_ACTIVE_GUID)
+            if (!A3Globals.SHOW_GUID)
             {
                 foreach (PowerPoint.Slide slide in presentation.Slides)
                 {
                     try
                     {
-                        slide.Shapes["ACTIVE_GUID"].Visible = Microsoft.Office.Core.MsoTriState.msoTrue;
-                        slide.Shapes["ACTIVE_GUID"].Fill.ForeColor.RGB = 763355;
+                        slide.Shapes["GUID"].Visible = Microsoft.Office.Core.MsoTriState.msoTrue;
+                        slide.Shapes["GUID"].Fill.ForeColor.RGB = 763355;
                     }
                     catch { }
-                    A3Globals.SHOW_ACTIVE_GUID = true;
+                    A3Globals.SHOW_GUID = true;
                 }
             }
             else
             {
                 foreach (PowerPoint.Slide slide in presentation.Slides)
                 {
-                    try { slide.Shapes["ACTIVE_GUID"].Visible = Microsoft.Office.Core.MsoTriState.msoFalse; } catch { }
-                    A3Globals.SHOW_ACTIVE_GUID = false;
+                    try { slide.Shapes["GUID"].Visible = Microsoft.Office.Core.MsoTriState.msoFalse; } catch { }
+                    A3Globals.SHOW_GUID = false;
                 }
             }
         }
@@ -179,7 +172,7 @@ namespace Alta3_PPA
         }
         private void SaveGuids()
         {
-            A3Globals.A3SLIDE.ActiveGuid = TBActiveGuid.Text;
+            A3Globals.A3SLIDE.Guid = TBActiveGuid.Text;
             foreach (string hguid in CBHistoricGuid.Items)
             {
                 A3Globals.A3SLIDE.HistoricGuids.Add(hguid);

@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
 namespace Alta3_PPA
@@ -22,7 +18,7 @@ namespace Alta3_PPA
         {
             foreach (PowerPoint.Slide slide in presentation.Slides)
             {
-                string guid = slide.Shapes["ACTIVE_GUID"].TextFrame.TextRange.Text;
+                string guid = slide.Shapes["GUID"].TextFrame.TextRange.Text;
                 string path = String.Concat(A3Globals.A3_PRES_PNGS, "\\", guid, ".png");
                 slide.Export(path, "png", 1920, 1080);
             }
@@ -74,7 +70,7 @@ namespace Alta3_PPA
                 {
                     foreach (A3Content content in subchapter.Slides)
                     {
-                        A3Notes.ToMarkdown(content.Notes, content.ActiveGuid);
+                        A3Notes.ToMarkdown(content.Notes, content.Guid);
                     }
                 }
             }

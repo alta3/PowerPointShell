@@ -14,8 +14,7 @@ namespace Alta3_PPA
         public string Title { get; set; }
         public List<A3Subchapter> Subchapters { get; set; }
         public List<A3Vocab> Vocab { get; set; }
-        public string Day { get; set; }
-        public string ActiveGuid { get; set; }
+        public string Guid { get; set; }
         public List<string> HistoricGuids { get; set; }
 
         public void Generate(PowerPoint.Presentation presentation, int chapterCount)
@@ -37,7 +36,7 @@ namespace Alta3_PPA
             {
                 Title = "Vocabluary",
                 ChapSub = this.Title,
-                ActiveGuid = Guid.NewGuid().ToString()
+                Guid = System.Guid.NewGuid().ToString()
             };
             a3ActiveSlide.WriteFromMemory();
 
