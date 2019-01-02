@@ -1,135 +1,68 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
+using Microsoft.Office.Interop.PowerPoint;
 
 namespace Alta3_PPA
 {
     class A3Yaml
     {
-        public static void GenerateFromYaml(A3LogFile logFile, string yamlPath)
+        public enum Alerts
         {
-            // Lint the YAML file before attempting to deserialize the outline
-            bool lintSuccess = false;
-            string lintText = "";
-            while (!lintSuccess)
+            SyntaxError,
+            DeserializationError,
+            YamlIncomingKeyMapWarn,
+            YamlGenSuccess
+        }
+        public static Dictionary<Alerts, string> AlertDescriptions = new Dictionary<Alerts, string>
+        {
+            { Alerts.SyntaxError, "The source YAML file contains at least one syntax error. Opening the log file reference and the source YAML file for editing. Once done editing the source file save it and click Retry to attempt the parsing action again. If you would like to exit without fixing the issue click Cancel."},
+            { Alerts.DeserializationError, "The program failed to deserialize the YAML tree into an A3Outline object with the following error: \r\n {}.  Opening the log file reference and the source YAML file for editing. Once done editing the source file save it and click Retry to attempt the deserialization action again. If you would like to exit without fixing the issue click Cancel." },
+            { Alerts.YamlIncomingKeyMapWarn, "No valid YAML key mapping found on line: {}.  If the YAML file fails to be deserialized or the generated PowerPoint is not as you expected, please ensure this line does not require a valid yaml key."},
+            { Alerts.YamlGenSuccess, "The PowerPoint has been generated and saved to the following location:\r\n {}"}
+        };
+
+        public static void GenerateFromYaml(A3Log log, string yamlPath)
+        {
+            // Lint the YAML file before attempting to deserialize the outline and exit early if the user cancels the operation
+            (bool lintProceed, string lintedText) = Lint(log, yamlPath);
+            if (!lintProceed)
             {
-                Tuple<string, bool> linter = Lint(logFile, yamlPath);
-                lintText = linter.Item1;
-                lintSuccess = linter.Item2;
-                if (!lintSuccess) {
-                    DialogResult dialogResult = MessageBox.Show(String.Concat("The source YAML file contains at least one syntax error. Opening the log and the YAML file for reference and editing. Once done editing the source file save it and click Retry to attempt to parse again. If you would like to exit without fixing the issue click Cancel."), "YAML SYNTAX ERROR!", MessageBoxButtons.RetryCancel);
-                    Process.Start(logFile.Path);
-                    Process.Start(yamlPath);
-                    if (dialogResult == DialogResult.Retry)
-                    {
-                        continue;
-                    }
-                    else if (dialogResult == DialogResult.Cancel)
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
+                return;
             }
 
-            // Create the outline from the YAML file and exit early if unable to deserialize and point user to the the logs.
-            IDeserializer deserializer = new DeserializerBuilder().WithNamingConvention(new CamelCaseNamingConvention()).Build();
-            A3Outline outline = new A3Outline();
-            try { outline = deserializer.Deserialize<A3Outline>(lintText); }
-            catch (Exception ex) {
-                logFile.WriteError(ex.Message);
-                MessageBox.Show(String.Concat("The program failed to deserialize the YAML tree into an A3Outline object with the following error: \r\n", ex.Message, "\r\n Opening the logfile and the source YAML file for you."), "DESERIALIZATION FAILURE!", MessageBoxButtons.OK);
-                Process.Start(logFile.Path);
-                Process.Start(yamlPath);
-                return; }
+            // Create the outline from the YAML file and exit early if the user cancels the operation
+            (bool deserializeProceed, A3Outline outline) = Deserialize(log, lintedText, yamlPath);
+            if (!deserializeProceed)
+            {
+                return;
+            }
 
             // Open a copy of the blank PowerPoint in the current PowerPoint context
-            Microsoft.Office.Interop.PowerPoint.Presentation ppt = Globals.ThisAddIn.Application.Presentations.Open(A3Globals.MODEL_POWERPOINT, 0, 0, Microsoft.Office.Core.MsoTriState.msoTrue);
+            Presentation ppt = Globals.ThisAddIn.Application.Presentations.Open(A3Environment.MODEL_POWERPOINT, 0, 0, Microsoft.Office.Core.MsoTriState.msoTrue);
 
-            // Save the powerpoint presentation to the working directory so that changes do not affect the model presentation
-            string saveDir = String.Concat(A3Globals.A3_WORKING, "\\", outline.Course);
-            try { Directory.CreateDirectory(saveDir); } catch { }
-            string savePath = String.Concat(saveDir, "\\", outline.Course);
-            int version = 0;
-            while (File.Exists(String.Concat(savePath, ".pptm")))
-            {
-                version += 1;
-                savePath = string.Concat(saveDir, "\\", outline.Course, version.ToString());
-            }
-            ppt.SaveAs(String.Concat(savePath, ".pptm"));
-
-            // Grab the current global infer states and then switch them to true while generating the powerpoint from yaml
-            bool inferState = A3Globals.ALLOW_INFER_FROM_SLIDE;
-            bool defaultInferState = A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE;
-            A3Globals.ALLOW_INFER_FROM_SLIDE = true;
-            A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE = true;
+            // Save the presentation to a unqiue location
+            string savePath = SavePresentationAs(outline.Course, ppt);
 
             // Generate the Presentation
             outline.GeneratePresentation(ppt);
 
-            // Return to the original state of the infer global states 
-            A3Globals.ALLOW_INFER_FROM_SLIDE = inferState;
-            A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE = defaultInferState;
-
+            // Cleanup the initial slides
             for (int i = 0; i < 6; i++)
             {
                 ppt.Slides[1].Delete();
             }
-            
-            // Save the newly generated Presentation
+
+            // Save the generated presentation and handoff control back to the user
             ppt.Save();
-
-            // Alert the user the operation has concluded
-            string message = String.Concat("The PowerPoint has been successfully built and saved to the following location:\r\n", savePath);
-            MessageBox.Show(message, "Build Success", MessageBoxButtons.OK);
+            MessageBox.Show(AlertDescriptions[Alerts.YamlGenSuccess].Replace("{}", savePath), "POWERPOINT GENERATION COMPLETE!", MessageBoxButtons.OK);
         }
-        public static Tuple<string, bool> Lint(A3LogFile logFile, string yamlPath)
-        {
-            bool success = true;
-
-            logFile.WriteInfo("Starting: YAML Lint Process.");
-
-            logFile.WriteInfo("Starting: Read YAML file.");
-            string[] lines = File.ReadAllLines(yamlPath);
-            logFile.WriteInfo("Finished: Read YAML file.");
-
-            logFile.WriteInfo("Starting: Fix YAML Keys");
-            string lintText = FixYamlKeys(logFile, lines);
-            string tempFile = Path.GetTempFileName();
-            File.WriteAllText(tempFile, lintText);
-            logFile.WriteInfo("Finished: Fix YAML Keys");
-
-            logFile.WriteInfo("Starting: YAML Syntax Linter");
-            string syntaxLinterOutput = RunSyntaxLinter(tempFile);
-            string[] lintLines = syntaxLinterOutput.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
-            foreach (string line in lintLines)
-            {
-                if (line.Contains("[error]"))
-                {
-                    logFile.WriteError(line);
-                    success = false;
-                }
-                else if (line.Contains("[warning]"))
-                {
-                    logFile.WriteWarn(line);
-                }
-                else
-                {
-                    logFile.WriteInfo(line);
-                }
-            }
-            logFile.WriteInfo("Finished: YAML Syntax Linter");
-
-            logFile.WriteInfo("Finished: YAML Lint Process.");
-            return Tuple.Create(lintText, success);
-        }
-        public static void ProduceYaml(A3LogFile logFile, A3Outline _outline)
+        public static void ProduceYaml(A3Log log, A3Outline _outline)
         {
             A3Outline outline = new A3Outline();
             outline = _outline;
@@ -145,7 +78,7 @@ namespace Alta3_PPA
                         slide.Type = null;
                         slide.Chapter = null;
                         slide.Subchapter = null;
-                        slide.HistoricGuids = null;                       
+                        slide.HistoricGuids = null;
                         if (slide.Type == "NO-PUB" || slide.Type == "BLANK")
                         {
                             subchapter.Slides.Remove(slide);
@@ -158,67 +91,129 @@ namespace Alta3_PPA
             var serializer = new SerializerBuilder().Build();
             var yaml = serializer.Serialize(outline);
 
-            // Write the YAML to the proper location as indicated by A3Globals.A3_PUBLISH
-            File.WriteAllText(String.Concat(A3Globals.A3_PUBLISH, @"\yaml.yml"), yaml);
+            // Write the YAML to the proper location as indicated by A3Environment.A3_PUBLISH
+            File.WriteAllText(String.Concat(A3Environment.A3_PUBLISH, @"\yaml.yml"), yaml);
         }
 
-        private static string FixYamlKeys(A3LogFile logFile, string[] lines)
+        private static (bool, string) Lint(A3Log log, string yamlPath)
         {
-            string text = "";
-            int lineCounter = 1; 
-            foreach (string line in lines)
-            { 
-                string[] words = line.Trim().Split(' ');
-                string word = "";
-                string replace = "";
-                if (words.Length > 0)
+            List<string> lines = new List<string>(File.ReadAllLines(yamlPath));
+
+            string lintedText = ConvertIncomingYamlKeys(log, lines);
+            string tempFile = Path.GetTempFileName();
+            File.WriteAllText(tempFile, lintedText);
+
+            bool returnedError = RunSyntaxLinter(log, tempFile);
+
+            if (returnedError)
+            {
+                Process.Start(log.Path);
+                Process.Start(yamlPath);
+
+                // check to see if the user wants to retry
+                DialogResult dialogResult = MessageBox.Show(AlertDescriptions[Alerts.SyntaxError], "YAML SYNTAX ERROR!", MessageBoxButtons.RetryCancel);
+                if (dialogResult == DialogResult.Retry)
                 {
-                    word = words[0] == "-" ? words[1] : words[0];
-                    if (A3Globals.A3_YAML_KEY_MAPPING.TryGetValue(word.ToLower(), out string value))
-                    {
-                        replace = value;
-                    }
-                    else
-                    {
-                        replace = word.ToLower();
-                        logFile.WriteWarn(String.Concat("No valid yaml mapping found on line: ", lineCounter.ToString(), ". If the YAML file fails to parse properly, please ensure this line does not require a valid yaml key."));
-                    } 
+                    bool proceed = true;
+                    (proceed, lintedText) = Lint(log, yamlPath);
+                    return (proceed, lintedText);
                 }
-                text = String.Concat(text, ReplaceFirst(line, word, replace));
-                lineCounter++;
+                return (false, "");
             }
-            return text;
+            return (true, lintedText);
         }
-        private static string ReplaceFirst(string text, string search, string replace)
+        private static string ConvertIncomingYamlKeys(A3Log log, List<string> lines)
+        {
+            List<string> convertedLines = new List<string>() { };
+            for (int i = 0; i < lines.Count; i++)
+            {
+                string line = lines[i];
+                string word = line.Trim().TrimStart('-').Split(' ')[0];
+                if (A3Environment.A3_YAML_KEY_MAPPING.TryGetValue(word.ToLower(), out string replace))
+                {
+                    convertedLines.Add(ReplaceFirstOccurance(line, word, replace));
+                }
+                else
+                {
+                    convertedLines.Add(line);
+                    log.Write(A3Log.Level.Warn, AlertDescriptions[Alerts.YamlIncomingKeyMapWarn].Replace("{}", i.ToString()));
+                }
+            }
+            return String.Join("\r\n",convertedLines);
+        }
+        private static string ReplaceFirstOccurance(string text, string search, string replace)
         {
             int pos = text.IndexOf(search);
-            if (pos < 0)
-            {
-                return text;
-            }
-            return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
+            text = pos < 0 ? text : String.Concat(text.Substring(0, pos), replace, text.Substring(pos + search.Length));
+            return text;
         }
-        private static string RunSyntaxLinter(string path)
+        private static bool RunSyntaxLinter(A3Log log, string path)
         {
-            ProcessStartInfo start = new ProcessStartInfo
+            Process process = new Process();
+
+            process.StartInfo.FileName = "yamllint";
+            process.StartInfo.Arguments = String.Concat("-c \"", A3Environment.YAML_LINT_CONFIG, "\" -f parsable \"", path.Trim().Replace("\"", ""), "\"");
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+
+            process.Start();
+            string text = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            List<string> lines = new List<string>(text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));
+            foreach (string line in lines)
             {
-                FileName = "yamllint",
-                Arguments = String.Concat("-c \"", A3Globals.YAML_LINT_CONFIG, "\" -f parsable \"", path.Trim().Replace("\"",""), "\""),
-                UseShellExecute = true,
-                CreateNoWindow = true, 
-                RedirectStandardOutput = true,
-                RedirectStandardError = true 
-            };
-            using (Process process = Process.Start(start))
-            {
-                using (StreamReader reader = process.StandardOutput)
+                if (line.Contains("[error]"))
                 {
-                    string stderr = process.StandardError.ReadToEnd();
-                    string result = reader.ReadToEnd();
-                    result = String.Concat(result, stderr);
-                    return result;
+                    log.Write(A3Log.Level.Error, line);
+                    return true;
+                }
+                else if (line.Contains("[warning]"))
+                {
+                    log.Write(A3Log.Level.Warn, line);
                 }
             }
+            return false;
+        }
+
+        private static (bool, A3Outline) Deserialize(A3Log log, string lintedText, string yamlPath) 
+        {
+            IDeserializer deserializer = new DeserializerBuilder().WithNamingConvention(new CamelCaseNamingConvention()).Build();
+            A3Outline outline = new A3Outline();
+            try
+            {
+                outline = deserializer.Deserialize<A3Outline>(lintedText);
+                return (true, outline);
+            }
+            catch (Exception ex)
+            {
+                log.Write(A3Log.Level.Error, ex.Message);
+                Process.Start(log.Path);
+                Process.Start(yamlPath);
+                DialogResult dialogResult = MessageBox.Show(AlertDescriptions[Alerts.DeserializationError].Replace("{}", ex.Message), "DESERIALIZATION ERROR!", MessageBoxButtons.RetryCancel);
+                if (dialogResult == DialogResult.Retry)
+                {
+                    bool proceed = true;
+                    (proceed, outline) = Deserialize(log, lintedText, yamlPath);
+                    return (proceed, outline);
+                }
+                return (false, outline);
+            }
+        }
+
+        private static string SavePresentationAs(string course, Presentation ppt)
+        {
+            string saveDir = String.Concat(A3Environment.A3_WORKING, "\\", course);
+            try { Directory.CreateDirectory(saveDir); } catch { }
+            string savePath = String.Concat(saveDir, "\\", course);
+            int version = 0;
+            while (File.Exists(String.Concat(savePath, ".pptm")))
+            {
+                version++;
+                savePath = string.Concat(saveDir, "\\", course, version.ToString());
+            }
+            ppt.SaveAs(String.Concat(savePath, ".pptm"));
+            return savePath;
         }
     }
 }

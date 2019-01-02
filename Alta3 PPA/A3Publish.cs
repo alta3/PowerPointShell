@@ -19,13 +19,13 @@ namespace Alta3_PPA
             foreach (PowerPoint.Slide slide in presentation.Slides)
             {
                 string guid = slide.Shapes["GUID"].TextFrame.TextRange.Text;
-                string path = String.Concat(A3Globals.A3_PRES_PNGS, "\\", guid, ".png");
+                string path = String.Concat(A3Environment.A3_PRES_PNGS, "\\", guid, ".png");
                 slide.Export(path, "png", 1920, 1080);
             }
         }
         public static void PublishBookPNGs(PowerPoint.Presentation presentation)
         {
-            Parallel.ForEach(Directory.EnumerateFiles(A3Globals.A3_PRES_PNGS), picture =>
+            Parallel.ForEach(Directory.EnumerateFiles(A3Environment.A3_PRES_PNGS), picture =>
             {
                 //read image
                 Bitmap bmp = new Bitmap(picture);
@@ -77,7 +77,7 @@ namespace Alta3_PPA
         }
         public static void PublishLaTex(PowerPoint.Presentation presentation, A3Outline outline)
         {
-            if (!Directory.EnumerateFiles(A3Globals.A3_MARKDOWN).Any())
+            if (!Directory.EnumerateFiles(A3Environment.A3_MARKDOWN).Any())
             {
                 A3Publish.PublishMarkdown(outline);
             }
@@ -85,11 +85,11 @@ namespace Alta3_PPA
         }
         public static void PublishPDF(PowerPoint.Presentation presentation, A3Outline outline)
         {
-            if (!Directory.EnumerateFiles(A3Globals.A3_BOOK_PNGS).Any())
+            if (!Directory.EnumerateFiles(A3Environment.A3_BOOK_PNGS).Any())
             {
                 A3Publish.PublishBookPNGs(presentation);
             }
-            if (!Directory.EnumerateFiles(A3Globals.A3_LATEX).Any())
+            if (!Directory.EnumerateFiles(A3Environment.A3_LATEX).Any())
             {
                 A3Publish.PublishLaTex(presentation, outline);
             }
@@ -97,10 +97,10 @@ namespace Alta3_PPA
             ProcessStartInfo build = new ProcessStartInfo()
             {
                 UseShellExecute = true,
-                CreateNoWindow = false,
+                CreateNoWindow = true,
                 FileName = "pdflatex.exe",
                 WindowStyle = ProcessWindowStyle.Hidden,
-                Arguments = String.Concat(@"-job-name=", outline.Course, @" -output-directory=", A3Globals.A3_PUBLISH, @" -aux-directory=", A3Globals.A3_LATEX, @"main.tex")
+                Arguments = String.Concat(@"-job-name=", outline.Course, @" -output-directory=", A3Environment.A3_PUBLISH, @" -aux-directory=", A3Environment.A3_LATEX, @"main.tex")
             };
             try
             {
@@ -118,9 +118,9 @@ namespace Alta3_PPA
         { }
         public static void PublishVocabulary()
         { }
-        public static void PublishYAML(A3LogFile logFile, A3Outline outline)
+        public static void PublishYAML(A3Log log, A3Outline outline)
         {
-            A3Yaml.ProduceYaml(logFile, outline);
+            A3Yaml.ProduceYaml(log, outline);
         }
     }
 }

@@ -56,14 +56,24 @@ namespace Alta3_PPA
 
             // Write the Chapter VBA to the slide itself
             string index = String.Concat("Slide ", presentation.Slides.Count);
-            foreach (Microsoft.Vbe.Interop.VBComponent component in presentation.VBProject.VBComponents)
+            try
             {
-                if (component.Name.ToLower().StartsWith("slide"))
+                foreach (Microsoft.Vbe.Interop.VBComponent component in presentation.VBProject.VBComponents)
                 {
-                    component.CodeModule.AddFromString(A3Globals.CHAPTER_VBA);
+                    if (component.Name.ToLower().StartsWith("slide"))
+                    {
+                        component.CodeModule.AddFromString(A3Environment.CHAPTER_VBA);
+                    }
                 }
             }
-
+            catch
+            {
+                if (!A3Environment.QUIT_FROM_CURRENT_LOOP)
+                {
+                    MessageBox.Show("You must give access to the VBA Object Model for this plugin to work: \r\n File -> Options -> Trust Center -> Trust Center Setttings -> Macro Settings -> Trust Access to the VBA Project object model. This build will fail.", "Security Setting Problem", MessageBoxButtons.OK);
+                }
+               
+            }
         }
         private void GenerateSubChapters(PowerPoint.Presentation presentation)
         {
@@ -86,29 +96,29 @@ namespace Alta3_PPA
             }
         }
 
-        public void Validate(int chapterCount, A3LogFile logFile, int process)
+        public void Validate(int chapterCount, A3Log log, int process)
         {
-            this.ValidateTitle(chapterCount, logFile);
+            this.ValidateTitle(chapterCount, log);
             // If process dicatates different checks make a switch statement here locally but pass the process varaible to the chapter and labs so that it can independently handle those
-            this.ValidateSubchapters(chapterCount, logFile);
-            this.ValidateVocab(chapterCount, logFile);
+            this.ValidateSubchapters(chapterCount, log);
+            this.ValidateVocab(chapterCount, log);
         }
 
-        private void ValidateTitle(int chapterCount, A3LogFile logFile)
+        private void ValidateTitle(int chapterCount, A3Log log)
         {
             if (this.Title == null || this.Title.Count(c => !Char.IsWhiteSpace(c)) == 0)
             {
-                logFile.WriteError(String.Concat("Chapter ", chapterCount.ToString(), ": No Title Found"));
+                log.Write(A3Log.Level.Error, String.Concat("Chapter ", chapterCount.ToString(), ": No Title Found"));
             }
         }
-        private void ValidateSubchapters(int chapterCount, A3LogFile logFile)
+        private void ValidateSubchapters(int chapterCount, A3Log log)
         {
             foreach (A3Subchapter subchapter in this.Subchapters)
             {
                 //subchapter.Valid();
             }
         }
-        private void ValidateVocab(int chapterCount, A3LogFile logFile)
+        private void ValidateVocab(int chapterCount, A3Log log)
         {
             foreach (A3Vocab vocab in this.Vocab)
             {

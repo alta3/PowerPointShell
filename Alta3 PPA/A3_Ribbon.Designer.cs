@@ -47,6 +47,7 @@
             this.BtnPublish = this.Factory.CreateRibbonButton();
             this.BtnRecord = this.Factory.CreateRibbonButton();
             this.OpenYamlForGen = new System.Windows.Forms.OpenFileDialog();
+            this.separator1 = this.Factory.CreateRibbonSeparator();
             this.TabA3.SuspendLayout();
             this.GrpInitialize.SuspendLayout();
             this.GrpActiveDev.SuspendLayout();
@@ -84,6 +85,7 @@
             // 
             this.GrpActiveDev.Items.Add(this.BtnShowSlideMetadata);
             this.GrpActiveDev.Items.Add(this.BtnFixAllMetadata);
+            this.GrpActiveDev.Items.Add(this.separator1);
             this.GrpActiveDev.Items.Add(this.BtnNewBaseline);
             this.GrpActiveDev.Items.Add(this.BtnFillSubChaps);
             this.GrpActiveDev.Label = "Active Development";
@@ -135,6 +137,10 @@
             // 
             this.OpenYamlForGen.FileOk += new System.ComponentModel.CancelEventHandler(this.OpenYamlForGen_FileOk);
             // 
+            // separator1
+            // 
+            this.separator1.Name = "separator1";
+            // 
             // A3_Ribbon
             // 
             this.Name = "A3_Ribbon";
@@ -168,6 +174,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton BtnShowSlideMetadata;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton BtnNewBaseline;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton BtnFillSubChaps;
+        internal Microsoft.Office.Tools.Ribbon.RibbonSeparator separator1;
     }
 
     partial class ThisRibbonCollection

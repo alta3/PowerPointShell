@@ -20,13 +20,13 @@ namespace Alta3_PPA
 
         public void DrawSlideInfo()
         {
-            A3Globals.A3SLIDE.Slide.Select();
-            TBTitle.Text = A3Globals.A3SLIDE.Title;
-            TBType.Text = A3Globals.A3SLIDE.Type;
-            TBChapter.Text = A3Globals.A3SLIDE.Chapter;
-            TBSubchapter.Text = A3Globals.A3SLIDE.Subchapter;
-            TBIndex.Text = A3Globals.A3SLIDE.Slide.SlideIndex.ToString();
-            TBGuid.Text = A3Globals.A3SLIDE.ActiveGuid;
+            A3Environment.A3SLIDE.Slide.Select();
+            TBTitle.Text = A3Environment.A3SLIDE.Title;
+            TBType.Text = A3Environment.A3SLIDE.Type;
+            TBChapter.Text = A3Environment.A3SLIDE.Chapter;
+            TBSubchapter.Text = A3Environment.A3SLIDE.Subchapter;
+            TBIndex.Text = A3Environment.A3SLIDE.Slide.SlideIndex.ToString();
+            TBGuid.Text = A3Environment.A3SLIDE.Guid;
         }
 
         private void SendJson()
@@ -49,20 +49,20 @@ namespace Alta3_PPA
         {
             if (fldBrowser.ShowDialog() == DialogResult.OK)
             {
-                A3Globals.A3_PUBLISH = fldBrowser.SelectedPath;
-                TBLocation.Text = A3Globals.A3_PUBLISH;
+                A3Environment.A3_PUBLISH = fldBrowser.SelectedPath;
+                TBLocation.Text = A3Environment.A3_PUBLISH;
             }
         }
 
         private void btnNextSlide_Click(object sender, EventArgs e)
         {
-            int slideIndex = A3Globals.A3SLIDE.Slide.SlideIndex + 1;
+            int slideIndex = A3Environment.A3SLIDE.Slide.SlideIndex + 1;
             try { A3Slide.SetA3SlideFromPPTSlide(Globals.ThisAddIn.Application.ActivePresentation.Slides[slideIndex]); this.DrawSlideInfo(); }
             catch { MessageBox.Show("END OF SLIDE SHOW", "ERROR", MessageBoxButtons.OK); }
         }
         private void btnPrevious_Click(object sender, EventArgs e)
         {
-            int slideIndex = A3Globals.A3SLIDE.Slide.SlideIndex - 1;
+            int slideIndex = A3Environment.A3SLIDE.Slide.SlideIndex - 1;
             try { A3Slide.SetA3SlideFromPPTSlide(Globals.ThisAddIn.Application.ActivePresentation.Slides[slideIndex]); this.DrawSlideInfo(); }
             catch { MessageBox.Show("BEGINING OF SLIDE SHOW", "ERROR", MessageBoxButtons.OK); }
         }

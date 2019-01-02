@@ -2,11 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
-using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
 namespace Alta3_PPA
 {
@@ -25,7 +21,7 @@ namespace Alta3_PPA
             //TODO: CONVERT TO STRING BUILDER 
             string lines = null;
             int correct = random.Next(1, 5);
-            string path = A3Globals.A3_PATH + "\\quiz.txt";
+            string path = A3Environment.A3_PATH + "\\quiz.txt";
 
             lines += "id: " + this.ID(16) + "\r\n";
             lines += "chapsubchap: " + scrubber + "\r\n";

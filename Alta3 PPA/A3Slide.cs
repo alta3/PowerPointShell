@@ -35,11 +35,11 @@ namespace Alta3_PPA
         // TODO: Determine whether or not this is a useful function call... I doubt it so get rid of SetA3Slide and Most Likely ShowMetadataForm calls. 
         public static void SetA3SlideFromPPTSlide(PowerPoint.Slide slide)
         {
-            A3Globals.A3SLIDE = new A3Slide(slide);
+            A3Environment.A3SLIDE = new A3Slide(slide);
         }
         public static void ShowMetadataForm()
         {
-            A3Globals.A3SLIDE.Slide.Select();
+            A3Environment.A3SLIDE.Slide.Select();
             SlideMetadata slideMetadata = new SlideMetadata()
             {
                 StartPosition = FormStartPosition.CenterScreen
@@ -48,9 +48,9 @@ namespace Alta3_PPA
             slideMetadata.Show();
         }
         // TODO: Clean this code to not have to be a static solution. 
-        public static void FixNullMetadata(bool firstCheck, A3LogFile logFile)
+        public static void FixNullMetadata(bool firstCheck, A3Log log)
         {
-            A3Globals.A3SLIDE.Slide.Select();
+            A3Environment.A3SLIDE.Slide.Select();
             string msg = null;
 
             List<string> typesAllowed = new List<string> {
@@ -61,48 +61,48 @@ namespace Alta3_PPA
                 "no-pub",
                 "question"
             };
-            A3Slide.ScrubMetadata(A3Globals.A3SLIDE);
+            A3Slide.ScrubMetadata(A3Environment.A3SLIDE);
 
-            if (A3Globals.A3SLIDE.Type == null)
+            if (A3Environment.A3SLIDE.Type == null)
             {
-                msg = String.Concat("A Type Must Be Specified -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
+                msg = String.Concat("A Type Must Be Specified -- please check slide number: ", A3Environment.A3SLIDE.Slide.SlideIndex);
             }
-            else if (!typesAllowed.Contains(A3Globals.A3SLIDE.Type.ToLower()))
+            else if (!typesAllowed.Contains(A3Environment.A3SLIDE.Type.ToLower()))
             {
-                msg = String.Concat("A Proper Type Must Be Specified -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
-                if (A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE == true)
+                msg = String.Concat("A Proper Type Must Be Specified -- please check slide number: ", A3Environment.A3SLIDE.Slide.SlideIndex);
+                if (A3Environment.ALLOW_DEFAULT_INFER_FROM_SLIDE == true)
                 {
-                    A3Globals.A3SLIDE.Type = "CONTENT";
-                    A3Globals.A3SLIDE.WriteType();
+                    A3Environment.A3SLIDE.Type = "CONTENT";
+                    A3Environment.A3SLIDE.WriteType();
                     msg = null;
                 }
             }
-            else if (A3Globals.A3SLIDE.Guid == null)
+            else if (A3Environment.A3SLIDE.Guid == null)
             {
-                msg = String.Concat("An ActiveGuid Must Be Specified For Every Slide -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
+                msg = String.Concat("An ActiveGuid Must Be Specified For Every Slide -- please check slide number: ", A3Environment.A3SLIDE.Slide.SlideIndex);
             }
-            else if (A3Globals.A3SLIDE.Type.ToUpper() == "CONTENT")
+            else if (A3Environment.A3SLIDE.Type.ToUpper() == "CONTENT")
             {
-                if (A3Globals.A3SLIDE.Title == null ||
-                    A3Globals.A3SLIDE.ChapSub == null ||
-                    (A3Globals.A3SLIDE.Chapter == null && A3Globals.ENFORCE_CHAP_SUB_SPLITTING == true) ||
-                    (A3Globals.A3SLIDE.Subchapter == null && A3Globals.ENFORCE_CHAP_SUB_SPLITTING == true))
+                if (A3Environment.A3SLIDE.Title == null ||
+                    A3Environment.A3SLIDE.ChapSub == null ||
+                    (A3Environment.A3SLIDE.Chapter == null && A3Environment.ENFORCE_CHAP_SUB_SPLITTING == true) ||
+                    (A3Environment.A3SLIDE.Subchapter == null && A3Environment.ENFORCE_CHAP_SUB_SPLITTING == true))
                 {
-                    msg = String.Concat("A Title, ActiveGuid, and ChapSub must be specified. Chapter and Subchapter must be split by the \":\" character -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
+                    msg = String.Concat("A Title, ActiveGuid, and ChapSub must be specified. Chapter and Subchapter must be split by the \":\" character -- please check slide number: ", A3Environment.A3SLIDE.Slide.SlideIndex);
                 }
             }
-            else if (A3Globals.A3SLIDE.Type.ToUpper() == "CHAPTER")
+            else if (A3Environment.A3SLIDE.Type.ToUpper() == "CHAPTER")
             {
-                if (A3Globals.A3SLIDE.Title == null) 
+                if (A3Environment.A3SLIDE.Title == null) 
                 {
-                    msg = String.Concat("A Title and ActiveGuid must be specified -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
+                    msg = String.Concat("A Title and ActiveGuid must be specified -- please check slide number: ", A3Environment.A3SLIDE.Slide.SlideIndex);
                 }
             }
-            else if (A3Globals.A3SLIDE.Type.ToUpper() == "COURSE")
+            else if (A3Environment.A3SLIDE.Type.ToUpper() == "COURSE")
             {
-                if (A3Globals.A3SLIDE.Title == null)
+                if (A3Environment.A3SLIDE.Title == null)
                 {
-                    msg = String.Concat("A Title And AtiveGuid Must Be Specified -- please check slide number: ", A3Globals.A3SLIDE.Slide.SlideIndex);
+                    msg = String.Concat("A Title And AtiveGuid Must Be Specified -- please check slide number: ", A3Environment.A3SLIDE.Slide.SlideIndex);
                 }
             }
 
@@ -111,44 +111,44 @@ namespace Alta3_PPA
                 if (msg != null)
                 {
                     A3Slide.ShowMetadataForm();
-                    A3Slide.FixNullMetadata(false, logFile);
+                    A3Slide.FixNullMetadata(false, log);
                 }
             }
             else
             {
                 if (msg != null)
                 {
-                    logFile.WriteError(msg);
+                    log.Write(A3Log.Level.Error, msg);
                     DialogResult dialogResult = MessageBox.Show(msg, "Properties Still Contain A Null", MessageBoxButtons.YesNo);
                     if (dialogResult == DialogResult.Yes)
                     {
-                        //A3Globals.A3SLIDE.ReadShapes();
+                        //A3Environment.A3SLIDE.ReadShapes();
                         A3Slide.ShowMetadataForm();
-                        A3Slide.FixNullMetadata(false, logFile);
+                        A3Slide.FixNullMetadata(false, log);
                     }
                 }
             }     
         }
         
         // TODO: Move this method to a more appropriate place perhaps A3Presentation? 
-        public static void NewBaseline(PowerPoint.Slide slide, string chapterName, bool before_chap, bool after_question, A3LogFile logFile)
+        public static void NewBaseline(PowerPoint.Slide slide, string chapterName, bool before_chap, bool after_question, A3Log log)
         {
             // Set current slide
             A3Slide.SetA3SlideFromPPTSlide(slide);
             
             // Set new guid
-            A3Globals.A3SLIDE.Guid = System.Guid.NewGuid().ToString();
-            A3Globals.A3SLIDE.WriteActiveGuid();
+            A3Environment.A3SLIDE.Guid = System.Guid.NewGuid().ToString();
+            A3Environment.A3SLIDE.WriteActiveGuid();
 
             // Fix unacceptable null metadata fields
-            A3Slide.FixNullMetadata(true, logFile);
+            A3Slide.FixNullMetadata(true, log);
 
             // Reconstruct the chapter line and write it to the slide
-            if (!before_chap && !after_question && A3Globals.A3SLIDE.Type != "CHAPTER" && A3Globals.A3SLIDE.Type != "COURSE" && A3Globals.A3SLIDE.Type != "QUESTION")
+            if (!before_chap && !after_question && A3Environment.A3SLIDE.Type != "CHAPTER" && A3Environment.A3SLIDE.Type != "COURSE" && A3Environment.A3SLIDE.Type != "QUESTION")
             {
-                A3Globals.A3SLIDE.ChapSub = String.Concat(chapterName, @": Contents");
+                A3Environment.A3SLIDE.ChapSub = String.Concat(chapterName, @": Contents");
             }
-            A3Globals.A3SLIDE.WriteChapSub();
+            A3Environment.A3SLIDE.WriteChapSub();
         }
         public static void ScrubMetadata(A3Slide a3Slide)
         {
@@ -260,7 +260,7 @@ namespace Alta3_PPA
             try { this.Type = this.Slide.Shapes["TYPE"].TextFrame.TextRange.Text; }
             catch
             {
-                if (A3Globals.ALLOW_INFER_FROM_SLIDE == true)
+                if (A3Environment.ALLOW_INFER_FROM_SLIDE == true)
                 {
                     this.InferType();
                     this.ReadShapes();
@@ -279,7 +279,7 @@ namespace Alta3_PPA
             }
             catch
             {
-                if (A3Globals.ALLOW_INFER_FROM_SLIDE == true)
+                if (A3Environment.ALLOW_INFER_FROM_SLIDE == true)
                 {
                     string chapSub = this.InferChapSub(this.Type);
                     try
@@ -320,7 +320,7 @@ namespace Alta3_PPA
             }
             catch
             {
-                if (A3Globals.ALLOW_INFER_FROM_SLIDE == true)
+                if (A3Environment.ALLOW_INFER_FROM_SLIDE == true)
                 {
                     string title = this.InferTitle(this.Type);
                     try
@@ -487,7 +487,7 @@ namespace Alta3_PPA
             }
 
             // Default To Type of Content If Allow Default Infer Is Set to True.
-            if (A3Globals.ALLOW_DEFAULT_INFER_FROM_SLIDE == true)
+            if (A3Environment.ALLOW_DEFAULT_INFER_FROM_SLIDE == true)
             {
                 this.MakeSlideType();
                 this.Type = "CONTENT";
