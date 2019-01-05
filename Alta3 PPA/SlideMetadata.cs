@@ -175,7 +175,7 @@ namespace Alta3_PPA
             A3Environment.A3SLIDE.Guid = TBActiveGuid.Text;
             foreach (string hguid in CBHistoricGuid.Items)
             {
-                A3Environment.A3SLIDE.HistoricGuids.Add(hguid);
+                A3Environment.A3SLIDE.HGuids.Add(hguid);
             }
         }
 

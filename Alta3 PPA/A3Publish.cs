@@ -79,19 +79,19 @@ namespace Alta3_PPA
         {
             if (!Directory.EnumerateFiles(A3Environment.A3_MARKDOWN).Any())
             {
-                A3Publish.PublishMarkdown(outline);
+                PublishMarkdown(outline);
             }
-            outline.GenerateLaTex(presentation, outline);
+            outline.GenerateLaTex();
         }
         public static void PublishPDF(PowerPoint.Presentation presentation, A3Outline outline)
         {
             if (!Directory.EnumerateFiles(A3Environment.A3_BOOK_PNGS).Any())
             {
-                A3Publish.PublishBookPNGs(presentation);
+                PublishBookPNGs(presentation);
             }
             if (!Directory.EnumerateFiles(A3Environment.A3_LATEX).Any())
             {
-                A3Publish.PublishLaTex(presentation, outline);
+                PublishLaTex(presentation, outline);
             }
 
             ProcessStartInfo build = new ProcessStartInfo()
@@ -120,6 +120,7 @@ namespace Alta3_PPA
         { }
         public static void PublishYAML(A3Log log, A3Outline outline)
         {
+            
             A3Yaml.ProduceYaml(log, outline);
         }
     }

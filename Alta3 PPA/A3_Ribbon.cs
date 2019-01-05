@@ -17,20 +17,9 @@ namespace Alta3_PPA
         }
         private void OpenYamlForGen_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            A3Environment.Clean();
-            // Grab the current global infer states and then switch them to true while generating the powerpoint from yaml
-            bool inferState = A3Environment.ALLOW_INFER_FROM_SLIDE;
-            bool defaultInferState = A3Environment.ALLOW_DEFAULT_INFER_FROM_SLIDE;
-            A3Environment.ALLOW_INFER_FROM_SLIDE = true;
-            A3Environment.ALLOW_DEFAULT_INFER_FROM_SLIDE = true;
-            A3Log log = new A3Log(A3Log.Operations.GenerateFromYaml);
             string yamlPath = OpenYamlForGen.FileName;
-            A3Yaml.GenerateFromYaml(log, yamlPath);
-            // Return to the original state of the infer global states
-            A3Environment.QUIT_FROM_CURRENT_LOOP = false;
-            A3Environment.ALLOW_INFER_FROM_SLIDE = inferState;
-            A3Environment.ALLOW_DEFAULT_INFER_FROM_SLIDE = defaultInferState;
-            A3Environment.Clean();
+            A3Presentation a3Presentation = new A3Presentation(Globals.ThisAddIn.Application.ActivePresentation);
+            a3Presentation.GenerateFromYaml(yamlPath);
         }
         #endregion
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Office.Interop.PowerPoint;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
@@ -8,38 +9,89 @@ namespace Alta3_PPA
 {
     public class A3Slide
     {
+        #region Properties
+        public enum Types
+        {
+            COURSE,
+            TOC,
+            CHAPTER,
+            CONTENT,
+            NOPUB,
+            QUESTION,
+            NULL
+        };
+        public enum Tags
+        {
+            GUID,
+            HGUID,
+            TYPE,
+            CHAPSUB,
+            TITLE
+        };
 
         public string Guid { get; set; }
-        public List<string> HistoricGuids { get; set; }
-        public string Day { get; set; }
-        public string Type { get; set; }
-        public string ChapSub { get; set; }
+        public List<string> HGuids { get; set; }
+        public Types Type { get; set; }
         public string Chapter { get; set; }
         public string Subchapter { get; set; }
         public string Title { get; set; }
         public string Notes { get; set; }
-        public List<string> ShapeNames { get; set; }
-        public PowerPoint.Slide Slide { get; set; }
+        public List<Shape> Shapes { get; set; }
+        public Slide Slide { get; set; }
+        #endregion
 
-        public A3Slide(PowerPoint.Slide slide)
+        public A3Slide(Slide slide)
         {
-            this.Slide = slide;
-            this.ReadFromSlide();
-        }
+            // Set default properties
+            Guid = null;
+            HGuids = new List<string>();
+            Type = Types.NULL;
+            Chapter = null;
+            Subchapter = null;
+            Title = null;
+            Notes = null;
+            Shapes = new List<Shape>();
+            Slide = slide;
 
-        // TODO: Further test the functionality of the REST API that I setup... and expand/enhance its capability
-        // TODO: Create the helper script to build the pdf for latex documents
-        // TODO: Enhance the user interface dramatically to improve functionality, make the settings persist in memory and have a place to set them seperate from everything else.
-        // TODO: Clean the code and make it more consistent throughout
-        // TODO: Get rid of references to SCRUBBER throughout the code and make it more unified. 
-        // TODO: Determine whether or not this is a useful function call... I doubt it so get rid of SetA3Slide and Most Likely ShowMetadataForm calls. 
-        public static void SetA3SlideFromPPTSlide(PowerPoint.Slide slide)
-        {
-            A3Environment.A3SLIDE = new A3Slide(slide);
+            // Read in the current information from the slide
+            ReadFromSlide();
         }
-        public static void ShowMetadataForm()
+        public object TypeConversion()
         {
-            A3Environment.A3SLIDE.Slide.Select();
+            switch (Type)
+            {
+                case Types.COURSE:
+                    A3Outline outline = new A3Outline()
+                    {
+                        Course = Title,
+                        Chapters = new List<A3Chapter>()
+                    };
+                    return outline;
+                case Types.CHAPTER:
+                    A3Chapter chapter = new A3Chapter()
+                    {
+                        Guid = Guid,
+                        HistoricGuids = HGuids,
+                        Title = Title,
+                        Subchapters = new List<A3Subchapter>()
+                    };
+                    return chapter;
+                default:
+                    A3Content content = new A3Content()
+                    {
+                        Guid = Guid,
+                        HistoricGuids = HGuids,
+                        Title = Title,
+                        Type = Type.ToString(),
+                        Notes = Notes,
+                        Index = Slide.SlideIndex
+                    };
+                    return content;
+            }
+        }
+        public void ShowMetadataForm()
+        {
+            Slide.Select();
             SlideMetadata slideMetadata = new SlideMetadata()
             {
                 StartPosition = FormStartPosition.CenterScreen
@@ -47,6 +99,7 @@ namespace Alta3_PPA
             slideMetadata.DrawSlideInfo();
             slideMetadata.Show();
         }
+
         // TODO: Clean this code to not have to be a static solution. 
         public static void FixNullMetadata(bool firstCheck, A3Log log)
         {
@@ -93,7 +146,7 @@ namespace Alta3_PPA
             }
             else if (A3Environment.A3SLIDE.Type.ToUpper() == "CHAPTER")
             {
-                if (A3Environment.A3SLIDE.Title == null) 
+                if (A3Environment.A3SLIDE.Title == null)
                 {
                     msg = String.Concat("A Title and ActiveGuid must be specified -- please check slide number: ", A3Environment.A3SLIDE.Slide.SlideIndex);
                 }
@@ -127,29 +180,10 @@ namespace Alta3_PPA
                         A3Slide.FixNullMetadata(false, log);
                     }
                 }
-            }     
-        }
-        
-        // TODO: Move this method to a more appropriate place perhaps A3Presentation? 
-        public static void NewBaseline(PowerPoint.Slide slide, string chapterName, bool before_chap, bool after_question, A3Log log)
-        {
-            // Set current slide
-            A3Slide.SetA3SlideFromPPTSlide(slide);
-            
-            // Set new guid
-            A3Environment.A3SLIDE.Guid = System.Guid.NewGuid().ToString();
-            A3Environment.A3SLIDE.WriteActiveGuid();
-
-            // Fix unacceptable null metadata fields
-            A3Slide.FixNullMetadata(true, log);
-
-            // Reconstruct the chapter line and write it to the slide
-            if (!before_chap && !after_question && A3Environment.A3SLIDE.Type != "CHAPTER" && A3Environment.A3SLIDE.Type != "COURSE" && A3Environment.A3SLIDE.Type != "QUESTION")
-            {
-                A3Environment.A3SLIDE.ChapSub = String.Concat(chapterName, @": Contents");
             }
-            A3Environment.A3SLIDE.WriteChapSub();
         }
+
+        // TODO: Move this method to a more appropriate place perhaps A3Presentation? 
         public static void ScrubMetadata(A3Slide a3Slide)
         {
             a3Slide.ReadShapes();
@@ -167,245 +201,217 @@ namespace Alta3_PPA
                 }
                 else
                 {
-                    if (a3Slide.ShapeNames.Contains("CHAP:SUB"))
+                    if (a3Slide.ShapeNames.Contains("CHAPSUB"))
                     {
-                        a3Slide.Slide.Shapes["CHAP:SUB"].Delete();
+                        a3Slide.Slide.Shapes["CHAPSUB"].Delete();
                     }
                     PowerPoint.Shape shape = a3Slide.Slide.Shapes["SCRUBBER"];
-                    shape.Name = "CHAP:SUB";
-                    shape.Title = "CHAP:SUB";
+                    shape.Name = "CHAPSUB";
+                    shape.Title = "CHAPSUB";
                 }
             }
         }
-        
-        // TODO: Create a file for several types of enums that can be used throughout the code for more useful functions calls. 
-        // TODO: Implement the following functions and consolidate and clean code to better fit within these contexts.
-        public void CheckType() { }
-        public void CheckActiveGuid() { }
-        public void CheckHistoricGuid() { }
-        public void CheckTitle() { }
-        public void CheckChapter() { }
-        public void CheckSubchapter() { }
-        public void CheckPreviousTerms() { }
-        public void CheckMetadata() { }
 
-        // TODO: Document the following function to include its purpose; implementation; and how it works. 
-        public object TypeConversion()
-        {
-            switch (this.Type.ToLower())
-            {
-                case "course":
-                    A3Outline a3Outline = new A3Outline()
-                    {
-                        Course = this.Title,
-                        Chapters = new List<A3Chapter>()
-                    };
-                    return a3Outline;
-                case "chapter":
-                    A3Chapter a3Chapter = new A3Chapter()
-                    {
-                        Guid = this.Guid,
-                        HistoricGuids = this.HistoricGuids,
-                        Title = this.Title,
-                        Subchapters = new List<A3Subchapter>()
-                    };
-                    return a3Chapter;
-                default:
-                    A3Content a3Content = new A3Content()
-                    {
-                        Guid = this.Guid,
-                        HistoricGuids = this.HistoricGuids,
-                        Title = this.Title,
-                        Type = this.Type,
-                        Notes = this.Notes,
-                        Index = this.Slide.SlideIndex
-                    };
-                    return a3Content;
-            } 
-        }
-
-        // TODO: Document the following functions to include their purpose; implementations; and basic understanding of how it gathers information.
-        // TODO: Determine if any of this metadata should ever be let to fall into a null state, it is causing problems with YAML ingestion, probably better to find sane defaults: For now enabling INFER_FROM _SLIDE for YAML generation. 
+        #region Read Functions
         public void ReadFromSlide()
         {
-            this.ReadShapes();
-            this.ReadActiveGuid();
-            this.ReadHistoricGuid();
-            this.ReadType();
-            this.ReadChapSub();
-            this.ReadChapter();
-            this.ReadSubchapter();
-            this.ReadTitle();
-            this.ReadDay();
-        }
-        public void ReadActiveGuid()
-        {
-            try { this.Guid = this.Slide.Shapes["GUID"].TextFrame.TextRange.Text; }
-            catch { this.Guid = null; }
-        }
-        public void ReadHistoricGuid()
-        {
-            try
-            {
-                string guids = this.Slide.Shapes["HISTORIC_GUID"].TextFrame.TextRange.Text;
-                this.HistoricGuids = new List<string>();
-
-                if (guids.Contains(';')) { this.HistoricGuids.AddRange(guids.Split(';')); }
-                else { this.HistoricGuids.Add(guids); }
-            }
-            catch { this.HistoricGuids = null; }
-        }
-        public void ReadType()
-        {
-            try { this.Type = this.Slide.Shapes["TYPE"].TextFrame.TextRange.Text; }
-            catch
-            {
-                if (A3Environment.ALLOW_INFER_FROM_SLIDE == true)
-                {
-                    this.InferType();
-                    this.ReadShapes();
-                }
-                else
-                {
-                    this.Type = null;
-                }
-            }
-        }
-        public void ReadChapSub()
-        {
-            try
-            {
-                this.ChapSub = this.Slide.Shapes["CHAP:SUB"].TextFrame.TextRange.Text;
-            }
-            catch
-            {
-                if (A3Environment.ALLOW_INFER_FROM_SLIDE == true)
-                {
-                    string chapSub = this.InferChapSub(this.Type);
-                    try
-                    {
-                        this.ChapSub = this.Slide.Shapes[chapSub].TextFrame.TextRange.Text;
-                        PowerPoint.Shape shape = this.Slide.Shapes[chapSub];
-                        shape.Name = "CHAP:SUB";
-                        shape.Title = "CHAP:SUB";
-                        this.ReadShapes();
-                    }
-                    catch
-                    { 
-                        this.ChapSub = null;
-                    }
-                }
-                else
-                {
-                    this.ChapSub = null;
-                }
-                
-            }
-        }
-        public void ReadChapter()
-        {
-            try { this.Chapter = this.Slide.Shapes["CHAP:SUB"].TextFrame.TextRange.Text.Split(':')[0].Trim(); }
-            catch { this.Chapter = null; }
-        }
-        public void ReadSubchapter()
-        {
-            try { this.Subchapter = this.Slide.Shapes["CHAP:SUB"].TextFrame.TextRange.Text.Split(':')[1].Trim(); }
-            catch { this.Subchapter = null; }
-        }
-        public void ReadTitle()
-        {
-            try
-            {
-                this.Title = this.Slide.Shapes["TITLE"].TextFrame.TextRange.Text;
-            }
-            catch
-            {
-                if (A3Environment.ALLOW_INFER_FROM_SLIDE == true)
-                {
-                    string title = this.InferTitle(this.Type);
-                    try
-                    {
-                        this.Title = this.Slide.Shapes[title].TextFrame.TextRange.Text;
-                        PowerPoint.Shape shape = this.Slide.Shapes[title];
-                        shape.Name = "TITLE";
-                        shape.Title = "TITLE";
-                        this.ReadShapes();
-                    }
-                    catch
-                    {
-                        this.Title = null;
-                    }
-                }
-                else
-	            {
-                    this.Title = null;
-                }
-            }
-        }
-        public void ReadDay()
-        {
-            try { this.Day = this.Slide.Shapes["DAY"].TextFrame.TextRange.Text; }
-            catch { this.Day = null; }
-        }
-        public void ReadNotes()
-        {
-            try
-            {
-                foreach (PowerPoint.Shape shape in this.Slide.NotesPage.Shapes)
-                {
-                    if (shape.TextFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue)
-                    {
-                        if (shape.TextFrame.TextRange.Text != "")
-                        {
-                            this.Notes = shape.TextFrame.TextRange.Text;
-                            break;
-                        }
-                    }
-                }
-            }
-            catch { this.Notes = null; }
+            ReadShapes();
+            ReadTag(Tags.GUID);
+            ReadTag(Tags.HGUID);
+            ReadTag(Tags.TYPE);
+            ReadTag(Tags.TITLE);
+            ReadTag(Tags.CHAPSUB);
+            ReadNotes();
         }
         public void ReadShapes()
         {
-            try
+            Shapes.Clear();
+            var eShapes = Slide.Shapes.GetEnumerator();
+            while (eShapes.MoveNext())
             {
-                this.ShapeNames = new List<string>();
-                foreach (PowerPoint.Shape shape in this.Slide.Shapes)
+                Shape shape = (Shape)eShapes.Current;
+                if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
                 {
-                    try
-                    {
-                        if (shape.TextFrame.TextRange.Text != null)
-                        {
-                            this.ShapeNames.Add(shape.Name);
-                        }
-                    }
-                    catch { }
+                    Shapes.Add(shape);
                 }
-            }
-            catch 
-            {
-                this.ShapeNames = null;
             }
         }
+        public void ReadTag(Tags tag)
+        {
+            Shape shape = Shapes?.FirstOrDefault(s => string.Equals(s.Name, tag.ToString(), StringComparison.OrdinalIgnoreCase));
+            if (shape is null)
+            {
+                if (A3Environment.ALLOW_INFER_FROM_SLIDE)
+                {
+                    switch (tag)
+                    {
+                        case Tags.TYPE:
+                            InferType();
+                            return;
+                        case Tags.CHAPSUB:
+                            InferFromTypeTag(Type, Tags.CHAPSUB);
+                            return;
+                        case Tags.TITLE:
+                            InferFromTypeTag(Type, Tags.TITLE);
+                            return;
+                        default:
+                            break;
+                    }
+                }
+                switch (tag)
+                {
+                    case Tags.GUID:
+                        Guid = null;
+                        return;
+                    case Tags.HGUID:
+                        HGuids = null;
+                        return;
+                    case Tags.TYPE:
+                        Type = Types.NULL;
+                        return;
+                    case Tags.CHAPSUB:
+                        Chapter = null;
+                        Subchapter = null;
+                        return;
+                    case Tags.TITLE:
+                        Title = null;
+                        return;
+                    default:
+                        break;
+                }
+            }
+            switch (tag)
+            {
+                case Tags.GUID:
+                    Guid = shape.TextFrame.TextRange.Text;
+                    break;
+                case Tags.HGUID:
+                    HGuids = shape.TextFrame.TextRange.Text.Split(';').ToList();
+                    break;
+                case Tags.TYPE:
+                    Type = Enum.TryParse(shape.TextFrame.TextRange.Text, true, out Types t) ? t : Types.NULL;
+                    break;
+                case Tags.CHAPSUB:
+                    SplitChapSub(shape);
+                    break;
+                case Tags.TITLE:
+                    Title = shape.TextFrame.TextRange.Text;
+                    break;
+                default:
+                    break;
+            }
 
-        // TODO: Document the following functions to incldue their purpose; implementations; and basic understanding of how they preform infrences
-        public void InferType()
+        }
+        public void ReadNotes()
+        {
+            var eShapes = Slide.NotesPage.Shapes.GetEnumerator();
+            while (eShapes.MoveNext())
+            {
+                Shape shape = (Shape)eShapes.Current;
+                Notes = shape?.TextFrame?.TextRange?.Text;
+            }
+        }
+        private void SplitChapSub(Shape chapsub)
+        {
+            string[] chapSubArr = chapsub.TextFrame?.TextRange.Text?.Split(':');
+            Chapter = chapSubArr[0].Trim();
+            Subchapter = chapSubArr.Length > 1 ? string.Join(":", chapSubArr.Skip(1)).Trim() : null;
+        }
+        #endregion
+
+        #region Write Functions
+        public void WriteFromMemory()
+        {
+            WriteType();
+            WriteGuid();
+            WriteHistoricGuid();
+            WriteChapSub();
+            WriteTitle();
+            WriteNotes();
+        }
+        public void WriteTag(Tags tag)
+        {
+            Shape shape = GetShapeByTag(tag);
+            shape = shape is null ? MakeTag(Type, tag) : shape;
+            switch (tag)
+            {
+                case Tags.GUID:
+                    shape.TextFrame.TextRange.Text = Guid;
+                    break;
+                case Tags.HGUID:
+                    shape.TextFrame.TextRange.Text = string.Join(";", HGuids);
+                    break;
+                case Tags.TYPE:
+                    Slide.CustomLayout.Name = Type.ToString();
+                    shape.TextFrame.TextRange.Text = Type.ToString();
+                    break;
+                case Tags.CHAPSUB:
+                    shape.TextFrame.TextRange.Text = Subchapter is null ? Chapter : string.Concat(Chapter, ": ", Subchapter);
+                    break;
+                case Tags.TITLE:
+                    shape.TextFrame.TextRange.Text = Title;
+                    break;
+                default:
+                    break;
+            }
+        }
+        public void WriteNotes()
+        {
+            var eShapes = Slide.NotesPage.Shapes.GetEnumerator();
+            while (eShapes.MoveNext())
+            {
+                Shape shape = (Shape)eShapes.Current;
+                if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
+                {
+                    shape.TextFrame.TextRange.Text = Notes;
+                }
+            }
+        }
+        public Shape GetShapeByTag(Tags tag)
+        {
+            var eShapes = Slide.Shapes.GetEnumerator();
+            while (eShapes.MoveNext())
+            {
+                Shape shape = (Shape)eShapes.Current;
+                if (string.Equals(shape.Name, tag.ToString(), StringComparison.OrdinalIgnoreCase))
+                {
+                    return shape;
+                }
+            }
+            return null;
+        }
+        private Shape MakeTag(Types type, Tags tag)
+        {
+            List<int> sDim = GetDimensions(type, tag);
+            Shape shape = Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, sDim[0], sDim[1], sDim[2], sDim[3]);
+            shape.Name = tag.ToString();
+            if (tag is Tags.GUID || tag is Tags.HGUID || tag is Tags.TYPE)
+            {
+                shape.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
+            }
+            else if (true)
+            {
+                shape.TextFrame.TextRange.Characters().Font.Size = 16;
+                shape.TextFrame.TextRange.Font.Color.ObjectThemeColor = Microsoft.Office.Core.MsoThemeColorIndex.msoThemeColorAccent5;
+                shape.Visible = Type is Types.COURSE ? Microsoft.Office.Core.MsoTriState.msoFalse : Microsoft.Office.Core.MsoTriState.msoTrue;
+            }
+            return shape;
+        }
+        #endregion
+
+        #region Infer Functions
+        private void InferType()
         {
             // Check For Course Slide Indications
-            if (this.Slide.SlideNumber == 1)
+            if (Slide.SlideNumber == 1)
             {
-                DialogResult dialogResult = MessageBox.Show("Is the first slide of this deck the Course Title Slide?", "Infering First Slides Type", MessageBoxButtons.YesNo);
-                if (dialogResult == DialogResult.Yes)
-                {
-                    this.MakeSlideType();
-                    this.Type = "COURSE";
-                    this.Slide.Shapes["TYPE"].TextFrame.TextRange.Text = "COURSE";
-                    return;
-                }
+                Type = Types.COURSE;
+                WriteType();
+                return;
             }
 
             // Check for shape names indications both chapter and questions slides
-            List<string> chapShapeNames = new List<string>
+            List<string> chapterShapeNames = new List<string>
             {
                 "wordquan",
                 "wordcounter",
@@ -432,321 +438,142 @@ namespace Alta3_PPA
                 "whydbox",
                 "questionbox"
             };
-            try
-            {
-                foreach (string shapeName in this.ShapeNames)
-                {
-                    if (chapShapeNames.Contains(shapeName.ToLower()))
-                    {
-                        this.Type = "CHAPTER";
-                        this.WriteType();
-                        return;
-                    }
-                    if (questionShapeNames.Contains(shapeName.ToLower()))
-                    {
-                        this.Type = "QUESTION";
-                        this.WriteType();
-                        return;
-                    }
-                }
-            }
-            catch
-            {
-
-            }
 
             // Check for chapter slide size indications
-            bool chapChapSub = false;
-            bool chapTitle = false;
-            foreach (string shapeName in this.ShapeNames)
-            {
-                if (this.Slide.Shapes[shapeName].Height >= 47
-                    && this.Slide.Shapes[shapeName].Height <= 55
-                    && this.Slide.Shapes[shapeName].Width >= 900
-                    && this.Slide.Shapes[shapeName].Width <= 1100
-                    && this.Slide.Shapes[shapeName].Top >= 5
-                    && this.Slide.Shapes[shapeName].Top <= 15)
-                {
-                    chapChapSub = true;
-                }
-                else if (this.Slide.Shapes[shapeName].Height >= 45
-                    && this.Slide.Shapes[shapeName].Height <= 55
-                    && this.Slide.Shapes[shapeName].Width >= 850
-                    && this.Slide.Shapes[shapeName].Width <= 1100
-                    && this.Slide.Shapes[shapeName].Top >= 75
-                    && this.Slide.Shapes[shapeName].Top <= 85)
-                {
-                    chapTitle = true;
-                }
-            }
-            if (chapTitle && chapChapSub)
-            {
-                this.Type = "CHAPTER";
-                this.WriteType();
-                return;
-            }
+            bool chapterChapSub = false;
+            bool chapterTitle = false;
 
-            // Default To Type of Content If Allow Default Infer Is Set to True.
-            if (A3Environment.ALLOW_DEFAULT_INFER_FROM_SLIDE == true)
+            Shapes?.ForEach(s =>
             {
-                this.MakeSlideType();
-                this.Type = "CONTENT";
-                this.Slide.Shapes["TYPE"].TextFrame.TextRange.Text = "CONTENT";
-            }
+                if (chapterShapeNames.Contains(s.Name.ToLower()))
+                {
+                    Type = Types.CHAPTER;
+                    WriteType();
+                    return;
+                }
+                if (questionShapeNames.Contains(s.Name.ToLower()))
+                {
+                    Type = Types.QUESTION;
+                    WriteType();
+                    return;
+                }
+                chapterTitle = SatisfiesDimensions(s, Types.CHAPTER, Tags.TITLE) || chapterTitle ? true : false;
+                chapterChapSub = SatisfiesDimensions(s, Types.CHAPTER, Tags.CHAPSUB) || chapterChapSub ? true : false;
+                if (chapterTitle && chapterChapSub)
+                {
+                    Type = Types.CHAPTER;
+                    WriteType();
+                    return;
+                }
+            });
+
+            Type = A3Environment.ALLOW_DEFAULT_INFER_FROM_SLIDE ? Types.CONTENT : Types.NULL;
+            WriteType();
         }
-        public string InferChapSub(string type)
+        private void InferFromTypeTag(Types type, Tags tag)
         {
-            List<int> checks = new List<int>();
-            switch (type)
+            Shape shape = Shapes?.FirstOrDefault(s => SatisfiesDimensions(s, type, tag));
+            if (shape is null)
             {
-                case "CHAPTER":
-                    checks.Add(47);
-                    checks.Add(55);
-                    checks.Add(900);
-                    checks.Add(1100);
-                    checks.Add(5);
-                    checks.Add(15);
+                switch (tag)
+                {
+                    case Tags.CHAPSUB:
+                        Chapter = null;
+                        Subchapter = null;
+                        return;
+                    case Tags.TITLE:
+                        return;
+                    default:
+                        return;
+                }
+            }
+            shape.Name = tag.ToString();
+            switch (tag)
+            {
+                case Tags.CHAPSUB:
+                    SplitChapSub(shape);
+                    break;
+                case Tags.TITLE:
+                    Title = shape.TextFrame?.TextRange.Text;
                     break;
                 default:
-                    checks.Add(20);
-                    checks.Add(33);
-                    checks.Add(700);
-                    checks.Add(1000);
-                    checks.Add(0);
-                    checks.Add(20);
                     break;
             }
-
-            if (this.ShapeNames.Count >= 1)
-            {
-                foreach (string shapeName in this.ShapeNames)
-                {
-                    try
-                    {
-                        if (this.Slide.Shapes[shapeName].Height >= checks[0]
-                            && this.Slide.Shapes[shapeName].Height <= checks[1]
-                            && this.Slide.Shapes[shapeName].Width >= checks[2]
-                            && this.Slide.Shapes[shapeName].Width <= checks[3]
-                            && this.Slide.Shapes[shapeName].Top >= checks[4]
-                            && this.Slide.Shapes[shapeName].Top <= checks[5])
-                        {
-                            return shapeName;
-                        }
-                    }
-                    catch
-                    {
-
-                    }
-
-                }
-            }
-            return null;
+            
         }
-        public string InferTitle(string type)
+        #endregion
+
+        #region Dimension Helper Functions
+        private bool SatisfiesDimensions(Shape s, Types type, Tags tag)
         {
-            List<int> checks = new List<int>();
-            switch (type)
+            // sDim in order are hMin, hMax, wMin, wMax, tMin, tMax
+            List<int> sDim = GetMinMaxDimensions(type, tag);
+            bool height = IsInclusiveBetween(Convert.ToInt32(s.Height), sDim[0], sDim[1]);
+            bool width = IsInclusiveBetween(Convert.ToInt32(s.Width), sDim[2], sDim[3]);
+            bool top = IsInclusiveBetween(Convert.ToInt32(s.Top), sDim[4], sDim[5]);
+            bool match = height && width && top ? true : false;
+            return match;
+        }
+        private List<int> GetDimensions(Types type, Tags tag)
+        {
+            List<int> dimensions;
+            switch (tag)
             {
-                case "CHAPTER":
-                    checks.Add(45);
-                    checks.Add(55);
-                    checks.Add(850);
-                    checks.Add(1100);
-                    checks.Add(75);
-                    checks.Add(85);
+                case Tags.GUID:
+                    dimensions = new List<int>() { 0, 400, 500, 30 };
+                    break;
+                case Tags.HGUID:
+                    dimensions = new List<int>() { 0, 430, 500, 30 };
+                    break;
+                case Tags.TYPE:
+                    dimensions = new List<int>() { 500, 400, 500, 30 };
+                    break;
+                case Tags.CHAPSUB:
+                    dimensions = type is Types.CHAPTER ? new List<int>() { 0, 1, 2, 3 } : new List<int>() { 0, 1, 2, 3 };
+                    break;
+                case Tags.TITLE:
+                    switch (type)
+                    {
+                        case Types.COURSE:
+                            dimensions = new List<int>() { 312, 192, 358, 106 };
+                            break;
+                        case Types.CHAPTER:
+                            dimensions = new List<int>() { 18, 81, 934, 50 };
+                            break;
+                        case Types.QUESTION:
+                            dimensions = new List<int>() { 30, 960, 50, 28 };
+                            break;
+                        default:
+                            dimensions = new List<int>() { 12, 30, 936, 50 };
+                            break;
+                    }
                     break;
                 default:
-                    checks.Add(30);
-                    checks.Add(60);
-                    checks.Add(600);
-                    checks.Add(1100);
-                    checks.Add(15);
-                    checks.Add(50);
+                    dimensions = new List<int>() { 0, 1, 2, 3 };
                     break;
             }
-
-            if (this.ShapeNames.Count >= 1)
+            return dimensions;
+        }
+        private List<int> GetMinMaxDimensions(Types type, Tags tag)
+        {
+            // dimensions in order are hMin, hMax, wMin, wMax, tMin, tMax
+            List<int> dimensions = new List<int>();
+            dimensions.AddRange(Enumerable.Repeat(0, 6));
+            if (tag is Tags.TITLE)
             {
-                foreach (string shapeName in this.ShapeNames)
-                {
-                    if (this.Slide.Shapes[shapeName].Height >= checks[0]
-                        && this.Slide.Shapes[shapeName].Height <= checks[1]
-                        && this.Slide.Shapes[shapeName].Width >= checks[2]
-                        && this.Slide.Shapes[shapeName].Width <= checks[3]
-                        && this.Slide.Shapes[shapeName].Top >= checks[4]
-                        && this.Slide.Shapes[shapeName].Top <= checks[5])
-                    {
-                        return shapeName;
-                    }
-                }
+                dimensions = type is Types.CHAPTER ? new List<int>() { 45, 55, 850, 1100, 75, 85 } : new List<int>() { 30, 60, 600, 1100, 15, 50 };
             }
-            return null;
-        }
-
-        // TODO: Document the following functiosn to include their purpose; implementations; and basic understading of how they write information to the slide.
-        public void WriteFromMemory()
-        {
-            this.WriteType();
-            this.WriteActiveGuid();
-            this.WriteHistoricGuid();
-            this.WriteChapSub();
-            this.WriteTitle();
-            this.WriteDay();
-            this.WriteNotes();
-        }
-        public void WriteActiveGuid()
-        {
-            PowerPoint.Shape aguid;
-            try { aguid = this.Slide.Shapes["GUID"]; } catch { aguid = this.MakeActiveGuid(); }
-            aguid.TextFrame.TextRange.Text = this.Guid;
-            aguid.Name = "GUID";
-            aguid.Title = "GUID";
-        }
-        public void WriteHistoricGuid()
-        {
-            PowerPoint.Shape hguid;
-            try { hguid = this.Slide.Shapes["HISTORIC_GUID"]; } catch { hguid = this.MakeHistoricGuid(); }
-            string hguidText = "";
-            try
+            else if (tag is Tags.CHAPSUB)
             {
-                foreach (string guid in this.HistoricGuids)
-                {
-                    hguidText += guid;
-                }
+                dimensions = type is Types.CHAPTER ? new List<int>() { 47, 55, 900, 1100, 5, 15 } : new List<int>() { 20, 33, 700, 1000, 0, 20 };
             }
-            catch 
-            {
-
-            }
-            hguid.TextFrame.TextRange.Text = hguidText;
-            hguid.Name = "HISTORIC_GUID";
-            hguid.Title = "HISTORIC_GUID";
+            return dimensions;
         }
-        public void WriteType()
+        private bool IsInclusiveBetween(int value, int Min, int Max)
         {
-            PowerPoint.Shape type;
-            try { type = this.Slide.Shapes["TYPE"]; } catch { type = this.MakeSlideType(); }
-            try { type.TextFrame.TextRange.Text = this.Type.ToUpper(); } catch { type.TextFrame.TextRange.Text = ""; }
-            if (this.Type.ToUpper() == "COURSE" || this.Type.ToUpper() == "CHAPTER" || this.Type.ToUpper() == "QUESTION")
-            {
-                this.Slide.CustomLayout.Name = this.Type.ToUpper();
-            }
-            else
-            {
-                this.Slide.CustomLayout.Name = "CONTENT";
-            }
-            type.Name = "TYPE";
-            type.Title = "TYPE";
+            bool inclusiveBetween = value >= Min && value <= Max ? true : false;
+            return inclusiveBetween;
         }
-        public void WriteChapSub()
-        {
-            PowerPoint.Shape chapsub;
-            try { chapsub = this.Slide.Shapes["CHAP:SUB"]; } catch { chapsub = this.MakeChapSub(); }
-            chapsub.TextFrame.TextRange.Text = this.ChapSub;
-            chapsub.Name = "CHAP:SUB";
-            chapsub.Title = "CHAP:SUB";
-        }
-        public void WriteTitle()
-        {
-            PowerPoint.Shape title;
-            try { title = this.Slide.Shapes["TITLE"]; } catch { title = this.MakeTitle(); }
-            title.TextFrame.TextRange.Text = this.Title;
-            title.Name = "TITLE";
-            title.Title = "TITLE";
-        }
-        public void WriteDay()
-        {
-            PowerPoint.Shape day;
-            try { day = this.Slide.Shapes["DAY"]; } catch { day = this.MakeDay(); }
-            day.TextFrame.TextRange.Text = this.Day;
-            day.Name = "DAY";
-            day.Title = "DAY";
-        }
-        public void WriteNotes()
-        {
-            try
-            {
-                foreach (PowerPoint.Shape shape in this.Slide.NotesPage.Shapes)
-                {
-                    if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
-                    {
-                        shape.TextFrame.TextRange.Text = this.Notes;
-                    }
-                }
-            }
-            catch
-            {
-
-            }
-        }
-
-        // TODO: Document the following functiosn to include their purpose; implemenations; invocations; and basic understanding of how and when they are utilized. 
-        public PowerPoint.Shape MakeActiveGuid()
-        {
-            PowerPoint.Shape aguid = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 0, 400, 500, 30);
-            aguid.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
-            aguid.Name = "GUID";
-            aguid.Title = "GUID";
-            return aguid;
-        }
-        public PowerPoint.Shape MakeHistoricGuid()
-        {
-            PowerPoint.Shape hguid = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 0, 430, 500, 30);
-            hguid.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
-            hguid.Name = "HISTORIC_GUID";
-            hguid.Title = "HISTORIC_GUID";
-            return hguid;
-        }
-        public PowerPoint.Shape MakeSlideType()
-        {
-            PowerPoint.Shape type = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 500, 400, 500, 30);
-            type.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
-            type.Name = "TYPE";
-            type.Title = "TYPE";
-            return type;
-        }
-        public PowerPoint.Shape MakeChapSub()
-        {
-            PowerPoint.Shape chapsub = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 12, 1, 720, 28);
-            chapsub.TextFrame.TextRange.Characters().Font.Size = 16;
-            chapsub.TextFrame.TextRange.Font.Color.ObjectThemeColor = Microsoft.Office.Core.MsoThemeColorIndex.msoThemeColorAccent5;
-            chapsub.Name = "CHAP:SUB";
-            chapsub.Title = "CHAP:SUB";
-            if (this.Type == "COURSE")
-            {
-                chapsub.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
-            }
-            return chapsub;
-        }
-        private PowerPoint.Shape MakeTitle()
-        {
-            PowerPoint.Shape title;
-            switch (this.Type)
-            {
-                case "COURSE":
-                    title = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 312, 192, 358, 106);
-                    break;
-                case "CHAPTER":
-                    title = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 18, 81, 934, 50);
-                    break;
-                case "QUESTION":
-                    title = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 30, 960, 50, 28);
-                    break;
-                default:
-                    title = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 12, 30, 936, 50);
-                    break;
-            }
-            title.Name = "TITLE";
-            title.Title = "TITLE";
-            return title;
-        }
-        private PowerPoint.Shape MakeDay()
-        {
-            PowerPoint.Shape day = this.Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 500, 430, 1000, 30);
-            day.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
-            day.Name = "DAY";
-            day.Title = "DAY";
-            return day;
-        }
+        #endregion
     }
 }

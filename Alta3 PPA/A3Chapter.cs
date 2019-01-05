@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
@@ -19,11 +16,11 @@ namespace Alta3_PPA
 
         public void Generate(PowerPoint.Presentation presentation, int chapterCount)
         {
-            this.GenerateChapterSlide(presentation, chapterCount);
+            GenerateChapterSlide(presentation, chapterCount);
             int count = presentation.Slides.Count;
             presentation.SectionProperties.AddBeforeSlide(count, this.Title);
-            this.GenerateSubChapters(presentation);
-            this.GenerateVocab(chapterCount);
+            GenerateSubChapters(presentation);
+            GenerateVocab(chapterCount);
         }
 
         private void GenerateChapterSlide(PowerPoint.Presentation presentation, int chapterCount)

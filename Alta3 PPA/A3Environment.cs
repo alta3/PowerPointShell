@@ -9,7 +9,8 @@ namespace Alta3_PPA
     {
         // Global bools to help with loops and environment settings
         public static bool QUIT_FROM_CURRENT_LOOP = false;
-        public static bool DEV_INITIALIZED = false;
+        public static bool AFTER_CHAPTER = false;
+        public static bool BEFORE_QUESTION = true;
         public static bool SHOW_GUID = false;
         public static bool ALLOW_INFER_FROM_SLIDE = false;
         public static bool ALLOW_DEFAULT_INFER_FROM_SLIDE = false;
@@ -25,27 +26,6 @@ namespace Alta3_PPA
         public static string A3_MARKDOWN = String.Concat(A3_PUBLISH, @"\markdown");
 
         public static string A3_LOG = String.Concat(A3_PATH, @"\log");
-
-        public static Dictionary<string, string> A3_YAML_KEY_MAPPING = new Dictionary<string, string>
-        {
-            { "name:", "course:" },
-            { "chapters:", "chapters:" },
-            { "questions:", "questions:" },
-            { "type:", "type:" },
-            { "title:", "title:" },
-            { "index:", "index:" },
-            { "guid:", "guid:" },
-            { "historicguids:", "historicguids:" },
-            { "filename:", "filename:" },
-            { "notes:", "notes:" },
-            { "subchapters:", "subchapters:" },
-            { "has-labs:", "haslabs:" },
-            { "has-slides:", "hasslides:" },
-            { "has-videos:", "hasvideos:" },
-            { "weburl:", "weburl:" },
-            { "vocab:", "vocab:" },
-            { "slides:", "slides:"}
-        };
 
         // Alta3 Resoures location
         public static string A3_RESOURCE = String.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"\Alta3\A3PPA\resources");
@@ -63,8 +43,36 @@ namespace Alta3_PPA
         // Ensure environment is ready for next run
         public static void Clean()
         {
-            A3Environment.QUIT_FROM_CURRENT_LOOP = false;
-        }
+            // Global bools to help with loops and environment settings
+            QUIT_FROM_CURRENT_LOOP = false;
+            AFTER_CHAPTER = false;
+            BEFORE_QUESTION = true;
+            SHOW_GUID = false;
+            ALLOW_INFER_FROM_SLIDE = false;
+            ALLOW_DEFAULT_INFER_FROM_SLIDE = false;
+            ENFORCE_CHAP_SUB_SPLITTING = true;
+
+            // The Alta3 directory structure variables
+            A3_PATH = String.Concat(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), @"\Documents\Alta3 PowerPoints");
+            A3_WORKING = String.Concat(A3_PATH, @"\working");
+            A3_PUBLISH = String.Concat(A3_PATH, @"\publish");
+            A3_PRES_PNGS = String.Concat(A3_PUBLISH, @"\pres_pngs");
+            A3_BOOK_PNGS = String.Concat(A3_PUBLISH, @"\book_pngs");
+            A3_LATEX = String.Concat(A3_PUBLISH, @"\latex");
+            A3_MARKDOWN = String.Concat(A3_PUBLISH, @"\markdown");
+
+            A3_LOG = String.Concat(A3_PATH, @"\log");
+
+            // Alta3 Resoures location
+            A3_RESOURCE = String.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"\Alta3\A3PPA\resources");
+
+            // Global resoures including the model powerpoint and the model vba
+            MODEL_POWERPOINT = String.Concat(A3_RESOURCE, @"\mod.pptm");
+            BLANK_POWERPOINT = String.Concat(A3_RESOURCE, @"\blank.pptm");
+            CHAPTER_VBA = File.ReadAllText(String.Concat(A3_RESOURCE, @"\chapter_vba.txt"));
+            QUESTION_VBA = File.ReadAllText(String.Concat(A3_RESOURCE, @"\question_vba.txt"));
+            YAML_LINT_CONFIG = String.Concat(A3_RESOURCE, @"\yamllint_config.yml");
+    }
 
         public static void StartUp()
         {

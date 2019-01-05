@@ -20,7 +20,9 @@ namespace Alta3_PPA
             FillSubChapters,
             FixMetadata,
             PrePublish,
-            Publish
+            Publish,
+            ToOutline,
+            FillSubchapters
         }
 
         public string Timestamp { get; set; }

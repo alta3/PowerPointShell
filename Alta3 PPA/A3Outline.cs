@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Markdig;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
@@ -10,6 +9,16 @@ namespace Alta3_PPA
     public class A3Outline
     {
         #region Outline Properites
+        public enum Metadata
+        {
+            NAME,
+            FILENAME,
+            HASLABS,
+            HASSLIDES,
+            HASVIDEOS,
+            WEBURL
+        }
+
         public string Course { get; set; }
         public string Filename { get; set; }
         public bool HasLabs { get; set;}
@@ -19,21 +28,22 @@ namespace Alta3_PPA
         public List<A3Chapter> Chapters { get; set; }
         #endregion
 
+        // move to A3Presentation. 
         #region Generate Presentation
         public void GeneratePresentation(PowerPoint.Presentation presentation)
         {
-            this.GenerateCourseSlide(presentation);
-            this.GenerateTOCSlide(presentation);
-            presentation.SectionProperties.AddBeforeSlide(1, this.Course);
-            this.GenerateChapters(presentation);
-            this.GenerateEndOfDeckSlide(presentation);
-            this.GenerateQuizSlide(presentation);
+            GenerateCourseSlide(presentation);
+            GenerateTOCSlide(presentation);
+            presentation.SectionProperties.AddBeforeSlide(1, Course);
+            GenerateChapters(presentation);
+            GenerateEndOfDeckSlide(presentation);
+            GenerateQuizSlide(presentation);
         }
 
         private void GenerateChapters(PowerPoint.Presentation presentation)
         {
             int chapterCount = 1;
-            foreach (A3Chapter chapter in this.Chapters)
+            foreach (A3Chapter chapter in Chapters)
             {
                 chapter.Generate(presentation, chapterCount);
                 chapterCount += 1;
@@ -47,10 +57,15 @@ namespace Alta3_PPA
             // Change the title to the course title given in the yaml file
             A3Slide a3ActiveSlide = new A3Slide(presentation.Slides[presentation.Slides.Count])
             {
-                Title = this.Course,
-                Type = "COURSE",
+                Title = Course,
+                Type = A3Slide.Types.COURSE,
                 Guid = Guid.NewGuid().ToString(),
-                Notes = String.Concat("name: ", this.Course, "\r\nfilename: ", this.Filename, "\r\nhas-labs: ", this.HasLabs, "\r\nhas-slides: ", this.HasSlides, "\r\nhas-videos: ", this.HasVideos, "\r\nweburl: ", this.Weburl)
+                Notes = String.Concat("name: ",           Course, 
+                                      "\r\nfilename: ",   Filename, 
+                                      "\r\nhas-labs: ",   HasLabs, 
+                                      "\r\nhas-slides: ", HasSlides, 
+                                      "\r\nhas-videos: ", HasVideos, 
+                                      "\r\nweburl: ",     Weburl)
             };
             a3ActiveSlide.WriteFromMemory();
         }
@@ -63,7 +78,7 @@ namespace Alta3_PPA
             A3Slide a3ActiveSlide = new A3Slide(presentation.Slides[presentation.Slides.Count])
             {
                 Title = "End of Deck",
-                ChapSub = String.Concat(this.Course, ": End Of Deck"),
+                ChapSub = string.Concat(Course, ": End Of Deck"),
                 Guid = Guid.NewGuid().ToString(),
                 Type = "CONTENT"
             };
@@ -78,7 +93,7 @@ namespace Alta3_PPA
             A3Slide a3ActiveSlide = new A3Slide(presentation.Slides[presentation.Slides.Count])
             {
                 Title = "Table of Contents",
-                ChapSub = String.Concat(this.Course, ": TOC"),
+                ChapSub = String.Concat(Course, ": TOC"),
                 Type = "TOC",
                 Guid = Guid.NewGuid().ToString()
             };
@@ -105,11 +120,11 @@ namespace Alta3_PPA
         #endregion
 
         #region Generate LaTex
-        public void GenerateLaTex(PowerPoint.Presentation presentation, A3Outline outline)
+        public void GenerateLaTex()
         {
-            this.GenerateLaTexMain();
-            this.GenerateLaTexChapters();
-            this.GenerateLaTexSubchapters(outline);
+            GenerateLaTexMain();
+            GenerateLaTexChapters();
+            GenerateLaTexSubchapters(this);
         }
 
         private void GenerateLaTexMain()
@@ -142,7 +157,7 @@ namespace Alta3_PPA
                 String.Concat(@"\includegraphics[width=.5\textwidth]{", "\"", A3Environment.A3_RESOURCE.Replace('\\','/'), @"/a3logo", "\"}"),
                 @"\linebreak",
                 @"\linebreak",
-                String.Concat(@"{\Huge\textbf{", this.Course, @"}}"),
+                String.Concat(@"{\Huge\textbf{", Course, @"}}"),
                 @"\linebreak",
                 @"\linebreak",
                 @"{\Large Alta3 Research, Inc.}",
@@ -163,7 +178,7 @@ namespace Alta3_PPA
                 "",
                 @"\mainmatter"
             };
-            foreach (A3Chapter chapter in this.Chapters)
+            foreach (A3Chapter chapter in Chapters)
             {
                 try { Directory.CreateDirectory(String.Concat(A3Environment.A3_LATEX, @"\chapters\", chapter.Title)); } catch { }
                 main.Add(String.Concat(@"\input{", "\"", A3Environment.A3_LATEX.Replace('\\','/'), @"/chapters/", chapter.Title, ".tex\"}"));
@@ -179,7 +194,7 @@ namespace Alta3_PPA
         }
         private void GenerateLaTexChapters()
         {
-            foreach (A3Chapter chapter in this.Chapters)
+            foreach (A3Chapter chapter in Chapters)
             {
                 List<string> chap = new List<string>
                 {
@@ -216,7 +231,7 @@ namespace Alta3_PPA
             File.WriteAllLines(String.Concat(A3Environment.A3_LATEX, @"notes.html"), htmlNotes);
             List<string> notes = A3Notes.ToLatex(outline, String.Concat(A3Environment.A3_LATEX, @"notes.html"));
 
-            foreach (A3Chapter chapter in this.Chapters)
+            foreach (A3Chapter chapter in Chapters)
             {
                 foreach (A3Subchapter subchapter in chapter.Subchapters)
                 {
@@ -257,29 +272,10 @@ namespace Alta3_PPA
         }
         #endregion
 
-        #region Validation Methods
-        public void Validate(A3Log log, int processingLevel)
+        #region Generate YAML
+        public void GenerateYAML()
         {
-            this.ValidateTitle(log);
-            // If process dicatates different checks make a switch statement here locally but pass the process varaible to the chapter and labs so that it can independently handle those
-            this.ValidateChapters(log, processingLevel);
-        }
 
-        private void ValidateTitle(A3Log log)
-        {
-            if (this.Course == null || this.Course.Count(c => !Char.IsWhiteSpace(c)) == 0)
-            {
-                log.Write(A3Log.Level.Error, "No Course Title Found");
-            }
-        }
-        private void ValidateChapters(A3Log log, int processingLevel)
-        {
-            int chapterCount = 1;
-            foreach (A3Chapter chapter in this.Chapters)
-            {
-                chapter.Validate(chapterCount, log, processingLevel);
-                chapterCount++;
-            }
         }
         #endregion
     }
