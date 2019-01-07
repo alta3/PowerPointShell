@@ -3,15 +3,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
 namespace Alta3_PPA
 {
-    public class A3Slide
-    {
+    public class A3Slide {
         #region Properties
-        public enum Types
-        {
+        public enum Alerts {
+            MessageInfo,
+            SlideInfo,
+            TypeIsNull,
+            TypeDefaultInfered,
+            TitleIsNull,
+            ChapSubContainsNull,
+            Continue,
+            Success,
+        }
+        public enum Types {
             COURSE,
             TOC,
             CHAPTER,
@@ -20,13 +27,24 @@ namespace Alta3_PPA
             QUESTION,
             NULL
         };
-        public enum Tags
-        {
+        public enum Tags {
             GUID,
             HGUID,
             TYPE,
             CHAPSUB,
-            TITLE
+            TITLE,
+            TOC
+        };
+
+        public static Dictionary<Alerts, string> AlertMessages = new Dictionary<Alerts, string>()
+        {
+            { Alerts.MessageInfo, "Properties Warning Message"},
+            { Alerts.SlideInfo, "Slide Number: {} (Guid: {GUID}) ::" },
+            { Alerts.TypeIsNull, "The TYPE is null and was not default infered based on the calling functions settings. It will either need to be default infered to content or manually fixed before the slide can be published."},
+            { Alerts.TypeDefaultInfered, "The TYPE was infered to the default type of CONTENT. This may not be what was desired and could potentially cause parsing problems for the entire slide deck." },
+            { Alerts.TitleIsNull, "The TITLE is null. Slides that have a type of COURSE, CHAPTER, or CONTENT require a TITLE in order to be properly parsed. This will have to be manually fixed." },
+            { Alerts.ChapSubContainsNull, "This slide was identified as a CONTENT slide type and the CHAPSUB field contains a null field. CONTENT slides require that at least the CHAPTER field exist. The also potentially require a SUBCHAPTER to exist depending on the global settings. If the SUBCHAPTER is null this will be required to be fixed before publishing can occur." },
+            { Alerts.Continue, "Click Yes if you would like to fix the issue(s) now or click No to exit without fixing the issue(s)."}
         };
 
         public string Guid { get; set; }
@@ -43,51 +61,18 @@ namespace Alta3_PPA
         public A3Slide(Slide slide)
         {
             // Set default properties
-            Guid = null;
-            HGuids = new List<string>();
-            Type = Types.NULL;
-            Chapter = null;
+            Guid       = null;
+            HGuids     = new List<string>();
+            Type       = Types.NULL;
+            Chapter    = null;
             Subchapter = null;
-            Title = null;
-            Notes = null;
-            Shapes = new List<Shape>();
-            Slide = slide;
+            Title      = null;
+            Notes      = null;
+            Shapes     = new List<Shape>();
+            Slide      = slide;
 
             // Read in the current information from the slide
             ReadFromSlide();
-        }
-        public object TypeConversion()
-        {
-            switch (Type)
-            {
-                case Types.COURSE:
-                    A3Outline outline = new A3Outline()
-                    {
-                        Course = Title,
-                        Chapters = new List<A3Chapter>()
-                    };
-                    return outline;
-                case Types.CHAPTER:
-                    A3Chapter chapter = new A3Chapter()
-                    {
-                        Guid = Guid,
-                        HistoricGuids = HGuids,
-                        Title = Title,
-                        Subchapters = new List<A3Subchapter>()
-                    };
-                    return chapter;
-                default:
-                    A3Content content = new A3Content()
-                    {
-                        Guid = Guid,
-                        HistoricGuids = HGuids,
-                        Title = Title,
-                        Type = Type.ToString(),
-                        Notes = Notes,
-                        Index = Slide.SlideIndex
-                    };
-                    return content;
-            }
         }
         public void ShowMetadataForm()
         {
@@ -100,116 +85,49 @@ namespace Alta3_PPA
             slideMetadata.Show();
         }
 
-        // TODO: Clean this code to not have to be a static solution. 
-        public static void FixNullMetadata(bool firstCheck, A3Log log)
+        public void FixSlideMetadata(A3Log log, bool alert)
         {
-            A3Environment.A3SLIDE.Slide.Select();
-            string msg = null;
-
-            List<string> typesAllowed = new List<string> {
-                "course",
-                "toc",
-                "chapter",
-                "content",
-                "no-pub",
-                "question"
-            };
-            A3Slide.ScrubMetadata(A3Environment.A3SLIDE);
-
-            if (A3Environment.A3SLIDE.Type == null)
+            List<Alerts> alerts = AlertOrDefaultMetadataValues();
+            while (alerts.Count > 0  && A3Environment.QUIT_FROM_CURRENT_LOOP is false)
             {
-                msg = String.Concat("A Type Must Be Specified -- please check slide number: ", A3Environment.A3SLIDE.Slide.SlideIndex);
-            }
-            else if (!typesAllowed.Contains(A3Environment.A3SLIDE.Type.ToLower()))
-            {
-                msg = String.Concat("A Proper Type Must Be Specified -- please check slide number: ", A3Environment.A3SLIDE.Slide.SlideIndex);
-                if (A3Environment.ALLOW_DEFAULT_INFER_FROM_SLIDE == true)
+                alerts.Insert(0, Alerts.SlideInfo);
+                string message = string.Join(" ", alerts.Select(a => AlertMessages[a].Replace("{SN}", Slide.SlideNumber.ToString())
+                                                                                     .Replace("{GUID}", Guid))                                                        
+                                                                                     .ToList());
+                log.Write(A3Log.Level.Warn, message);
+                if (alert)
                 {
-                    A3Environment.A3SLIDE.Type = "CONTENT";
-                    A3Environment.A3SLIDE.WriteType();
-                    msg = null;
+                    Slide.Select();
+                    message = string.Concat(message, AlertMessages[Alerts.Continue]);
+                    DialogResult dialogResult = MessageBox.Show(message, AlertMessages[Alerts.MessageInfo], MessageBoxButtons.YesNo);
+                    if (dialogResult == DialogResult.No) return;
                 }
-            }
-            else if (A3Environment.A3SLIDE.Guid == null)
-            {
-                msg = String.Concat("An ActiveGuid Must Be Specified For Every Slide -- please check slide number: ", A3Environment.A3SLIDE.Slide.SlideIndex);
-            }
-            else if (A3Environment.A3SLIDE.Type.ToUpper() == "CONTENT")
-            {
-                if (A3Environment.A3SLIDE.Title == null ||
-                    A3Environment.A3SLIDE.ChapSub == null ||
-                    (A3Environment.A3SLIDE.Chapter == null && A3Environment.ENFORCE_CHAP_SUB_SPLITTING == true) ||
-                    (A3Environment.A3SLIDE.Subchapter == null && A3Environment.ENFORCE_CHAP_SUB_SPLITTING == true))
-                {
-                    msg = String.Concat("A Title, ActiveGuid, and ChapSub must be specified. Chapter and Subchapter must be split by the \":\" character -- please check slide number: ", A3Environment.A3SLIDE.Slide.SlideIndex);
-                }
-            }
-            else if (A3Environment.A3SLIDE.Type.ToUpper() == "CHAPTER")
-            {
-                if (A3Environment.A3SLIDE.Title == null)
-                {
-                    msg = String.Concat("A Title and ActiveGuid must be specified -- please check slide number: ", A3Environment.A3SLIDE.Slide.SlideIndex);
-                }
-            }
-            else if (A3Environment.A3SLIDE.Type.ToUpper() == "COURSE")
-            {
-                if (A3Environment.A3SLIDE.Title == null)
-                {
-                    msg = String.Concat("A Title And AtiveGuid Must Be Specified -- please check slide number: ", A3Environment.A3SLIDE.Slide.SlideIndex);
-                }
-            }
-
-            if (firstCheck)
-            {
-                if (msg != null)
-                {
-                    A3Slide.ShowMetadataForm();
-                    A3Slide.FixNullMetadata(false, log);
-                }
-            }
-            else
-            {
-                if (msg != null)
-                {
-                    log.Write(A3Log.Level.Error, msg);
-                    DialogResult dialogResult = MessageBox.Show(msg, "Properties Still Contain A Null", MessageBoxButtons.YesNo);
-                    if (dialogResult == DialogResult.Yes)
-                    {
-                        //A3Environment.A3SLIDE.ReadShapes();
-                        A3Slide.ShowMetadataForm();
-                        A3Slide.FixNullMetadata(false, log);
-                    }
-                }
+                ShowMetadataForm();
+                FixSlideMetadata(log, true);
             }
         }
-
-        // TODO: Move this method to a more appropriate place perhaps A3Presentation? 
-        public static void ScrubMetadata(A3Slide a3Slide)
+        public List<Alerts> AlertOrDefaultMetadataValues()
         {
-            a3Slide.ReadShapes();
-            if (a3Slide.ShapeNames.Contains("SCRUBBER"))
+            List<Alerts> alerts = new List<Alerts>();
+            
+            if (Type is Types.NULL)
             {
-                if (a3Slide.Type.ToUpper() == "COURSE" || a3Slide.Type.ToUpper() == "CHAPTER")
-                {
-                    if (a3Slide.ShapeNames.Contains("TITLE"))
-                    {
-                        a3Slide.Slide.Shapes["TITLE"].Delete();
-                    }
-                    PowerPoint.Shape shape = a3Slide.Slide.Shapes["SCRUBBER"];
-                    shape.Name = "TITLE";
-                    shape.Title = "TITLE";
-                }
-                else
-                {
-                    if (a3Slide.ShapeNames.Contains("CHAPSUB"))
-                    {
-                        a3Slide.Slide.Shapes["CHAPSUB"].Delete();
-                    }
-                    PowerPoint.Shape shape = a3Slide.Slide.Shapes["SCRUBBER"];
-                    shape.Name = "CHAPSUB";
-                    shape.Title = "CHAPSUB";
-                }
+                Type = A3Environment.ALLOW_DEFAULT_INFER_FROM_SLIDE ? Types.CONTENT : Types.NULL;
+                alerts.Add(Type is Types.NULL ? Alerts.TypeIsNull : Alerts.TypeDefaultInfered);
+                if (Type is Types.CONTENT) WriteTag(Tags.TYPE);
             }
+
+            if (Guid is null)
+            {
+                Guid = System.Guid.NewGuid().ToString();
+                WriteTag(Tags.GUID);
+            }
+
+            alerts.Add((Chapter is null || (Subchapter is null && A3Environment.ENFORCE_CHAP_SUB_SPLITTING)) && Type is Types.CONTENT ? Alerts.ChapSubContainsNull : Alerts.Success);
+            alerts.Add(Title is null && (Type is Types.COURSE || Type is Types.CHAPTER || Type is Types.CONTENT) ? Alerts.TitleIsNull : Alerts.Success);
+            alerts.RemoveAll(a => a is Alerts.Success || a is Alerts.TypeDefaultInfered);
+
+            return alerts;
         }
 
         #region Read Functions
@@ -243,64 +161,26 @@ namespace Alta3_PPA
             {
                 if (A3Environment.ALLOW_INFER_FROM_SLIDE)
                 {
-                    switch (tag)
-                    {
-                        case Tags.TYPE:
-                            InferType();
-                            return;
-                        case Tags.CHAPSUB:
-                            InferFromTypeTag(Type, Tags.CHAPSUB);
-                            return;
-                        case Tags.TITLE:
-                            InferFromTypeTag(Type, Tags.TITLE);
-                            return;
-                        default:
-                            break;
-                    }
+                    if (tag is Tags.TYPE) InferType();
+                    else if (tag is Tags.CHAPSUB || tag is Tags.TITLE) InferFromTypeTag(Type, tag);
+                    return;
                 }
-                switch (tag)
+                if (tag is Tags.GUID)       Guid = null;
+                if (tag is Tags.HGUID)      HGuids = null;
+                if (tag is Tags.TYPE)       Type = Types.NULL;
+                if (tag is Tags.TITLE)      Title = null;
+                if (tag is Tags.CHAPSUB)
                 {
-                    case Tags.GUID:
-                        Guid = null;
-                        return;
-                    case Tags.HGUID:
-                        HGuids = null;
-                        return;
-                    case Tags.TYPE:
-                        Type = Types.NULL;
-                        return;
-                    case Tags.CHAPSUB:
-                        Chapter = null;
-                        Subchapter = null;
-                        return;
-                    case Tags.TITLE:
-                        Title = null;
-                        return;
-                    default:
-                        break;
+                    Chapter = null;
+                    Subchapter = null;
                 }
+                return;
             }
-            switch (tag)
-            {
-                case Tags.GUID:
-                    Guid = shape.TextFrame.TextRange.Text;
-                    break;
-                case Tags.HGUID:
-                    HGuids = shape.TextFrame.TextRange.Text.Split(';').ToList();
-                    break;
-                case Tags.TYPE:
-                    Type = Enum.TryParse(shape.TextFrame.TextRange.Text, true, out Types t) ? t : Types.NULL;
-                    break;
-                case Tags.CHAPSUB:
-                    SplitChapSub(shape);
-                    break;
-                case Tags.TITLE:
-                    Title = shape.TextFrame.TextRange.Text;
-                    break;
-                default:
-                    break;
-            }
-
+            if (tag is Tags.GUID)       Guid = shape.TextFrame.TextRange.Text;
+            if (tag is Tags.HGUID)      HGuids = shape.TextFrame.TextRange.Text.Split(';').ToList();
+            if (tag is Tags.TYPE)       Type = Enum.TryParse(shape.TextFrame.TextRange.Text, true, out Types t) ? t : Types.NULL;
+            if (tag is Tags.TITLE)      Title = shape.TextFrame.TextRange.Text;
+            if (tag is Tags.CHAPSUB)    SplitChapSub(shape);
         }
         public void ReadNotes()
         {
@@ -322,11 +202,11 @@ namespace Alta3_PPA
         #region Write Functions
         public void WriteFromMemory()
         {
-            WriteType();
-            WriteGuid();
-            WriteHistoricGuid();
-            WriteChapSub();
-            WriteTitle();
+            WriteTag(Tags.TYPE);
+            WriteTag(Tags.GUID);
+            WriteTag(Tags.HGUID);
+            WriteTag(Tags.TITLE);
+            WriteTag(Tags.CHAPSUB);
             WriteNotes();
         }
         public void WriteTag(Tags tag)
@@ -361,10 +241,7 @@ namespace Alta3_PPA
             while (eShapes.MoveNext())
             {
                 Shape shape = (Shape)eShapes.Current;
-                if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
-                {
-                    shape.TextFrame.TextRange.Text = Notes;
-                }
+                if (shape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue) shape.TextFrame.TextRange.Text = Notes;
             }
         }
         public Shape GetShapeByTag(Tags tag)
@@ -373,23 +250,17 @@ namespace Alta3_PPA
             while (eShapes.MoveNext())
             {
                 Shape shape = (Shape)eShapes.Current;
-                if (string.Equals(shape.Name, tag.ToString(), StringComparison.OrdinalIgnoreCase))
-                {
-                    return shape;
-                }
+                if (string.Equals(shape.Name, tag.ToString(), StringComparison.OrdinalIgnoreCase)) return shape;
             }
             return null;
         }
-        private Shape MakeTag(Types type, Tags tag)
+        public Shape MakeTag(Types type, Tags tag)
         {
             List<int> sDim = GetDimensions(type, tag);
             Shape shape = Slide.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, sDim[0], sDim[1], sDim[2], sDim[3]);
             shape.Name = tag.ToString();
-            if (tag is Tags.GUID || tag is Tags.HGUID || tag is Tags.TYPE)
-            {
-                shape.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
-            }
-            else if (true)
+            if (tag is Tags.GUID || tag is Tags.HGUID || tag is Tags.TYPE) shape.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
+            if (tag is Tags.CHAPSUB)
             {
                 shape.TextFrame.TextRange.Characters().Font.Size = 16;
                 shape.TextFrame.TextRange.Font.Color.ObjectThemeColor = Microsoft.Office.Core.MsoThemeColorIndex.msoThemeColorAccent5;
@@ -448,13 +319,13 @@ namespace Alta3_PPA
                 if (chapterShapeNames.Contains(s.Name.ToLower()))
                 {
                     Type = Types.CHAPTER;
-                    WriteType();
+                    WriteTag(Tags.TYPE);
                     return;
                 }
                 if (questionShapeNames.Contains(s.Name.ToLower()))
                 {
                     Type = Types.QUESTION;
-                    WriteType();
+                    WriteTag(Tags.TYPE);
                     return;
                 }
                 chapterTitle = SatisfiesDimensions(s, Types.CHAPTER, Tags.TITLE) || chapterTitle ? true : false;
@@ -462,13 +333,13 @@ namespace Alta3_PPA
                 if (chapterTitle && chapterChapSub)
                 {
                     Type = Types.CHAPTER;
-                    WriteType();
+                    WriteTag(Tags.TYPE);
                     return;
                 }
             });
 
             Type = A3Environment.ALLOW_DEFAULT_INFER_FROM_SLIDE ? Types.CONTENT : Types.NULL;
-            WriteType();
+            WriteTag(Tags.TYPE);
         }
         private void InferFromTypeTag(Types type, Tags tag)
         {
@@ -503,6 +374,38 @@ namespace Alta3_PPA
         }
         #endregion
 
+        #region Scrub Metadata
+        public void ScrubMetadata(string search, Tags tag, Types type)
+        {
+            ReadFromSlide();
+            Shapes.FirstOrDefault(s => )
+            if (slide.ShapeNames.Contains("SCRUBBER"))
+            {
+                if (a3Slide.Type.ToUpper() == "COURSE" || a3Slide.Type.ToUpper() == "CHAPTER")
+                {
+                    if (a3Slide.ShapeNames.Contains("TITLE"))
+                    {
+                        a3Slide.Slide.Shapes["TITLE"].Delete();
+                    }
+                    Shape shape = a3Slide.Slide.Shapes["SCRUBBER"];
+                    shape.Name = "TITLE";
+                    shape.Title = "TITLE";
+                }
+                else
+                {
+                    if (a3Slide.ShapeNames.Contains("CHAPSUB"))
+                    {
+                        a3Slide.Slide.Shapes["CHAPSUB"].Delete();
+                    }
+                    Shape shape = a3Slide.Slide.Shapes["SCRUBBER"];
+                    shape.Name = "CHAPSUB";
+                    shape.Title = "CHAPSUB";
+                }
+            }
+        }
+        #endregion
+
+        // TODO: NEED TO GET THE DIMENSIONS FOR CHAPSUB && TITLE ON CHAPTERS VS CONTENT. ALSO NEED TO DECIDE HOW THIS INFO WILL BE RECORDED. I AM THINKING TITLE MAKES THE MOST SENSE.
         #region Dimension Helper Functions
         private bool SatisfiesDimensions(Shape s, Types type, Tags tag)
         {

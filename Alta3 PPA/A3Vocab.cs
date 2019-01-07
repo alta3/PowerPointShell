@@ -10,10 +10,10 @@ namespace Alta3_PPA
         public string Word { get; set; }
         public string Def { get; set; }
 
-        public void Generate(int chapterCount)
+        public void Generate(int chapter)
         {
-            string line = String.Concat(Word, " [", chapterCount.ToString(), "] ", Def, Environment.NewLine);
-            string path = String.Concat(A3Environment.A3_WORKING, @"\Vocab.txt");
+            string line = string.Concat(Word, " [", chapter.ToString(), "] ", Def, Environment.NewLine);
+            string path = string.Concat(A3Environment.A3_WORKING, @"\Vocab.txt");
             File.AppendAllText(path, line);
         }
     }

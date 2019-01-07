@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
 namespace Alta3_PPA
@@ -16,20 +13,33 @@ namespace Alta3_PPA
         public string Notes { get; set; }
         public string Type { get; set; }
         public string Guid { get; set; }
-        public List<string> HistoricGuids { get; set; }
+        public List<string> HGuids { get; set; }
 
-        public void Generate(PowerPoint.Presentation presentation, string chapSub)
+        public A3Content(A3Slide slide) 
+        {
+            Guid        = slide.Guid;
+            HGuids      = slide.HGuids;
+            Title       = slide.Title;
+            Chapter     = slide.Chapter;
+            Subchapter  = slide.Subchapter;
+            Type        = slide.Type.ToString();
+            Notes       = slide.Notes;
+            Index       = slide.Slide.SlideIndex;
+        }
+
+        public void WriteToPresentation(PowerPoint.Presentation presentation)
         {
             presentation.Slides[3].Duplicate().MoveTo(presentation.Slides.Count);
-            A3Slide a3ActiveSlide = new A3Slide(presentation.Slides[presentation.Slides.Count])
-            {
-                Title = this.Title,
-                Type = "CONTENT",
-                ChapSub = chapSub,
-                Guid = System.Guid.NewGuid().ToString(),
-                Notes = this.Notes
+            A3Slide slide = new A3Slide(presentation.Slides[presentation.Slides.Count]) {
+                Title =         Title,
+                Type =          Enum.TryParse(Type.ToUpper(), out A3Slide.Types type) ? type : A3Slide.Types.NULL,
+                Chapter =       Chapter,
+                Subchapter =    Subchapter,
+                Guid =          Guid is null ? System.Guid.NewGuid().ToString() : Guid,
+                HGuids =        HGuids is null || HGuids.Count < 1 ? null : HGuids,
+                Notes =         Notes
             };
-            a3ActiveSlide.WriteFromMemory();
+            slide.WriteFromMemory();
         }
     }
 }

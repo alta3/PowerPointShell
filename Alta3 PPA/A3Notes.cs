@@ -22,7 +22,7 @@ namespace Alta3_PPA
                 asciiMarkdown = ascii.GetString(Encoding.Convert(utf8, ascii, utf8.GetBytes(notes)));
             }
 
-            File.WriteAllText(String.Concat(A3Environment.A3_MARKDOWN, @"\", activeGuid, @".md"), asciiMarkdown);
+            File.WriteAllText(string.Concat(A3Environment.A3_MARKDOWN, @"\", activeGuid, @".md"), asciiMarkdown);
 
             return asciiMarkdown;
         }
@@ -39,7 +39,7 @@ namespace Alta3_PPA
                 UseShellExecute = true,
                 FileName = "pandoc.exe",
                 WindowStyle = ProcessWindowStyle.Hidden,
-                Arguments = String.Concat(@"-f html -t latex -o ", "\"", A3Environment.A3_LATEX, @"\", "out.tex\" \"", path)
+                Arguments = string.Concat(@"-f html -t latex -o ", "\"", A3Environment.A3_LATEX, @"\", "out.tex\" \"", path)
             };
             try
             {
@@ -53,8 +53,8 @@ namespace Alta3_PPA
 
             }
 
-            string[] latex = File.ReadAllLines(String.Concat(A3Environment.A3_LATEX, @"\out.tex"));
-            File.Delete(String.Concat(A3Environment.A3_LATEX, @"\out.tex"));
+            string[] latex = File.ReadAllLines(string.Concat(A3Environment.A3_LATEX, @"\out.tex"));
+            File.Delete(string.Concat(A3Environment.A3_LATEX, @"\out.tex"));
             List<string> newtex = latex.ToList();
 
             return newtex;

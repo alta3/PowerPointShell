@@ -17,25 +17,24 @@ namespace Alta3_PPA
         public static bool ENFORCE_CHAP_SUB_SPLITTING = true;
 
         // The Alta3 directory structure variables
-        public static string A3_PATH = String.Concat(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), @"\Documents\Alta3 PowerPoints");
-        public static string A3_WORKING = String.Concat(A3_PATH, @"\working");
-        public static string A3_PUBLISH = String.Concat(A3_PATH, @"\publish");
-        public static string A3_PRES_PNGS = String.Concat(A3_PUBLISH, @"\pres_pngs");
-        public static string A3_BOOK_PNGS = String.Concat(A3_PUBLISH, @"\book_pngs");
-        public static string A3_LATEX = String.Concat(A3_PUBLISH, @"\latex");
-        public static string A3_MARKDOWN = String.Concat(A3_PUBLISH, @"\markdown");
+        public static string A3_PATH = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), @"\Documents\Alta3 PowerPoints");
+        public static string A3_WORKING = string.Concat(A3_PATH, @"\working");
+        public static string A3_PUBLISH = string.Concat(A3_PATH, @"\publish");
+        public static string A3_PRES_PNGS = string.Concat(A3_PUBLISH, @"\pres_pngs");
+        public static string A3_BOOK_PNGS = string.Concat(A3_PUBLISH, @"\book_pngs");
+        public static string A3_LATEX = string.Concat(A3_PUBLISH, @"\latex");
+        public static string A3_MARKDOWN = string.Concat(A3_PUBLISH, @"\markdown");
 
-        public static string A3_LOG = String.Concat(A3_PATH, @"\log");
+        public static string A3_LOG = string.Concat(A3_PATH, @"\log");
 
         // Alta3 Resoures location
-        public static string A3_RESOURCE = String.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"\Alta3\A3PPA\resources");
+        public static string A3_RESOURCE = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"\Alta3\A3PPA\resources");
 
         // Global resoures including the model powerpoint and the model vba
-        public static string MODEL_POWERPOINT = String.Concat(A3_RESOURCE, @"\mod.pptm");
-        public static string BLANK_POWERPOINT = String.Concat(A3_RESOURCE, @"\blank.pptm");
-        public static string CHAPTER_VBA = File.ReadAllText(String.Concat(A3_RESOURCE, @"\chapter_vba.txt"));
-        public static string QUESTION_VBA = File.ReadAllText(String.Concat(A3_RESOURCE, @"\question_vba.txt"));
-        public static string YAML_LINT_CONFIG = String.Concat(A3_RESOURCE, @"\yamllint_config.yml");
+        public static string MODEL_POWERPOINT = string.Concat(A3_RESOURCE, @"\mod.pptm");
+        public static string CHAPTER_VBA = File.ReadAllText(string.Concat(A3_RESOURCE, @"\chapter_vba.txt"));
+        public static string QUESTION_VBA = File.ReadAllText(string.Concat(A3_RESOURCE, @"\question_vba.txt"));
+        public static string YAML_LINT_CONFIG = string.Concat(A3_RESOURCE, @"\yamllint_config.yml");
 
         // References to active/current presentation and slide
         public static A3Slide A3SLIDE;
@@ -53,25 +52,24 @@ namespace Alta3_PPA
             ENFORCE_CHAP_SUB_SPLITTING = true;
 
             // The Alta3 directory structure variables
-            A3_PATH = String.Concat(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), @"\Documents\Alta3 PowerPoints");
-            A3_WORKING = String.Concat(A3_PATH, @"\working");
-            A3_PUBLISH = String.Concat(A3_PATH, @"\publish");
-            A3_PRES_PNGS = String.Concat(A3_PUBLISH, @"\pres_pngs");
-            A3_BOOK_PNGS = String.Concat(A3_PUBLISH, @"\book_pngs");
-            A3_LATEX = String.Concat(A3_PUBLISH, @"\latex");
-            A3_MARKDOWN = String.Concat(A3_PUBLISH, @"\markdown");
+            A3_PATH = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), @"\Documents\Alta3 PowerPoints");
+            A3_WORKING = string.Concat(A3_PATH, @"\working");
+            A3_PUBLISH = string.Concat(A3_PATH, @"\publish");
+            A3_PRES_PNGS = string.Concat(A3_PUBLISH, @"\pres_pngs");
+            A3_BOOK_PNGS = string.Concat(A3_PUBLISH, @"\book_pngs");
+            A3_LATEX = string.Concat(A3_PUBLISH, @"\latex");
+            A3_MARKDOWN = string.Concat(A3_PUBLISH, @"\markdown");
 
-            A3_LOG = String.Concat(A3_PATH, @"\log");
+            A3_LOG = string.Concat(A3_PATH, @"\log");
 
             // Alta3 Resoures location
-            A3_RESOURCE = String.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"\Alta3\A3PPA\resources");
+            A3_RESOURCE = string.Concat(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"\Alta3\A3PPA\resources");
 
             // Global resoures including the model powerpoint and the model vba
-            MODEL_POWERPOINT = String.Concat(A3_RESOURCE, @"\mod.pptm");
-            BLANK_POWERPOINT = String.Concat(A3_RESOURCE, @"\blank.pptm");
-            CHAPTER_VBA = File.ReadAllText(String.Concat(A3_RESOURCE, @"\chapter_vba.txt"));
-            QUESTION_VBA = File.ReadAllText(String.Concat(A3_RESOURCE, @"\question_vba.txt"));
-            YAML_LINT_CONFIG = String.Concat(A3_RESOURCE, @"\yamllint_config.yml");
+            MODEL_POWERPOINT = string.Concat(A3_RESOURCE, @"\mod.pptm");
+            CHAPTER_VBA = File.ReadAllText(string.Concat(A3_RESOURCE, @"\chapter_vba.txt"));
+            QUESTION_VBA = File.ReadAllText(string.Concat(A3_RESOURCE, @"\question_vba.txt"));
+            YAML_LINT_CONFIG = string.Concat(A3_RESOURCE, @"\yamllint_config.yml");
     }
 
         public static void StartUp()
@@ -97,7 +95,7 @@ namespace Alta3_PPA
 
             // search in: CurrentUser
             key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");
-            foreach (String keyName in key.GetSubKeyNames())
+            foreach (string keyName in key.GetSubKeyNames())
             {
                 RegistryKey subkey = key.OpenSubKey(keyName);
                 displayName = subkey.GetValue("DisplayName") as string;
@@ -109,7 +107,7 @@ namespace Alta3_PPA
 
             // search in: LocalMachine_32
             key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");
-            foreach (String keyName in key.GetSubKeyNames())
+            foreach (string keyName in key.GetSubKeyNames())
             {
                 RegistryKey subkey = key.OpenSubKey(keyName);
                 displayName = subkey.GetValue("DisplayName") as string;
@@ -121,7 +119,7 @@ namespace Alta3_PPA
 
             // search in: LocalMachine_64
             key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall");
-            foreach (String keyName in key.GetSubKeyNames())
+            foreach (string keyName in key.GetSubKeyNames())
             {
                 RegistryKey subkey = key.OpenSubKey(keyName);
                 displayName = subkey.GetValue("DisplayName") as string;

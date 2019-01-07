@@ -22,14 +22,13 @@ namespace Alta3_PPA
             YamlIncomingKeyMapWarn,
             YamlGenSuccess
         }
-        public static Dictionary<Alerts, string> AlertDescriptions = new Dictionary<Alerts, string>
+        public static Dictionary<Alerts, string> AlertMessages = new Dictionary<Alerts, string>
         {
             { Alerts.SyntaxError, "The source YAML file contains at least one syntax error. Opening the log file reference and the source YAML file for editing. Once done editing the source file save it and click Retry to attempt the parsing action again. If you would like to exit without fixing the issue click Cancel."},
             { Alerts.DeserializationError, "The program failed to deserialize the YAML tree into an A3Outline object with the following error: \r\n {}.  Opening the log file reference and the source YAML file for editing. Once done editing the source file save it and click Retry to attempt the deserialization action again. If you would like to exit without fixing the issue click Cancel." },
             { Alerts.YamlIncomingKeyMapWarn, "A potential Key mapping issue is located on line: {}. No valid YAML key map was found on this line. This could be a block line in which case there will be no impact, but if the YAML file fails to be deserialized or the generated PowerPoint is not as you expected, please ensure this line does not require a valid yaml key."},
             { Alerts.YamlGenSuccess, "The PowerPoint has been generated and saved to the following location:\r\n {}"}
         };
-
         public static Dictionary<string, string>  KeyMappings = new Dictionary<string, string>
             {
                 { "name:", "course:" },
@@ -71,9 +70,9 @@ namespace Alta3_PPA
             ConvertIncomingYamlKeys(log);
             string tempFile = System.IO.Path.GetTempFileName();
             File.WriteAllText(tempFile, Text);
-            A3Yaml a3Yaml = new A3Yaml(tempFile);
+            A3Yaml yaml = new A3Yaml(tempFile);
 
-            bool returnedError = a3Yaml.RunSyntaxLinter(log);
+            bool returnedError = yaml.RunSyntaxLinter(log);
 
             if (returnedError)
             {
@@ -81,12 +80,9 @@ namespace Alta3_PPA
                 Process.Start(Path);
 
                 // check to see if the user wants to retry
-                DialogResult dialogResult = MessageBox.Show(AlertDescriptions[Alerts.SyntaxError], "YAML SYNTAX ERROR!", MessageBoxButtons.RetryCancel);
-                if (dialogResult == DialogResult.Retry)
-                {
-                    Lint(log);
-                }
-                A3Environment.QUIT_FROM_CURRENT_LOOP = true;
+                DialogResult dialogResult = MessageBox.Show(AlertMessages[Alerts.SyntaxError], "YAML SYNTAX ERROR!", MessageBoxButtons.RetryCancel);
+                if (dialogResult == DialogResult.Retry) Lint(log);
+                else A3Environment.QUIT_FROM_CURRENT_LOOP = true;
                 return;
             }
             return;
@@ -104,7 +100,7 @@ namespace Alta3_PPA
                 }
                 else if (line.Split(':').Length > 1)
                 {
-                    log.Write(A3Log.Level.Warn, AlertDescriptions[Alerts.YamlIncomingKeyMapWarn].Replace("{}", i.ToString()));
+                    log.Write(A3Log.Level.Warn, AlertMessages[Alerts.YamlIncomingKeyMapWarn].Replace("{}", i.ToString()));
                 }
                 convertedLines.Add(line);
             }
@@ -114,7 +110,7 @@ namespace Alta3_PPA
         private static string ReplaceFirstOccurance(string text, string search, string replace)
         {
             int pos = text.IndexOf(search);
-            text = pos < 0 ? text : String.Concat(text.Substring(0, pos), replace, text.Substring(pos + search.Length));
+            text = pos < 0 ? text : string.Concat(text.Substring(0, pos), replace, text.Substring(pos + search.Length));
             return text;
         }
         private bool RunSyntaxLinter(A3Log log)
@@ -122,7 +118,7 @@ namespace Alta3_PPA
             Process process = new Process();
 
             process.StartInfo.FileName = "yamllint";
-            process.StartInfo.Arguments = String.Concat("-c \"", A3Environment.YAML_LINT_CONFIG, "\" -f parsable \"", Path.Trim().Replace("\"", ""), "\"");
+            process.StartInfo.Arguments = string.Concat("-c \"", A3Environment.YAML_LINT_CONFIG, "\" -f parsable \"", Path.Trim().Replace("\"", ""), "\"");
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
 
@@ -130,20 +126,17 @@ namespace Alta3_PPA
             string text = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
 
-            List<string> lines = new List<string>(text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None));
-            foreach (string line in lines)
+            bool error = false;
+            text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None).ToList().ForEach(l =>
             {
-                if (line.Contains("[error]"))
+                if (l.Contains("[error]"))
                 {
-                    log.Write(A3Log.Level.Error, line);
-                    return true;
+                    log.Write(A3Log.Level.Error, l);
+                    error = true;
                 }
-                else if (line.Contains("[warning]"))
-                {
-                    log.Write(A3Log.Level.Warn, line);
-                }
-            }
-            return false;
+                else if (l.Contains("[warning]")) log.Write(A3Log.Level.Warn, l);
+            });
+            return error;
         }
 
         public A3Outline Deserialize(A3Log log)
@@ -160,7 +153,7 @@ namespace Alta3_PPA
                 log.Write(A3Log.Level.Error, ex.Message);
                 Process.Start(log.Path);
                 Process.Start(Path);
-                DialogResult dialogResult = MessageBox.Show(AlertDescriptions[Alerts.DeserializationError].Replace("{}", ex.Message), "DESERIALIZATION ERROR!", MessageBoxButtons.RetryCancel);
+                DialogResult dialogResult = MessageBox.Show(AlertMessages[Alerts.DeserializationError].Replace("{}", ex.Message), "DESERIALIZATION ERROR!", MessageBoxButtons.RetryCancel);
                 if (dialogResult == DialogResult.Retry)
                 {
                     A3Yaml a3Yaml = new A3Yaml(Path);
@@ -170,40 +163,6 @@ namespace Alta3_PPA
                 A3Environment.QUIT_FROM_CURRENT_LOOP = true;
                 return outline;
             }
-        }
-
-        // move to outline
-        public static void ProduceYaml(A3Log log, A3Outline _outline)
-        {
-            A3Outline outline = new A3Outline();
-            outline = _outline;
-            // Check for NO-PUB slides and remove them from the outline
-            foreach (A3Chapter chapter in outline.Chapters)
-            {
-                chapter.Vocab = null;
-                chapter.HistoricGuids = null;
-                foreach (A3Subchapter subchapter in chapter.Subchapters)
-                {
-                    foreach (A3Content slide in subchapter.Slides)
-                    {
-                        slide.Type = null;
-                        slide.Chapter = null;
-                        slide.Subchapter = null;
-                        slide.HistoricGuids = null;
-                        if (slide.Type == "NO-PUB" || slide.Type == "BLANK")
-                        {
-                            subchapter.Slides.Remove(slide);
-                        }
-                    }
-                }
-            }
-
-            // Build the serializer and create the YAML from the outline
-            ISerializer serializer = new SerializerBuilder().Build();
-            string yaml = serializer.Serialize(outline);
-
-            // Write the YAML to the proper location as indicated by A3Environment.A3_PUBLISH
-            File.WriteAllText(String.Concat(A3Environment.A3_PUBLISH, @"\yaml.yml"), yaml);
         }
 
         public static string ConvertOutgoingYamlKeys(string yaml)
@@ -221,7 +180,7 @@ namespace Alta3_PPA
                 }
                 convertedLines.Add(line);
             }
-            return String.Join("\r\n", convertedLines);
+            return string.Join("\r\n", convertedLines);
         }
     }
 }

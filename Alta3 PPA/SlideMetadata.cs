@@ -12,9 +12,9 @@ namespace Alta3_PPA
             InitializeComponent();
             
             // Fix the frame of the form so that it cannot be resized
-            this.FormBorderStyle = FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
+            MinimizeBox = false;
 
             // Set Quit from current loop to true so that the red X works without looping through the checks
             A3Environment.QUIT_FROM_CURRENT_LOOP = true;
@@ -24,10 +24,10 @@ namespace Alta3_PPA
         {
             // Initialize the controls
             A3Environment.A3SLIDE.Slide.Select();
-            this.InitializeTitle();
-            this.InitializeChapSub();
-            this.InitializeActiveGuid();
-            this.InitializeType();
+            InitializeTitle();
+            InitializeChapSub();
+            InitializeActiveGuid();
+            InitializeType();
         }
 
         // Type Functions
@@ -42,137 +42,46 @@ namespace Alta3_PPA
             CBType.Items.Add("Do Not Publish Slide");
             CBType.Items.Add("Question Slide");
 
-            CBType.SelectedIndex = 3;
-
-            // Select the proper index to display based on the current type indicated by the slide
-            try
-            {
-                switch (A3Environment.A3SLIDE.Type.ToUpper())
-                {
-                    case "COURSE":
-                        CBType.SelectedIndex = 0;
-                        break;
-                    case "TOC":
-                        CBType.SelectedIndex = 1;
-                        break;
-                    case "CHAPTER":
-                        CBType.SelectedIndex = 2;
-                        break;
-                    case "CONTENT":
-                        CBType.SelectedIndex = 3;
-                        break;
-                    case "NO-PUB":
-                        CBType.SelectedIndex = 4;
-                        break;
-                    case "QUESTION":
-                        CBType.SelectedIndex = 5;
-                        break;
-                    default:
-                        CBType.SelectedIndex = 3;
-                        break;
-                }
-            }
-            catch 
-            {
-                
-            }
+            CBType.SelectedIndex = (int)A3Environment.A3SLIDE.Type < 6 ? (int)A3Environment.A3SLIDE.Type : 3;
         }
         private void CBType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (this.CBType.SelectedIndex == 0 || this.CBType.SelectedIndex == 2 || this.CBType.SelectedIndex == 5)
+            if (CBType.SelectedIndex == 0 || CBType.SelectedIndex == 2 || CBType.SelectedIndex == 5)
             {
-                this.CBScrubberKey.Enabled = false;
-                this.TBScrubberValue.Enabled = false;
-                this.TBScrubberValue.Clear();
-                this.CBScrubberKey.Items.Clear();
-                this.CBScrubberKey.Text = "";
-                this.BtnNewScrubber.Enabled = false;
-                this.BtnSwapScrubber.Enabled = false;
+                CBTitle.Enabled = false;
+                TBTitle.Enabled = false;
+                TBTitle.Clear();
+                CBTitle.Items.Clear();
+                return;
             }
-            else
-            {
-                this.CBScrubberKey.Enabled = true;
-                this.TBScrubberValue.Enabled = true;
-                this.InitializeChapSub();
-                this.BtnNewScrubber.Enabled = true;
-                this.BtnSwapScrubber.Enabled = true;
-            }
+            CBTitle.Enabled = true;
+            CBTitle.Enabled = true;
+            InitializeChapSub();
         }
         private void SaveType()
         {
-            switch (this.CBType.Text)
-            {
-                case "Course Title Card":
-                    A3Environment.A3SLIDE.Type = "COURSE";
-                    break;
-                case "Table Of Contents Slide":
-                    A3Environment.A3SLIDE.Type = "TOC";
-                    break;
-                case "Chapter Title Card":
-                    A3Environment.A3SLIDE.Type = "CHAPTER";
-                    break;
-                case "Content Slide":
-                    A3Environment.A3SLIDE.Type = "CONTENT";
-                    break;
-                case "Do Not Publish Slide":
-                    A3Environment.A3SLIDE.Type = "NO-PUB";
-                    break;
-                case "Question Slide":
-                    A3Environment.A3SLIDE.Type = "QUESTION";
-                    break;
-                default:
-                    A3Environment.A3SLIDE.Type = null;
-                    break;
-            }
+            A3Environment.A3SLIDE.Type = (A3Slide.Types)CBType.SelectedIndex;
         }
 
         // Guid Functions
-        private void InitializeActiveGuid()
+        private void InitializeGuid()
         {
-            TBActiveGuid.Clear();
-            TBActiveGuid.Enabled = false;
-            if (A3Environment.A3SLIDE.Guid != null)
-            {
-                TBActiveGuid.Text = A3Environment.A3SLIDE.Guid;
-            }
-            else
-            {
-                TBActiveGuid.Text = Guid.NewGuid().ToString();
-            }
+            TBGuid.Clear();
+            TBGuid.Enabled = false;
+            TBGuid.Text = A3Environment.A3SLIDE.Guid is null ? Guid.NewGuid().ToString() : A3Environment.A3SLIDE.Guid;
         }
-        private void BtnShowActiveGuids_Click(object sender, EventArgs e)
+        private void BtnShowGuids_Click(object sender, EventArgs e)
         {
-            PowerPoint.Presentation presentation = Globals.ThisAddIn.Application.ActivePresentation;
-            if (!A3Environment.SHOW_GUID)
-            {
-                foreach (PowerPoint.Slide slide in presentation.Slides)
-                {
-                    try
-                    {
-                        slide.Shapes["GUID"].Visible = Microsoft.Office.Core.MsoTriState.msoTrue;
-                        slide.Shapes["GUID"].Fill.ForeColor.RGB = 763355;
-                    }
-                    catch { }
-                    A3Environment.SHOW_GUID = true;
-                }
-            }
-            else
-            {
-                foreach (PowerPoint.Slide slide in presentation.Slides)
-                {
-                    try { slide.Shapes["GUID"].Visible = Microsoft.Office.Core.MsoTriState.msoFalse; } catch { }
-                    A3Environment.SHOW_GUID = false;
-                }
-            }
+            A3Presentation.ShowGuids(Globals.ThisAddIn.Application.ActivePresentation);
         }
-        private void BtnCopyActiveGuid_Click(object sender, EventArgs e)
+        private void BtnCopyGuid_Click(object sender, EventArgs e)
         {
             // TODO: Read and update the form before pulling this information
-            Clipboard.SetText(this.TBActiveGuid.Text);
+            Clipboard.SetText(this.TBGuid.Text);
         }
         private void SaveGuids()
         {
-            A3Environment.A3SLIDE.Guid = TBActiveGuid.Text;
+            A3Environment.A3SLIDE.Guid = TBGuid.Text;
             foreach (string hguid in CBHistoricGuid.Items)
             {
                 A3Environment.A3SLIDE.HGuids.Add(hguid);
@@ -182,34 +91,34 @@ namespace Alta3_PPA
         // Title Functions
         private void InitializeTitle()
         {
-            CBTitleKey.SelectedIndex = -1;
-            CBTitleKey.Items.Clear();
-            TBTitleValue.Clear();
+            CBChapSub.SelectedIndex = -1;
+            CBChapSub.Items.Clear();
+            TBChapter.Clear();
 
             try
             {
                 foreach (string shapeName in A3Environment.A3SLIDE.ShapeNames)
                 {
-                    CBTitleKey.Items.Add(shapeName);
+                    CBChapSub.Items.Add(shapeName);
                 }
 
                 int index = A3Environment.A3SLIDE.ShapeNames.FindIndex(s => s == "TITLE") >= 0 ? A3Environment.A3SLIDE.ShapeNames.FindIndex(s => s == "TITLE") : 0;
-                CBTitleKey.SelectedIndex = index;
+                CBChapSub.SelectedIndex = index;
 
-                try { TBTitleValue.Text = A3Environment.A3SLIDE.Slide.Shapes[CBTitleKey.SelectedItem].TextFrame.TextRange.Text; } catch { }
+                try { TBChapter.Text = A3Environment.A3SLIDE.Slide.Shapes[CBChapSub.SelectedItem].TextFrame.TextRange.Text; } catch { }
             }
             catch { }
-            CBTitleKey.Update();
-            CBTitleKey.Show();
+            CBChapSub.Update();
+            CBChapSub.Show();
         }
         private void CBTitleKey_SelectedIndexChanged(object sender, EventArgs e)
         {
-            try { TBTitleValue.Text = A3Environment.A3SLIDE.Slide.Shapes[CBTitleKey.SelectedItem].TextFrame.TextRange.Text; } catch { }
+            try { TBChapter.Text = A3Environment.A3SLIDE.Slide.Shapes[CBChapSub.SelectedItem].TextFrame.TextRange.Text; } catch { }
         }
         private void SaveTitle()
         {
-            A3Environment.A3SLIDE.Title = TBTitleValue.Text;
-            PowerPoint.Shape shape = A3Environment.A3SLIDE.Slide.Shapes[CBTitleKey.SelectedItem];
+            A3Environment.A3SLIDE.Title = TBChapter.Text;
+            PowerPoint.Shape shape = A3Environment.A3SLIDE.Slide.Shapes[CBChapSub.SelectedItem];
             shape.Name = "TITLE";
             shape.Title = "TITLE";
         }
@@ -219,18 +128,18 @@ namespace Alta3_PPA
         {
             try
             {
-                CBScrubberKey.Items.Clear();
-                TBScrubberValue.Clear();
+                CBTitle.Items.Clear();
+                TBTitle.Clear();
 
                 foreach (string shapeName in A3Environment.A3SLIDE.ShapeNames)
                 {
-                    CBScrubberKey.Items.Add(shapeName);
+                    CBTitle.Items.Add(shapeName);
                 }
 
                 int index = A3Environment.A3SLIDE.ShapeNames.FindIndex(s => s == "CHAP:SUB") > 0 ? A3Environment.A3SLIDE.ShapeNames.FindIndex(s => s == "CHAP:SUB") : 0;
-                CBScrubberKey.SelectedIndex = index;
+                CBTitle.SelectedIndex = index;
 
-                try { TBScrubberValue.Text = A3Environment.A3SLIDE.Slide.Shapes[CBScrubberKey.SelectedItem].TextFrame.TextRange.Text; } catch { }
+                try { TBTitle.Text = A3Environment.A3SLIDE.Slide.Shapes[CBTitle.SelectedItem].TextFrame.TextRange.Text; } catch { }
             }
             catch
             {
@@ -240,47 +149,42 @@ namespace Alta3_PPA
         }
         private void CBScrubberKey_SelectedIndexChanged(object sender, EventArgs e)
         {
-            TBScrubberValue.Text = A3Environment.A3SLIDE.Slide.Shapes[CBScrubberKey.SelectedItem].TextFrame.TextRange.Text;
+            TBTitle.Text = A3Environment.A3SLIDE.Slide.Shapes[CBTitle.SelectedItem].TextFrame.TextRange.Text;
         }
         private void SaveChapSub()
         {
-            A3Environment.A3SLIDE.ChapSub = TBScrubberValue.Text;
+            A3Environment.A3SLIDE.ChapSub = TBTitle.Text;
         }
 
         private void Save()
         {
-            if (CBType.Text == "" || !CBType.Items.Contains(CBType.Text))
+            if (CBChapSub.Text == CBTitle.Text)
             {
-                MessageBox.Show("YOU MUST SELECT A VALID TYPE!", "SELECT VALID TYPE!", MessageBoxButtons.OK);
+                MessageBox.Show("TITLE AND CHAPSUB MAY NOT BE THE SAME OBJECT", "DUPLICATE ITEM", MessageBoxButtons.OK);
                 return;
             }
-            if (CBTitleKey.Text == CBScrubberKey.Text)
-            {
-                MessageBox.Show("CHAP:SUB AND TITLE MAY NOT BE THE SAME OBJECT", "DUPLICATE ITEM", MessageBoxButtons.OK);
-                return;
-            }
-            if (CBTitleKey.Text == null || CBTitleKey.Text == "")
+            if (CBChapSub.Text == null || CBChapSub.Text == "")
             {
                 MessageBox.Show("MUST SELECT A TITLE", "NULL TITLE", MessageBoxButtons.OK);
                 return;
             }
-            this.SaveType();
-            this.SaveTitle();
-            this.SaveChapSub();
-            this.SaveGuids();
+            SaveType();
+            SaveTitle();
+            SaveChapSub();
+            SaveGuids();
             A3Environment.A3SLIDE.WriteFromMemory();
         }
 
         private void BtnSave_Click(object sender, EventArgs e)
         {
-            this.Save();
+            Save();
             A3Environment.A3SLIDE.ReadFromSlide();
-            this.DrawSlideInfo();
+            DrawSlideInfo();
         }
         private void BtnSaveAndProceed_Click(object sender, EventArgs e)
         {
-            this.Save();
-            this.Close();
+            Save();
+            Close();
             A3Environment.QUIT_FROM_CURRENT_LOOP = false;
         }
         

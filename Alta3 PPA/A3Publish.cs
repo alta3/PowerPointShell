@@ -19,7 +19,7 @@ namespace Alta3_PPA
             foreach (PowerPoint.Slide slide in presentation.Slides)
             {
                 string guid = slide.Shapes["GUID"].TextFrame.TextRange.Text;
-                string path = String.Concat(A3Environment.A3_PRES_PNGS, "\\", guid, ".png");
+                string path = string.Concat(A3Environment.A3_PRES_PNGS, "\\", guid, ".png");
                 slide.Export(path, "png", 1920, 1080);
             }
         }
@@ -100,7 +100,7 @@ namespace Alta3_PPA
                 CreateNoWindow = true,
                 FileName = "pdflatex.exe",
                 WindowStyle = ProcessWindowStyle.Hidden,
-                Arguments = String.Concat(@"-job-name=", outline.Course, @" -output-directory=", A3Environment.A3_PUBLISH, @" -aux-directory=", A3Environment.A3_LATEX, @"main.tex")
+                Arguments = string.Concat(@"-job-name=", outline.Course, @" -output-directory=", A3Environment.A3_PUBLISH, @" -aux-directory=", A3Environment.A3_LATEX, @"main.tex")
             };
             try
             {

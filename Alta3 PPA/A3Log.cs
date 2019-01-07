@@ -63,7 +63,7 @@ namespace Alta3_PPA
             Timestamp = DateTimeOffset.Now.ToUnixTimeSeconds().ToString();
             Type = type;
             Message = message;
-            Entry = String.Concat(Timestamp, " ", Type.ToString("g"), " ", Message, Environment.NewLine);
+            Entry = string.Concat(Timestamp, " ", Type.ToString("g"), " ", Message, Environment.NewLine);
         }
     }
 }

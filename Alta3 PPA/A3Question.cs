@@ -16,7 +16,7 @@ namespace Alta3_PPA
 
         private static Random random = new Random();
 
-        public void Generate(string scrubber)
+        public void Generate(string chapter, string subchapter)
         {
             //TODO: CONVERT TO STRING BUILDER 
             string lines = null;
@@ -24,7 +24,7 @@ namespace Alta3_PPA
             string path = A3Environment.A3_PATH + "\\quiz.txt";
 
             lines += "id: " + this.ID(16) + "\r\n";
-            lines += "chapsubchap: " + scrubber + "\r\n";
+            lines += "chapsubchap: " + chapter + ":" + subchapter + "\r\n";
             lines += "MediaURL: \r\n";
             lines += "Points: " + this.Value + "\r\n";
             lines += "Question: " + this.Text + "\r\n";
@@ -36,8 +36,7 @@ namespace Alta3_PPA
         private string ID(int length)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZacbdefghijklmnopqrstuvwxyz0123456789";
-            return new string(Enumerable.Repeat(chars, length)
-              .Select(s => s[random.Next(s.Length)]).ToArray());
+            return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
         private string GenerateOrder(int correct)
