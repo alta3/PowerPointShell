@@ -26,7 +26,7 @@ namespace Alta3_PPA
             A3Environment.A3SLIDE.Slide.Select();
             InitializeTitle();
             InitializeChapSub();
-            InitializeActiveGuid();
+            InitializeGuid();
             InitializeType();
         }
 
@@ -72,7 +72,8 @@ namespace Alta3_PPA
         }
         private void BtnShowGuids_Click(object sender, EventArgs e)
         {
-            A3Presentation.ShowGuids(Globals.ThisAddIn.Application.ActivePresentation);
+            A3Presentation presentation = new A3Presentation(Globals.ThisAddIn.Application.ActivePresentation);
+            presentation.ShowGuids();
         }
         private void BtnCopyGuid_Click(object sender, EventArgs e)
         {

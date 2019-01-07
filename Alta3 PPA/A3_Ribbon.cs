@@ -1,5 +1,5 @@
 ﻿using Microsoft.Office.Tools.Ribbon;
-using PowerPoint = Microsoft.Office.Interop.PowerPoint;
+using Microsoft.Office.Interop.PowerPoint;
 
 namespace Alta3_PPA
 {
@@ -18,29 +18,27 @@ namespace Alta3_PPA
         private void OpenYamlForGen_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
         {
             string yamlPath = OpenYamlForGen.FileName;
-            A3Presentation a3Presentation = new A3Presentation(Globals.ThisAddIn.Application.ActivePresentation);
-            a3Presentation.GenerateFromYaml(yamlPath);
+            A3Presentation presentation = new A3Presentation(Globals.ThisAddIn.Application.ActivePresentation);
+            presentation.GenerateFromYaml(yamlPath);
         }
         #endregion
 
         private void BtnFixAllMetadata_Click(object sender, RibbonControlEventArgs e)
         {
-            A3Log log = new A3Log(A3Log.Operations.FixMetadata);
-            PowerPoint.Presentation presentation = Globals.ThisAddIn.Application.ActivePresentation;
-            A3Presentation.FixMetadata(presentation, log);
+            A3Presentation presentation = new A3Presentation(Globals.ThisAddIn.Application.ActivePresentation);
+            presentation.FixMetadata(true, true);
         }
         private void BtnShowSlideMetadata_Click(object sender, RibbonControlEventArgs e)
         {
-            PowerPoint.Slide slide = Globals.ThisAddIn.Application.ActiveWindow.View.Slide;
-            A3Slide.SetA3SlideFromPPTSlide(slide);
-            A3Slide.ShowMetadataForm();
+            Slide slide = Globals.ThisAddIn.Application.ActiveWindow.View.Slide;
+            A3Environment.A3SLIDE = new A3Slide(slide);
+            A3Environment.A3SLIDE.ShowMetadataForm();
         }
 
         private void BtnPublish_Click(object sender, RibbonControlEventArgs e)
         {
-            A3Log log = new A3Log(A3Log.Operations.PrePublish);
-            PowerPoint.Presentation presentation = Globals.ThisAddIn.Application.ActivePresentation;
-            A3Presentation.FixMetadata(presentation, log);
+            A3Presentation presentation = new A3Presentation(Globals.ThisAddIn.Application.ActivePresentation);
+            presentation.FixMetadata(false, false);
 
             PublishOptions publish = new PublishOptions();
             publish.ShowDialog();
@@ -48,15 +46,14 @@ namespace Alta3_PPA
 
         private void BtnNewBaseline_Click(object sender, RibbonControlEventArgs e)
         {
-            A3Log log = new A3Log(A3Log.Operations.NewBaseline);
-            PowerPoint.Presentation presentation = Globals.ThisAddIn.Application.ActivePresentation;
-            A3Presentation.NewBaseline(presentation, log);
+            A3Presentation presentation = new A3Presentation(Globals.ThisAddIn.Application.ActivePresentation);
+            presentation.NewBaseLine();
         }
 
         private void BtnFillSubChaps_Click(object sender, RibbonControlEventArgs e)
         {
-            PowerPoint.Presentation presentation = Globals.ThisAddIn.Application.ActivePresentation;
-            A3Presentation.FillSubChapters(presentation);
+            A3Presentation presentation = new A3Presentation(Globals.ThisAddIn.Application.ActivePresentation);
+            presentation.FillSubChapters();
         }
     }
 }

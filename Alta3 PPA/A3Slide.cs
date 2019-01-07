@@ -46,6 +46,13 @@ namespace Alta3_PPA
             { Alerts.ChapSubContainsNull, "This slide was identified as a CONTENT slide type and the CHAPSUB field contains a null field. CONTENT slides require that at least the CHAPTER field exist. The also potentially require a SUBCHAPTER to exist depending on the global settings. If the SUBCHAPTER is null this will be required to be fixed before publishing can occur." },
             { Alerts.Continue, "Click Yes if you would like to fix the issue(s) now or click No to exit without fixing the issue(s)."}
         };
+        public static Dictionary<string, List<Tags>> OldToNewMap = new Dictionary<string, List<Tags>>()
+        {
+            { "scrubber", new List<Tags>() { Tags.CHAPSUB, Tags.TITLE } },
+            { "chap:sub", new List<Tags>() { Tags.CHAPSUB } },
+            { "historic_guid", new List<Tags>() { Tags.HGUID } },
+            { "historic_guids", new List<Tags>() { Tags.HGUID } }
+        };
 
         public string Guid { get; set; }
         public List<string> HGuids { get; set; }
@@ -85,7 +92,7 @@ namespace Alta3_PPA
             slideMetadata.Show();
         }
 
-        public void FixSlideMetadata(A3Log log, bool alert)
+        public void FixMetadata(A3Log log, bool alert)
         {
             List<Alerts> alerts = AlertOrDefaultMetadataValues();
             while (alerts.Count > 0  && A3Environment.QUIT_FROM_CURRENT_LOOP is false)
@@ -103,7 +110,7 @@ namespace Alta3_PPA
                     if (dialogResult == DialogResult.No) return;
                 }
                 ShowMetadataForm();
-                FixSlideMetadata(log, true);
+                FixMetadata(log, true);
             }
         }
         public List<Alerts> AlertOrDefaultMetadataValues()
@@ -277,7 +284,7 @@ namespace Alta3_PPA
             if (Slide.SlideNumber == 1)
             {
                 Type = Types.COURSE;
-                WriteType();
+                WriteTag(Tags.TYPE);
                 return;
             }
 
@@ -375,33 +382,78 @@ namespace Alta3_PPA
         #endregion
 
         #region Scrub Metadata
-        public void ScrubMetadata(string search, Tags tag, Types type)
+        public void ScrubMetadata(string search, Tags tag)
         {
             ReadFromSlide();
-            Shapes.FirstOrDefault(s => )
-            if (slide.ShapeNames.Contains("SCRUBBER"))
+            search = search.ToLower().Trim();
+            if (search is null)
             {
-                if (a3Slide.Type.ToUpper() == "COURSE" || a3Slide.Type.ToUpper() == "CHAPTER")
-                {
-                    if (a3Slide.ShapeNames.Contains("TITLE"))
+                Shapes?.ForEach(s => {
+                    string name = s.Name.ToLower().Trim();
+                    if (OldToNewMap.TryGetValue(name, out List<Tags> tags))
                     {
-                        a3Slide.Slide.Shapes["TITLE"].Delete();
+                        int index = string.Equals(name, "scrubber") && (Type is Types.COURSE || Type is Types.CHAPTER) ? 1 : 0;
+                        tag = tags[index];
+                        ScrubTag(s, tag);
+                        return;
                     }
-                    Shape shape = a3Slide.Slide.Shapes["SCRUBBER"];
-                    shape.Name = "TITLE";
-                    shape.Title = "TITLE";
-                }
-                else
-                {
-                    if (a3Slide.ShapeNames.Contains("CHAPSUB"))
-                    {
-                        a3Slide.Slide.Shapes["CHAPSUB"].Delete();
-                    }
-                    Shape shape = a3Slide.Slide.Shapes["SCRUBBER"];
-                    shape.Name = "CHAPSUB";
-                    shape.Title = "CHAPSUB";
-                }
+                });
+                return;
             }
+            Shapes?.ForEach(s => {
+                if (string.Equals(search, s.Name.ToLower().Trim()))
+                {
+                    ScrubTag(s, tag);
+                    return;
+                }
+            });
+        }
+        private void ScrubTag(Shape shape, Tags tag)
+        {
+            Shape tagShape = GetShapeByTag(tag);
+            string value = tagShape?.TextFrame?.TextRange?.Text;
+            tagShape?.Delete();
+            shape.TextFrame.TextRange.Text = value;
+            shape.Name = tag.ToString();
+        }
+        #endregion
+
+        #region FillSubchapter
+        public string FillSubchapter(A3Log log, A3Slide slide, string subchapter, int count)
+        {
+            switch (slide.Type)
+            {
+                case Types.CHAPTER:
+                    log.Write(A3Log.Level.Info, "Slide number {} was identified as a Chapter slide.".Replace("{}", count.ToString()));
+                    subchapter = "Contents";
+                    A3Environment.AFTER_CHAPTER = true;
+                    break;
+                case Types.CONTENT:
+                    if (slide.Subchapter != subchapter && A3Environment.AFTER_CHAPTER)
+                    {
+                        if (string.Equals(slide.Subchapter, "Contents"))
+                        {
+                            slide.Subchapter = subchapter;
+                            slide.WriteTag(Tags.CHAPSUB);
+                            log.Write(A3Log.Level.Info, "Slide number {N} was identified as a Content slide which has a unique subchapter name: {SC}, which has overwritten the current \"Contents\" subchapter name.".Replace("{N}", count.ToString()).Replace("{SC}", subchapter));
+                        }
+                        else
+                        {
+                            subchapter = slide.Subchapter;
+                            log.Write(A3Log.Level.Info, "Slide number {N} was identified as a Content slide which has a new subchapter name: {SC}.".Replace("{N}", count.ToString()).Replace("{SC}", subchapter));
+                        }
+                    }
+                    else
+                    {
+                        log.Write(A3Log.Level.Info, "Slide number {N} was identified as a Content slide which matched the prvious subchapter: {SC}.".Replace("{N}", count.ToString()).Replace("{SC}", subchapter));
+                    }
+                    break;
+                case Types.QUESTION:
+                    A3Environment.Clean();
+                    log.Write(A3Log.Level.Info, "Slide number {} was identified as a Question slide, no more slides will be parsed.".Replace("{}", count.ToString()));
+                    break;
+            }
+            return subchapter;
         }
         #endregion
 

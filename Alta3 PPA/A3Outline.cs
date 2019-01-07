@@ -24,10 +24,14 @@ namespace Alta3_PPA {
         public List<A3Chapter> Chapters { get; set; }
         #endregion
 
+        public A3Outline()
+        {
+
+        }
         public A3Outline(A3Slide slide)
         {
-            Course = Title,
-            Chapters = new List<A3Chapter>()
+            Course      = slide.Title;
+            Chapters    = new List<A3Chapter>();
         }
 
         #region Generate LaTex
@@ -188,7 +192,7 @@ namespace Alta3_PPA {
             // Remove nopub and null slides before publishing. Set the other metadata to null... eventaully make this configurable to the level of detail. 
             Chapters.ForEach(c => {
                 c.Vocab                 = null;
-                c.HistoricGuids         = null;
+                c.HGuids                = null;
                 c.Subchapters.ForEach(sub => {
                     sub.Slides.ForEach(s => {
                         s.Type          = null;

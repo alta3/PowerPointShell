@@ -18,17 +18,15 @@ namespace Alta3_PPA
 
             A3Log log = new A3Log(A3Log.Operations.Publish);
 
-            PowerPoint.Presentation presentation = Globals.ThisAddIn.Application.ActivePresentation;
-
-            A3Presentation a3Presentation = new A3Presentation(presentation);
-            A3Outline outline = a3Presentation.ToOutline(log);
+            A3Presentation presentation = new A3Presentation(Globals.ThisAddIn.Application.ActivePresentation);
+            A3Outline outline = presentation.GenerateOutline(log);
 
             if (chkPowerPoint.Checked) { A3Publish.PublishPowerPoint(); }
-            if (chkPNG.Checked) { A3Publish.PublishPresentationPNGs(presentation); A3Publish.PublishBookPNGs(presentation); }
+            if (chkPNG.Checked) { A3Publish.PublishPresentationPNGs(presentation.Presentation); A3Publish.PublishBookPNGs(presentation.Presentation); }
             if (chkYAML.Checked) { A3Publish.PublishYAML(log, outline); }
             if (chkMarkdown.Checked) { A3Publish.PublishMarkdown(outline); }
-            if (chkLatex.Checked) { A3Publish.PublishLaTex(presentation, outline); }
-            if (chkPDF.Checked) { A3Publish.PublishPDF(presentation, outline); }           
+            if (chkLatex.Checked) { A3Publish.PublishLaTex(presentation.Presentation, outline); }
+            if (chkPDF.Checked) { A3Publish.PublishPDF(presentation.Presentation, outline); }           
             if (chkQuestion.Checked) { A3Publish.PublishQuestions(); }
             if (chkVocab.Checked) { A3Publish.PublishVocabulary(); }
 

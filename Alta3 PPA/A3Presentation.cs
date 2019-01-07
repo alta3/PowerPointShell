@@ -174,7 +174,7 @@ namespace Alta3_PPA
             presentation.SavePresentationAs(outline.Course);
 
             // Generate the Presentation
-            presentation.GenerateFromOutline(outline);
+            presentation.WriteFromOutline(outline);
 
             // Cleanup the initial slides
             for (int i = 0; i < 6; i++) presentation.Presentation.Slides[1].Delete();
@@ -186,8 +186,8 @@ namespace Alta3_PPA
         }
         #endregion
 
-        #region Generate From Outline
-        public void GenerateFromOutline(A3Outline outline)
+        #region Write From Outline
+        public void WriteFromOutline(A3Outline outline)
         {
             GenerateCourseSlide(outline.Course, outline.Filename, outline.HasLabs, outline.HasSlides, outline.HasVideos, outline.Weburl);
             GenerateTOCSlide(outline.Course);
@@ -234,11 +234,11 @@ namespace Alta3_PPA
         }
         private void GenerateChapterSlides(List<A3Chapter> chapters)
         {
-            int chapterCount = 1;
+            int chapter = 1;
             chapters.ForEach(c =>
             {
-                c.Generate(Presentation, chapterCount);
-                chapterCount++;
+                c.WriteToPresentation(Presentation, chapter);
+                chapter++;
             });
         }
         private void GenerateEndOfDeckSlide(string course)
@@ -283,44 +283,13 @@ namespace Alta3_PPA
             A3Log log = new A3Log(A3Log.Operations.FillSubChapters);
 
             // Initialize variables
-            string subChapName = "Contents";
-            int slideCounter = 1;
+            string subchapter = "Contents";
+            int count= 1;
 
             Slides.ForEach(s =>
             {
-                switch (s.Type)
-                {
-                    case A3Slide.Types.CHAPTER:
-                        log.Write(A3Log.Level.Info, "Slide number {} was identified as a Chapter slide.".Replace("{}", slideCounter.ToString()));
-                        subChapName = "Contents";
-                        A3Environment.AFTER_CHAPTER = true;
-                        break;
-                    case A3Slide.Types.CONTENT:
-                        if (s.Subchapter != subChapName && A3Environment.AFTER_CHAPTER)
-                        {
-                            if (s.Subchapter == "Contents")
-                            {
-                                s.Subchapter = subChapName;
-                                s.WriteTag(A3Slide.Tags.CHAPSUB);
-                                log.Write(A3Log.Level.Info, "Slide number {N} was identified as a Content slide which has a unique subchapter name: {SC}, which has overwritten the current \"Contents\" subchapter name.".Replace("{N}", slideCounter.ToString()).Replace("{SC}", subChapName));
-                            }
-                            else
-                            {
-                                subChapName = s.Subchapter;
-                                log.Write(A3Log.Level.Info, "Slide number {N} was identified as a Content slide which has a new subchapter name: {SC}.".Replace("{N}", slideCounter.ToString()).Replace("{SC}", subChapName));
-                            }
-                        }
-                        else
-                        {
-                            log.Write(A3Log.Level.Info, "Slide number {N} was identified as a Content slide which matched the prvious subchapter: {SC}.".Replace("{N}", slideCounter.ToString()).Replace("{SC}", subChapName));
-                        }
-                        break;
-                    case A3Slide.Types.QUESTION:
-                        A3Environment.Clean();
-                        log.Write(A3Log.Level.Info, "Slide number {} was identified as a Question slide, no more slides will be parsed.".Replace("{}", slideCounter.ToString()));
-                        break;
-                }
-                slideCounter++;
+                subchapter = s.FillSubchapter(log, s, subchapter, count);
+                count++;
             });
 
             // Clean up the global variables state
@@ -345,7 +314,7 @@ namespace Alta3_PPA
                 if (A3Environment.QUIT_FROM_CURRENT_LOOP) return;
                 if (!(s.Guid is null)) s.HGuids.Add(s.Guid);
                 s.Guid = Guid.NewGuid().ToString();
-                s.FixSlideMetadata(log, false);
+                s.FixMetadata(log, false);
                 if (s.Type == A3Slide.Types.CHAPTER)
                 {
                     A3Environment.AFTER_CHAPTER = true;
@@ -367,7 +336,7 @@ namespace Alta3_PPA
             // Cleanup environemnt
             A3Environment.Clean();
         }
-        public void FixAllMetadata(bool allowInfer, bool allowDefault)
+        public void FixMetadata(bool allowInfer, bool allowDefault)
         {
             //Set Enviornment
             A3Environment.Clean();
@@ -377,11 +346,10 @@ namespace Alta3_PPA
             // Setup logging
             A3Log log = new A3Log(A3Log.Operations.FixMetadata);
 
-            foreach (A3Slide s in Slides)
-            {
-                if (A3Environment.QUIT_FROM_CURRENT_LOOP is false) s.FixSlideMetadata(log, false);
-            }
+            // Fix Metadata
+            Slides?.ForEach(s => { if (A3Environment.QUIT_FROM_CURRENT_LOOP is false) s.FixMetadata(log, false); });
 
+            // Cleanup
             A3Environment.Clean();
         }
 
@@ -402,9 +370,9 @@ namespace Alta3_PPA
             A3Environment.SHOW_GUID = A3Environment.SHOW_GUID ? false : true; 
         }
 
-        public void ScrubMetadata(string search, A3Slide.Tags tag, A3Slide.Types type)
+        public void ScrubMetadata(string search, A3Slide.Tags tag)
         {
-            Slides?.ForEach(s => s.ScrubMetadata(search, tag, type));
+            Slides?.ForEach(s => s.ScrubMetadata(search, tag));
         }
     }
 }
