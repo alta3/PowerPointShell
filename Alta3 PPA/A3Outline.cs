@@ -14,6 +14,13 @@ namespace Alta3_PPA {
             HASVIDEOS,
             WEBURL
         }
+        public enum LatexLines {
+            MAINCHAPTERLINE
+        }
+        readonly public Dictionary<LatexLines, string> LatexMap = new Dictionary<LatexLines, string>()
+        {
+            { LatexLines.MAINCHAPTERLINE, string.Concat(@"\input{", "\"_LATEX_PATH_", @"/chapters/_CHAPTER_TITLE_.tex}") }
+        };
 
         public string Course { get; set; }
         public string Filename { get; set; }
@@ -26,85 +33,44 @@ namespace Alta3_PPA {
 
         public A3Outline()
         {
-
+            Course = null;
+            Filename = null;
+            HasLabs = false;
+            HasSlides = false;
+            HasVideos = false;
+            Weburl = null;
+            Chapters = new List<A3Chapter>();
         }
-        public A3Outline(A3Slide slide)
+
+        public void Publish()
         {
-            Course      = slide.Title;
-            Chapters    = new List<A3Chapter>();
+            
         }
 
-        #region Generate LaTex
+        #region Publish LaTex
         public void GenerateLaTex()
         {
             GenerateLaTexMain();
             GenerateLaTexChapters();
-            GenerateLaTexSubchapters(this);
+            GenerateLaTexSubchapters();
         }
 
         private void GenerateLaTexMain()
         {
-            List<string> main = new List<string>
-            {
-                @"\documentclass[openany]{book}",
-                @"",
-                @"\usepackage{float}",
-                @"\usepackage{graphicx}",
-                @"\usepackage{fancyhdr}",
-                @"\usepackage{hyperref}",
-                @"\usepackage[utf8]{inputenc}",
-                @"\usepackage[section] {placeins}",
-                @"\usepackage[top = 0.5in, bottom = 0.5in, bmargin = 0.5in, left = 0.6in, right = 0.6in, headsep = 3mm ]{geometry}",
-                @"",
-                @"\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}",
-                @"",
-                @"\pagestyle{fancy}",
-                @"\fancyfoot{}",
-                @"\fancyfoot[C]{\thepage}",
-                @"\fancyfoot[LR]{\copyright \ Stuart Feeser}",
+            string latexPath = A3Environment.A3_LATEX.Replace('\\', '/');
+            string resourcePath = A3Environment.A3_RESOURCE.Replace('\\', '/');
 
-                "",
-                @"\begin{document}",
-                @"",
-                @"\begin{titlepage}",
-                @"\vspace*{55mm}",
-                @"\centering",
-                string.Concat(@"\includegraphics[width=.5\textwidth]{", "\"", A3Environment.A3_RESOURCE.Replace('\\','/'), @"/a3logo", "\"}"),
-                @"\linebreak",
-                @"\linebreak",
-                string.Concat(@"{\Huge\textbf{", Course, @"}}"),
-                @"\linebreak",
-                @"\linebreak",
-                @"{\Large Alta3 Research, Inc.}",
-                @"\\",
-                @"{\today}",
-                @"\vfill",
-                @"\begin{flushright}",
-                @"Alta3 Research, Inc. \\",
-                @"sfeeser@alta3.com \\",
-                @"https://alta3.com",
-                @"\end{flushright}",
-                @"\end{titlepage}",
+            List<string> main = new List<string>(File.ReadAllLines(A3Environment.MAIN_LATEX));
+            main.ForEach(l => l.Replace("_RESOURCE_LOCATION_", resourcePath)
+                               .Replace("_COURSE_TITLE_", Course));
 
-                "",
-                @"\frontmatter",
-                @"\tableofcontents",
+            Chapters.ForEach(c => {
+                Directory.CreateDirectory(string.Concat(A3Environment.A3_LATEX, @"\chapters\", c.Title));
+                main.Add(LatexMap[LatexLines.MAINCHAPTERLINE].Replace("_LATEX_PATH_", latexPath)
+                                                         .Replace("_CHAPTER_TITLE", c.Title));
+            });
 
-                "",
-                @"\mainmatter"
-            };
-            foreach (A3Chapter chapter in Chapters)
-            {
-                try { Directory.CreateDirectory(string.Concat(A3Environment.A3_LATEX, @"\chapters\", chapter.Title)); } catch { }
-                main.Add(string.Concat(@"\input{", "\"", A3Environment.A3_LATEX.Replace('\\','/'), @"/chapters/", chapter.Title, ".tex\"}"));
-            }
-
-            main.Add("");
-            main.Add(@"\backmatter");
-
-            main.Add("");
-            main.Add(@"\end{document}");
-
+            main.AddRange(File.ReadAllLines(A3Environment.END_LATEX));
             File.WriteAllLines(string.Concat(A3Environment.A3_LATEX, @"\", "main.tex"), main);
         }
         private void GenerateLaTexChapters()
@@ -125,7 +91,7 @@ namespace Alta3_PPA {
                 File.WriteAllLines(string.Concat(A3Environment.A3_LATEX, @"\chapters\", chapter.Title, @".tex"), chap);
             }
         }
-        private void GenerateLaTexSubchapters(A3Outline outline)
+        private void GenerateLaTexSubchapters()
         {
             string[] mdFiles = Directory.GetFiles(string.Concat(A3Environment.A3_MARKDOWN));
             List<string> htmlNotes = new List<string>();
@@ -144,7 +110,7 @@ namespace Alta3_PPA {
                 }
             }
             File.WriteAllLines(string.Concat(A3Environment.A3_LATEX, @"notes.html"), htmlNotes);
-            List<string> notes = A3Notes.ToLatex(outline, string.Concat(A3Environment.A3_LATEX, @"notes.html"));
+            List<string> notes = A3Note.GetLatex(outline, string.Concat(A3Environment.A3_LATEX, @"notes.html"));
 
             foreach (A3Chapter chapter in Chapters)
             {
@@ -187,11 +153,10 @@ namespace Alta3_PPA {
         }
         #endregion
 
-        #region Generate YAML
-        public void GenerateYaml() {
+        #region Publish YAML
+        public void PublishYaml() {
             // Remove nopub and null slides before publishing. Set the other metadata to null... eventaully make this configurable to the level of detail. 
             Chapters.ForEach(c => {
-                c.Vocab                 = null;
                 c.HGuids                = null;
                 c.Subchapters.ForEach(sub => {
                     sub.Slides.ForEach(s => {

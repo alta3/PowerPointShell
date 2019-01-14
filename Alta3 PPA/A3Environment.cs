@@ -35,6 +35,8 @@ namespace Alta3_PPA
         public static string CHAPTER_VBA = File.ReadAllText(string.Concat(A3_RESOURCE, @"\chapter_vba.txt"));
         public static string QUESTION_VBA = File.ReadAllText(string.Concat(A3_RESOURCE, @"\question_vba.txt"));
         public static string YAML_LINT_CONFIG = string.Concat(A3_RESOURCE, @"\yamllint_config.yml");
+        public static string MAIN_LATEX = string.Concat(@"\main_latex.txt");
+        public static string END_LATEX = string.Concat(@"\end_latex.txt");
 
         // References to active/current presentation and slide
         public static A3Slide A3SLIDE;
@@ -70,7 +72,9 @@ namespace Alta3_PPA
             CHAPTER_VBA = File.ReadAllText(string.Concat(A3_RESOURCE, @"\chapter_vba.txt"));
             QUESTION_VBA = File.ReadAllText(string.Concat(A3_RESOURCE, @"\question_vba.txt"));
             YAML_LINT_CONFIG = string.Concat(A3_RESOURCE, @"\yamllint_config.yml");
-    }
+            MAIN_LATEX = string.Concat(@"\main_latex.txt");
+            END_LATEX = string.Concat(@"\end_latex.txt");
+        }
 
         public static void StartUp()
         {

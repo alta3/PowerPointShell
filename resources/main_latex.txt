@@ -1,0 +1,42 @@
+\documentclass[openany]{book}
+
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage[section] {placeins}
+\usepackage[top = 0.5in, bottom = 0.5in, bmargin = 0.5in, left = 0.6in, right = 0.6in, headsep = 3mm ]{geometry}
+
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\pagestyle{fancy}
+\fancyfoot{}
+\fancyfoot[C]{\thepage}
+\fancyfoot[LR]{\copyright \ Stuart Feeser}
+
+\begin{document}
+\begin{titlepage}
+\vspace*{55mm}
+\centering
+\includegraphics[width=.5\textwidth]{"_RESOURCE_LOCATION_/a3logo"}
+\linebreak
+\linebreak
+{\Huge\textbf{_COURSE_TITLE_}}
+\linebreak
+\linebreak
+{\Large Alta3 Research, Inc.}
+\\
+{\today}
+\vfill
+\begin{flushright}
+Alta3 Research, Inc. \\
+sfeeser@alta3.com \\
+https://alta3.com
+\end{flushright}
+\end{titlepage}
+
+\frontmatter
+\tableofcontents
+
+\mainmatter

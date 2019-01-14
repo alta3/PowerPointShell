@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Windows.Forms;
 using Microsoft.Office.Interop.PowerPoint;
 
@@ -10,7 +8,6 @@ namespace Alta3_PPA
     {
         public string Title { get; set; }
         public List<A3Subchapter> Subchapters { get; set; }
-        public List<A3Vocab> Vocab { get; set; }
         public string Guid { get; set; }
         public List<string> HGuids { get; set; }
 
@@ -27,8 +24,8 @@ namespace Alta3_PPA
             WriteChapterSlide(presentation);
             int index = presentation.Slides.Count;
             presentation.SectionProperties.AddBeforeSlide(index, Title);
-            GenerateSubChapterSlides(presentation);
-            GenerateVocab(chapter);
+            WriteSubChapterSlides(presentation);
+            WriteVocab(chapter);
         }
 
         private void WriteChapterSlide(Presentation presentation)
@@ -64,13 +61,9 @@ namespace Alta3_PPA
                 if (A3Environment.QUIT_FROM_CURRENT_LOOP is false) MessageBox.Show("You must give access to the VBA Object Model for this plugin to work: \r\n File -> Options -> Trust Center -> Trust Center Setttings -> Macro Settings -> Trust Access to the VBA Project object model. This build will fail.", "Security Setting Problem", MessageBoxButtons.OK);
             }
         }
-        private void GenerateSubChapterSlides(Presentation presentation)
+        private void WriteSubChapterSlides(Presentation presentation)
         {
             Subchapters?.ForEach(sub => sub.WriteToPresentation(presentation, Title));
-        }
-        private void GenerateVocab(int count)
-        {
-            Vocab?.ForEach(w => w.Generate(count));
         }
     }
 }

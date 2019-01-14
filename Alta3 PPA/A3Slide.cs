@@ -1,7 +1,10 @@
 ﻿using Microsoft.Office.Interop.PowerPoint;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 
 namespace Alta3_PPA
@@ -68,15 +71,15 @@ namespace Alta3_PPA
         public A3Slide(Slide slide)
         {
             // Set default properties
-            Guid       = null;
-            HGuids     = new List<string>();
-            Type       = Types.NULL;
-            Chapter    = null;
+            Guid = null;
+            HGuids = new List<string>();
+            Type = Types.NULL;
+            Chapter = null;
             Subchapter = null;
-            Title      = null;
-            Notes      = null;
-            Shapes     = new List<Shape>();
-            Slide      = slide;
+            Title = null;
+            Notes = null;
+            Shapes = new List<Shape>();
+            Slide = slide;
 
             // Read in the current information from the slide
             ReadFromSlide();
@@ -95,14 +98,15 @@ namespace Alta3_PPA
         public void FixMetadata(A3Log log, bool alert)
         {
             List<Alerts> alerts = AlertOrDefaultMetadataValues();
-            while (alerts.Count > 0  && A3Environment.QUIT_FROM_CURRENT_LOOP is false)
+            while (alerts.Count > 0 && A3Environment.QUIT_FROM_CURRENT_LOOP is false)
             {
                 alerts.Insert(0, Alerts.SlideInfo);
                 string message = string.Join(" ", alerts.Select(a => AlertMessages[a].Replace("{SN}", Slide.SlideNumber.ToString())
-                                                                                     .Replace("{GUID}", Guid))                                                        
+                                                                                     .Replace("{GUID}", Guid))
                                                                                      .ToList());
                 log.Write(A3Log.Level.Warn, message);
-                if (alert)
+                if (alerts.All(a => a is Alerts.TypeDefaultInfered)) return;
+                else if (alert)
                 {
                     Slide.Select();
                     message = string.Concat(message, AlertMessages[Alerts.Continue]);
@@ -116,7 +120,7 @@ namespace Alta3_PPA
         public List<Alerts> AlertOrDefaultMetadataValues()
         {
             List<Alerts> alerts = new List<Alerts>();
-            
+
             if (Type is Types.NULL)
             {
                 Type = A3Environment.ALLOW_DEFAULT_INFER_FROM_SLIDE ? Types.CONTENT : Types.NULL;
@@ -132,7 +136,7 @@ namespace Alta3_PPA
 
             alerts.Add((Chapter is null || (Subchapter is null && A3Environment.ENFORCE_CHAP_SUB_SPLITTING)) && Type is Types.CONTENT ? Alerts.ChapSubContainsNull : Alerts.Success);
             alerts.Add(Title is null && (Type is Types.COURSE || Type is Types.CHAPTER || Type is Types.CONTENT) ? Alerts.TitleIsNull : Alerts.Success);
-            alerts.RemoveAll(a => a is Alerts.Success || a is Alerts.TypeDefaultInfered);
+            alerts.RemoveAll(a => a is Alerts.Success);
 
             return alerts;
         }
@@ -172,10 +176,10 @@ namespace Alta3_PPA
                     else if (tag is Tags.CHAPSUB || tag is Tags.TITLE) InferFromTypeTag(Type, tag);
                     return;
                 }
-                if (tag is Tags.GUID)       Guid = null;
-                if (tag is Tags.HGUID)      HGuids = null;
-                if (tag is Tags.TYPE)       Type = Types.NULL;
-                if (tag is Tags.TITLE)      Title = null;
+                if (tag is Tags.GUID) Guid = null;
+                if (tag is Tags.HGUID) HGuids = null;
+                if (tag is Tags.TYPE) Type = Types.NULL;
+                if (tag is Tags.TITLE) Title = null;
                 if (tag is Tags.CHAPSUB)
                 {
                     Chapter = null;
@@ -183,11 +187,11 @@ namespace Alta3_PPA
                 }
                 return;
             }
-            if (tag is Tags.GUID)       Guid = shape.TextFrame.TextRange.Text;
-            if (tag is Tags.HGUID)      HGuids = shape.TextFrame.TextRange.Text.Split(';').ToList();
-            if (tag is Tags.TYPE)       Type = Enum.TryParse(shape.TextFrame.TextRange.Text, true, out Types t) ? t : Types.NULL;
-            if (tag is Tags.TITLE)      Title = shape.TextFrame.TextRange.Text;
-            if (tag is Tags.CHAPSUB)    SplitChapSub(shape);
+            if (tag is Tags.GUID) Guid = shape.TextFrame.TextRange.Text;
+            if (tag is Tags.HGUID) HGuids = shape.TextFrame.TextRange.Text.Split(';').ToList();
+            if (tag is Tags.TYPE) Type = Enum.TryParse(shape.TextFrame.TextRange.Text, true, out Types t) ? t : Types.NULL;
+            if (tag is Tags.TITLE) Title = shape.TextFrame.TextRange.Text;
+            if (tag is Tags.CHAPSUB) SplitChapSub(shape);
         }
         public void ReadNotes()
         {
@@ -377,7 +381,7 @@ namespace Alta3_PPA
                 default:
                     break;
             }
-            
+
         }
         #endregion
 
@@ -388,19 +392,20 @@ namespace Alta3_PPA
             search = search.ToLower().Trim();
             if (search is null)
             {
-                Shapes?.ForEach(s => {
+                Shapes?.ForEach(s =>
+                {
                     string name = s.Name.ToLower().Trim();
                     if (OldToNewMap.TryGetValue(name, out List<Tags> tags))
                     {
                         int index = string.Equals(name, "scrubber") && (Type is Types.COURSE || Type is Types.CHAPTER) ? 1 : 0;
                         tag = tags[index];
                         ScrubTag(s, tag);
-                        return;
                     }
                 });
                 return;
             }
-            Shapes?.ForEach(s => {
+            Shapes?.ForEach(s =>
+            {
                 if (string.Equals(search, s.Name.ToLower().Trim()))
                 {
                     ScrubTag(s, tag);
@@ -456,6 +461,39 @@ namespace Alta3_PPA
             return subchapter;
         }
         #endregion
+
+        public void WriteMarkdown()
+        {
+            Encoding utf8 = Encoding.UTF8;
+            Encoding ascii = Encoding.ASCII;
+
+            string asciiMarkdown = Notes is null ? "" : ascii.GetString(Encoding.Convert(utf8, ascii, utf8.GetBytes(Notes)));
+            string markdownPath = string.Concat(A3Environment.A3_MARKDOWN, @"\", Guid, @".md");
+            File.WriteAllText(markdownPath, asciiMarkdown);
+        }
+        public List<string> GetLatex()
+        {
+            string markdownPath = string.Concat(A3Environment.A3_MARKDOWN, @"\", Guid, @".md");
+            if (File.Exists(markdownPath) is false) WriteMarkdown();
+            ProcessStartInfo pandoc = new ProcessStartInfo()
+            {
+                CreateNoWindow = false,
+                UseShellExecute = true,
+                FileName = "pandoc.exe",
+                WindowStyle = ProcessWindowStyle.Hidden,
+                Arguments = string.Concat(@"-f html -t latex -o ", "\"", A3Environment.A3_LATEX, @"\", "out.tex\" \"", markdownPath)
+            };
+            using (Process process = Process.Start(pandoc))
+            {
+                process.WaitForExit();
+            }
+
+            string[] latex = File.ReadAllLines(string.Concat(A3Environment.A3_LATEX, @"\out.tex"));
+            File.Delete(string.Concat(A3Environment.A3_LATEX, @"\out.tex"));
+            List<string> newtex = latex.ToList();
+
+            return newtex;
+        }
 
         // TODO: NEED TO GET THE DIMENSIONS FOR CHAPSUB && TITLE ON CHAPTERS VS CONTENT. ALSO NEED TO DECIDE HOW THIS INFO WILL BE RECORDED. I AM THINKING TITLE MAKES THE MOST SENSE.
         #region Dimension Helper Functions

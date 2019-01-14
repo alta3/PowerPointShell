@@ -192,15 +192,11 @@
     <Compile Include="A3Chapter.cs" />
     <Compile Include="A3Environment.cs" />
     <Compile Include="A3Log.cs" />
-    <Compile Include="A3Notes.cs" />
     <Compile Include="A3Outline.cs" />
     <Compile Include="A3Content.cs" />
     <Compile Include="A3Presentation.cs" />
-    <Compile Include="A3Publish.cs" />
-    <Compile Include="A3Question.cs" />
     <Compile Include="A3Slide.cs" />
     <Compile Include="A3Subchapter.cs" />
-    <Compile Include="A3Vocab.cs" />
     <Compile Include="A3Yaml.cs" />
     <Compile Include="A3_Ribbon.cs">
       <SubType>Component</SubType>

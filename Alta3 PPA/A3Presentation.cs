@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Office.Interop.PowerPoint;
 
@@ -75,10 +78,10 @@ namespace Alta3_PPA
             (string name, string filename, bool haslabs, bool hasslides, bool hasvideos, string weburl) = (null, null, false, false, false, null);
 
             // Find the course slide and log errors 
-            A3Slide a3CourseSlide = GetCourse(log);
+            A3Slide course = GetCourse(log);
 
             // Split the notes section by the lines and then look for the specified metadata keys
-            List<string> noteLines = new List<string>(a3CourseSlide.Notes.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
+            List<string> noteLines = new List<string>(course.Notes.Metadata.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
             foreach (string line in noteLines)
             {
                 List<string> map = new List<string>(line.Trim().Split(':'));
@@ -352,10 +355,9 @@ namespace Alta3_PPA
             // Cleanup
             A3Environment.Clean();
         }
-
         public void ShowGuids()
         {
-            Slides.ForEach(s => 
+            Slides.ForEach(s =>
             {
                 Shape guid = s.GetShapeByTag(A3Slide.Tags.GUID);
                 if (guid is null)
@@ -367,12 +369,64 @@ namespace Alta3_PPA
                 guid.Visible = A3Environment.SHOW_GUID ? Microsoft.Office.Core.MsoTriState.msoFalse : Microsoft.Office.Core.MsoTriState.msoTrue;
                 guid.Fill.ForeColor.RGB = 763355;
             });
-            A3Environment.SHOW_GUID = A3Environment.SHOW_GUID ? false : true; 
+            A3Environment.SHOW_GUID = A3Environment.SHOW_GUID ? false : true;
         }
 
         public void ScrubMetadata(string search, A3Slide.Tags tag)
         {
             Slides?.ForEach(s => s.ScrubMetadata(search, tag));
         }
+        
+        #region Produce
+        public void PublishPNGs()
+        {
+            Slides.ForEach(s => s.Slide.Export(string.Concat(A3Environment.A3_PRES_PNGS, "\\", s.Guid, ".png"), "png", 1920, 1080));
+            Parallel.ForEach(Directory.EnumerateFiles(A3Environment.A3_PRES_PNGS), picture =>
+                {
+                    Bitmap bmp = new Bitmap(picture);
+
+                    int width = bmp.Width;
+                    int height = bmp.Height;
+
+                    Color p;
+
+                    // make grayscale
+                    for (int y = 0; y < height; y++)
+                    {
+                        for (int x = 0; x < width; x++)
+                        {
+                            p = bmp.GetPixel(x, y);
+                            p = Color.FromArgb(255, (255 - p.R), (255 - p.G), (255 - p.B));
+                            int avg = (p.R + p.G + p.B) / 3;
+                            bmp.SetPixel(x, y, Color.FromArgb(p.A, avg, avg, avg));
+                        }
+                    }
+                    bmp.Save(picture.Replace("pres_pngs", "book_pngs"));
+                });
+        }
+        public void PublishMarkdown(A3Outline outline)
+        {
+            Slides.ForEach(s => s.WriteMarkdown());
+        }
+        public void PublishPDF()
+        {
+            Directory.EnumerateFiles(A3Environment.A3_BOOK_PNGS).Any();
+            Directory.EnumerateFiles(A3Environment.A3_LATEX).Any();
+            ProcessStartInfo build = new ProcessStartInfo()
+            {
+                UseShellExecute = true,
+                CreateNoWindow = true,
+                FileName = "pdflatex.exe",
+                WindowStyle = ProcessWindowStyle.Hidden,
+                Arguments = string.Concat(@"-job-name=", outline.Course, @" -output-directory=", A3Environment.A3_PUBLISH, @" -aux-directory=", A3Environment.A3_LATEX, @"main.tex")
+            };
+            using (Process process = Process.Start(build))
+            {
+                process.WaitForExit();
+            }
+        }
+        #endregion
+
+
     }
 }
