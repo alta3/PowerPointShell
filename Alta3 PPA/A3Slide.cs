@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Markdig;
 
 namespace Alta3_PPA
 {
@@ -473,26 +474,33 @@ namespace Alta3_PPA
         }
         public List<string> GetLatex()
         {
+            // set paths
             string markdownPath = string.Concat(A3Environment.A3_MARKDOWN, @"\", Guid, @".md");
+            string htmlPath = string.Concat(A3Environment.A3_HTML, @"\", Guid, @".html");
+
+            // Ensure markdown file exists and then read the markdown text
             if (File.Exists(markdownPath) is false) WriteMarkdown();
+            string markdownText = File.ReadAllText(markdownPath);
+
+            // convert Markdown -> HTML -> LaTex
+            File.WriteAllText(htmlPath, Markdown.ToHtml(markdownText));
             ProcessStartInfo pandoc = new ProcessStartInfo()
             {
                 CreateNoWindow = false,
                 UseShellExecute = true,
                 FileName = "pandoc.exe",
                 WindowStyle = ProcessWindowStyle.Hidden,
-                Arguments = string.Concat(@"-f html -t latex -o ", "\"", A3Environment.A3_LATEX, @"\", "out.tex\" \"", markdownPath)
+                Arguments = string.Concat(@"-f html -t latex -o ", "\"", A3Environment.A3_LATEX, @"\" , "out.tex\" \"", htmlPath)
             };
             using (Process process = Process.Start(pandoc))
             {
                 process.WaitForExit();
             }
 
-            string[] latex = File.ReadAllLines(string.Concat(A3Environment.A3_LATEX, @"\out.tex"));
+            // Read all the the tex in and delete the old file, then return the latex lines.
+            List<string> latex = File.ReadAllLines(string.Concat(A3Environment.A3_LATEX, @"\out.tex")).ToList();
             File.Delete(string.Concat(A3Environment.A3_LATEX, @"\out.tex"));
-            List<string> newtex = latex.ToList();
-
-            return newtex;
+            return latex;
         }
 
         // TODO: NEED TO GET THE DIMENSIONS FOR CHAPSUB && TITLE ON CHAPTERS VS CONTENT. ALSO NEED TO DECIDE HOW THIS INFO WILL BE RECORDED. I AM THINKING TITLE MAKES THE MOST SENSE.

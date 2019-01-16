@@ -7,14 +7,36 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Office.Interop.PowerPoint;
+using YamlDotNet.Serialization;
 
 namespace Alta3_PPA
 {
     class A3Presentation
     {
+        public enum LatexLines {
+            MAINCHAPTER,
+            CHAPTER,
+            CHAPTERSUBCHAPTER,
+            SECTION,
+            FIGURE,
+            NOTESTART,
+            NOTEEND
+        }
+        readonly public static Dictionary<LatexLines, string> LatexMap = new Dictionary<LatexLines, string>()
+        {
+            { LatexLines.MAINCHAPTER, "\\input{\"_LATEX_PATH_/chapters/_CHAPTER_TITLE_.tex\"}" },
+            { LatexLines.CHAPTER, "\\chapter{_CHAPTER_TITLE_}\r\n\\newpage\r\n\r\n" },
+            { LatexLines.CHAPTERSUBCHAPTER, "\\input{\"_LATEX_PATH_/chapters/_CHAPTER_TITLE_/_SUBCHAPTER_TITLE_.tex\"}" },
+            { LatexLines.SECTION, "\\section{_SUBCHAPTER_TITLE_}" },
+            { LatexLines.FIGURE,  "\\begin{figure}[H]\r\n\\includegraphics*[width=1\\linewidth, height=.425\\textheight, trim= 0 0 0 0, clip]{\"_BOOK_PNGS_/_GUID_}\r\n\\end{figure}" },
+            { LatexLines.NOTESTART, "%SLIDE_INDEX_OF_ABOVE_FIGURE: _SLIDE_INDEX_\r\n\\begin{flushleft}" },
+            { LatexLines.NOTEEND, "\\end{flushleft}\r\n%SLIDE_INDEX_OF_ABOVE_FIGURE: _SLIDE_INDEX_"}
+};
+        
         #region Properties
         public string Path { get; set; }
         public Presentation Presentation { get; set; }
+        public A3Outline Outline { get; set; }
         public List<A3Slide> Slides { get; set; }
         #endregion
 
@@ -26,6 +48,7 @@ namespace Alta3_PPA
             {
                 Slides.Add(new A3Slide(s));
             }
+            Outline = GenerateOutline(new A3Log(A3Log.Operations.ToOutline));
             Path = presentation.Path;
         }
         public void UpdateSlidesFromPresentation()
@@ -81,7 +104,7 @@ namespace Alta3_PPA
             A3Slide course = GetCourse(log);
 
             // Split the notes section by the lines and then look for the specified metadata keys
-            List<string> noteLines = new List<string>(course.Notes.Metadata.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
+            List<string> noteLines = new List<string>(course.Notes.Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
             foreach (string line in noteLines)
             {
                 List<string> map = new List<string>(line.Trim().Split(':'));
@@ -266,13 +289,13 @@ namespace Alta3_PPA
             Presentation.Slides[5].Duplicate().MoveTo(Presentation.Slides.Count);
 
             // Ensure the title is Knowledge Check and move on 
-            A3Slide a3ActiveSlide = new A3Slide(Presentation.Slides[Presentation.Slides.Count])
+            A3Slide slide = new A3Slide(Presentation.Slides[Presentation.Slides.Count])
             {
                 Title =     "Knowledge Check",
                 Type =      A3Slide.Types.QUESTION,
                 Guid =      Guid.NewGuid().ToString()
             };
-            a3ActiveSlide.WriteFromMemory();
+            slide.WriteFromMemory();
             Presentation.SectionProperties.AddBeforeSlide(Presentation.Slides.Count, "Knowledge Check");
         }
         #endregion
@@ -376,8 +399,8 @@ namespace Alta3_PPA
         {
             Slides?.ForEach(s => s.ScrubMetadata(search, tag));
         }
-        
-        #region Produce
+
+        #region Publish Products
         public void PublishPNGs()
         {
             Slides.ForEach(s => s.Slide.Export(string.Concat(A3Environment.A3_PRES_PNGS, "\\", s.Guid, ".png"), "png", 1920, 1080));
@@ -404,26 +427,79 @@ namespace Alta3_PPA
                     bmp.Save(picture.Replace("pres_pngs", "book_pngs"));
                 });
         }
-        public void PublishMarkdown(A3Outline outline)
+        public void PublishMarkdown()
         {
             Slides.ForEach(s => s.WriteMarkdown());
         }
+        public void PublishYaml()
+        {
+            // ORDER MATTERS: Make sure the YAML publishin always takes place last in order to ensure the integrity of the Outline for other portions of the publishing process
+            // Remove nopub and null slides before publishing. Set the other metadata to null. May be configurable in the future for different levels of detail.
+            Outline.Chapters.ForEach(c => {
+                c.HGuids = null;
+                c.Subchapters.ForEach(sub => {
+                    sub.Slides.ForEach(s => {
+                        s.Type = null;
+                        s.Chapter = null;
+                        s.Subchapter = null;
+                        s.HGuids = null;
+                    });
+                });
+            });
+
+            // Build the serializer and create the YAML from the outline
+            ISerializer serializer = new SerializerBuilder().Build();
+            string yaml = serializer.Serialize(Outline);
+
+            // Write the YAML to the proper location as indicated by A3Environment.A3_PUBLISH
+            File.WriteAllText(string.Concat(A3Environment.A3_PUBLISH, @"\yaml.yml"), yaml);
+        }
         public void PublishPDF()
         {
-            Directory.EnumerateFiles(A3Environment.A3_BOOK_PNGS).Any();
-            Directory.EnumerateFiles(A3Environment.A3_LATEX).Any();
+            if (Directory.EnumerateFiles(A3Environment.A3_BOOK_PNGS)?.Any() is false) PublishPNGs();
+            if (Directory.EnumerateFiles(A3Environment.A3_MARKDOWN)?.Any() is false) PublishMarkdown();
+            PublishLatex();
             ProcessStartInfo build = new ProcessStartInfo()
             {
                 UseShellExecute = true,
                 CreateNoWindow = true,
                 FileName = "pdflatex.exe",
                 WindowStyle = ProcessWindowStyle.Hidden,
-                Arguments = string.Concat(@"-job-name=", outline.Course, @" -output-directory=", A3Environment.A3_PUBLISH, @" -aux-directory=", A3Environment.A3_LATEX, @"main.tex")
+                Arguments = string.Concat(@"-job-name=", Outline.Course, @" -output-directory=", A3Environment.A3_PUBLISH, @" -aux-directory=", A3Environment.A3_LATEX, @"main.tex")
             };
             using (Process process = Process.Start(build))
             {
                 process.WaitForExit();
             }
+        }
+        public void PublishLatex()
+        {
+            string latexPath = A3Environment.A3_LATEX.Replace('\\', '/');
+            string resourcePath = A3Environment.A3_RESOURCE.Replace('\\', '/');
+
+            List<string> main = new List<string>(File.ReadAllLines(A3Environment.MAIN_LATEX));
+            main.ForEach(l => l.Replace("_RESOURCE_LOCATION_", resourcePath)
+                               .Replace("_COURSE_TITLE_", Outline.Course));
+
+            Outline.Chapters.ForEach(c => {
+                Directory.CreateDirectory(string.Concat(A3Environment.A3_LATEX, @"\chapters\", c.Title));
+                main.Add(LatexMap[LatexLines.MAINCHAPTER].Replace("_LATEX_PATH_", latexPath)
+                                                         .Replace("_CHAPTER_TITLE", c.Title));
+                c.PublishLatex();
+            });
+
+            main.AddRange(File.ReadAllLines(A3Environment.END_LATEX));
+            File.WriteAllLines(string.Concat(A3Environment.A3_LATEX, @"\main.tex"), main);
+        }
+        public void WriteLatex()
+        {
+            List<string> latex = new List<string>();
+            Slides.ForEach(s => {
+                latex.Add(s.Guid);
+                latex.AddRange(s.GetLatex());
+                latex.Add(s.Guid);
+            });
+            File.WriteAllLines(string.Concat(A3Environment.A3_LATEX, @"\raw.tex"), latex);
         }
         #endregion
 

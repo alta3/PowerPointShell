@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using Microsoft.Office.Interop.PowerPoint;
 
@@ -25,7 +28,6 @@ namespace Alta3_PPA
             int index = presentation.Slides.Count;
             presentation.SectionProperties.AddBeforeSlide(index, Title);
             WriteSubChapterSlides(presentation);
-            WriteVocab(chapter);
         }
 
         private void WriteChapterSlide(Presentation presentation)
@@ -64,6 +66,25 @@ namespace Alta3_PPA
         private void WriteSubChapterSlides(Presentation presentation)
         {
             Subchapters?.ForEach(sub => sub.WriteToPresentation(presentation, Title));
+        }
+
+        public void PublishLatex()
+        {
+            List<string> chap = new List<string>();
+            chap.AddRange(A3Presentation.LatexMap[A3Presentation.LatexLines.CHAPTER]
+                                        .Replace("_CHAPTER_TITLE_", Title)
+                                        .Split(new string[] { Environment.NewLine }, StringSplitOptions.None)
+                                        .ToList());
+            Subchapters.ForEach(sub =>
+            {
+                Directory.CreateDirectory(string.Concat(A3Environment.A3_LATEX, @"\chapters\", Title));
+                chap.Add(A3Presentation.LatexMap[A3Presentation.LatexLines.CHAPTERSUBCHAPTER]
+                                       .Replace("_LATEX_PATH_", A3Environment.A3_LATEX)
+                                       .Replace("_CHAPTER_TITLE_", Title)
+                                       .Replace("_SUBCHAPTER_TITLE_", sub.Title));
+                sub.PublishLatex(Title);
+            });
+            File.WriteAllLines(string.Concat(A3Environment.A3_LATEX, @"\chapters\", Title, @".tex"), chap);
         }
     }
 }

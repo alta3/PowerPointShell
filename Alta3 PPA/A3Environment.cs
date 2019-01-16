@@ -24,6 +24,7 @@ namespace Alta3_PPA
         public static string A3_BOOK_PNGS = string.Concat(A3_PUBLISH, @"\book_pngs");
         public static string A3_LATEX = string.Concat(A3_PUBLISH, @"\latex");
         public static string A3_MARKDOWN = string.Concat(A3_PUBLISH, @"\markdown");
+        public static string A3_HTML = string.Concat(A3_PUBLISH, @"\html");
 
         public static string A3_LOG = string.Concat(A3_PATH, @"\log");
 
@@ -35,8 +36,8 @@ namespace Alta3_PPA
         public static string CHAPTER_VBA = File.ReadAllText(string.Concat(A3_RESOURCE, @"\chapter_vba.txt"));
         public static string QUESTION_VBA = File.ReadAllText(string.Concat(A3_RESOURCE, @"\question_vba.txt"));
         public static string YAML_LINT_CONFIG = string.Concat(A3_RESOURCE, @"\yamllint_config.yml");
-        public static string MAIN_LATEX = string.Concat(@"\main_latex.txt");
-        public static string END_LATEX = string.Concat(@"\end_latex.txt");
+        public static string MAIN_LATEX = string.Concat(A3_RESOURCE, @"\main_latex.txt");
+        public static string END_LATEX = string.Concat(A3_RESOURCE, @"\end_latex.txt");
 
         // References to active/current presentation and slide
         public static A3Slide A3SLIDE;
@@ -61,6 +62,7 @@ namespace Alta3_PPA
             A3_BOOK_PNGS = string.Concat(A3_PUBLISH, @"\book_pngs");
             A3_LATEX = string.Concat(A3_PUBLISH, @"\latex");
             A3_MARKDOWN = string.Concat(A3_PUBLISH, @"\markdown");
+            A3_HTML = string.Concat(A3_PUBLISH, @"\html");
 
             A3_LOG = string.Concat(A3_PATH, @"\log");
 

@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.chkPDF = new System.Windows.Forms.CheckBox();
-            this.chkLatex = new System.Windows.Forms.CheckBox();
             this.chkMarkdown = new System.Windows.Forms.CheckBox();
             this.txtPubDir = new System.Windows.Forms.TextBox();
             this.btnFldBrowser = new System.Windows.Forms.Button();
@@ -51,24 +50,12 @@
             this.chkPDF.Text = "PDF";
             this.chkPDF.UseVisualStyleBackColor = true;
             // 
-            // chkLatex
-            // 
-            this.chkLatex.AutoSize = true;
-            this.chkLatex.Checked = true;
-            this.chkLatex.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkLatex.Location = new System.Drawing.Point(85, 9);
-            this.chkLatex.Name = "chkLatex";
-            this.chkLatex.Size = new System.Drawing.Size(56, 17);
-            this.chkLatex.TabIndex = 1;
-            this.chkLatex.Text = "LaTex";
-            this.chkLatex.UseVisualStyleBackColor = true;
-            // 
             // chkMarkdown
             // 
             this.chkMarkdown.AutoSize = true;
             this.chkMarkdown.Checked = true;
             this.chkMarkdown.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkMarkdown.Location = new System.Drawing.Point(173, 9);
+            this.chkMarkdown.Location = new System.Drawing.Point(215, 12);
             this.chkMarkdown.Name = "chkMarkdown";
             this.chkMarkdown.Size = new System.Drawing.Size(76, 17);
             this.chkMarkdown.TabIndex = 2;
@@ -97,7 +84,7 @@
             this.chkPNG.AutoSize = true;
             this.chkPNG.Checked = true;
             this.chkPNG.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkPNG.Location = new System.Drawing.Point(277, 9);
+            this.chkPNG.Location = new System.Drawing.Point(107, 12);
             this.chkPNG.Name = "chkPNG";
             this.chkPNG.Size = new System.Drawing.Size(54, 17);
             this.chkPNG.TabIndex = 5;
@@ -137,7 +124,6 @@
             this.Controls.Add(this.btnFldBrowser);
             this.Controls.Add(this.txtPubDir);
             this.Controls.Add(this.chkMarkdown);
-            this.Controls.Add(this.chkLatex);
             this.Controls.Add(this.chkPDF);
             this.Name = "PublishOptions";
             this.Text = "PublishOptions";
@@ -149,7 +135,6 @@
         #endregion
 
         private System.Windows.Forms.CheckBox chkPDF;
-        private System.Windows.Forms.CheckBox chkLatex;
         private System.Windows.Forms.CheckBox chkMarkdown;
         private System.Windows.Forms.TextBox txtPubDir;
         private System.Windows.Forms.Button btnFldBrowser;

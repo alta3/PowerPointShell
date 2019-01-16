@@ -19,7 +19,6 @@ namespace Alta3_PPA
             NewBaseline,
             FillSubChapters,
             FixMetadata,
-            PrePublish,
             Publish,
             ToOutline,
             FillSubchapters
